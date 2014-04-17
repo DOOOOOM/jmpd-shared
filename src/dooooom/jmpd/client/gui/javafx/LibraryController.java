@@ -2,6 +2,8 @@ package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.data.Track;
 import dooooom.jmpd.data.TrackList;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
@@ -21,14 +23,14 @@ public class LibraryController {
      */
     private ListView<String> artist_list_view;
     private ListView<String> album_list_view;
-    private ListView<Track> track_list_view;
+    private ListView<TrackListItem> track_list_view;
 
     /*
      * ObservableList objects for the ListViews
      */
     private final ObservableList<String> artistList = FXCollections.observableArrayList();
     private final ObservableList<String> albumList = FXCollections.observableArrayList();
-    private final ObservableList<Track> trackList = FXCollections.observableArrayList();
+    private final ObservableList<TrackListItem> trackList = FXCollections.observableArrayList();
 
     /*
 	 * Current Selections (for filtering purposes)
@@ -52,8 +54,7 @@ public class LibraryController {
      */
     private MainViewController mainViewController;
 
-
-    public LibraryController(ListView<String> artist_list_view, ListView<String> album_list_view, ListView<Track> track_list_view, MainViewController mainViewController) {
+    public LibraryController(ListView<String> artist_list_view, ListView<String> album_list_view, ListView<TrackListItem> track_list_view, MainViewController mainViewController) {
         this.artist_list_view = artist_list_view;
         this.album_list_view = album_list_view;
         this.track_list_view = track_list_view;
@@ -62,6 +63,8 @@ public class LibraryController {
         artist_list_view.setItems(artistList);
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
+
+        addActionListeners();
     }
 
     public void setLibrary(TrackList tl) {
@@ -87,12 +90,18 @@ public class LibraryController {
             albumTracks.get(t.get("album")).add(t);
         }
 
-        updateArtistListView();
+        updateAllListViews();
     }
 
     /*
 	 * After changes have been made to the selection, update the JLists with the new filters
 	 */
+    private void updateAllListViews() {
+        updateArtistListView();
+        updateAlbumListView();
+        updateTrackListView();
+    }
+
     private void updateArtistListView() {
         artistList.clear();
         artistList.add("[any]");
@@ -118,21 +127,52 @@ public class LibraryController {
         }
     }
 
-        /*
-         * This class is used as a wrapper for a track, to be held in the JList.
-         * The reason for this is that the JList (ListView?) will display a toString
-         * of each item, and using this wrapper it will display only the track title.
-         */
-    private class TrackListItem {
-        Track t;
+    private void updateTrackListView() {
+        trackList.clear();
 
-        TrackListItem(Track t) {
-            this.t = t;
+        TrackList availableTracks = (TrackList) (library.clone());
+
+        //if there is an artist selected, filter the results
+        if(selectedArtist != null && !selectedArtist.isEmpty()) {
+            availableTracks = availableTracks.search("artist", selectedArtist);
         }
 
-        @Override
-        public String toString() {
-            return t.get("title");
+        //likewise for albums
+        if(selectedAlbum != null && !selectedAlbum.isEmpty()) {
+            availableTracks = availableTracks.search("album", selectedAlbum);
         }
+
+        //add selected tracks to listmodel, wrapping in TrackJListItem objects
+        for(Track t : availableTracks) {
+            trackList.add(new TrackListItem(t));
+        }
+    }
+
+    private void addActionListeners() {
+        artist_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
+                //if [any] selected
+                if(artist_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)
+                    selectedArtist = "";
+                else
+                    selectedArtist = s2;
+                updateAlbumListView();
+                updateTrackListView();
+            }
+        });
+
+        album_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
+                //if [any] selected
+                if(album_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)
+                    selectedAlbum = "";
+                else
+                    selectedAlbum = s2;
+
+                updateTrackListView();
+            }
+        });
     }
 }
