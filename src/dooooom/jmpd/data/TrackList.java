@@ -26,7 +26,7 @@ public class TrackList extends ArrayList<Track>
 
 	public TrackList()
 	{
-		
+		loadDatabase();
 	}
 
 	public void updateNextID()
