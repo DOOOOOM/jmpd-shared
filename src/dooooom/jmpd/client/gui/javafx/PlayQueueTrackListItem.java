@@ -17,6 +17,23 @@ public class PlayQueueTrackListItem {
 
     @Override
     public String toString() {
-        return t.get("");
+        String result = "";
+
+        String s;
+        if ((s = t.get("title")) == null)
+            s = "Unknown";
+        result += s + " - ";
+        if ((s = t.get("artist")) == null)
+            s = "Unknown";
+        result += s + " - ";
+        if ((s = t.get("album")) == null)
+            s = "Unknown";
+        result += s;
+
+        return result;
+    }
+
+    public Track getTrack() {
+        return t;
     }
 }

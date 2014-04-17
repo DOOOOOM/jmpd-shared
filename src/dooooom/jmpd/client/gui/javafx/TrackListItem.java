@@ -9,7 +9,7 @@ import dooooom.jmpd.data.Track;
  */
 
 public class TrackListItem {
-    Track t;
+    private Track t;
 
     TrackListItem(Track t) {
         this.t = t;
@@ -18,5 +18,9 @@ public class TrackListItem {
     @Override
     public String toString() {
         return t.get("title");
+    }
+
+    public Track getTrack() {
+        return t;
     }
 }

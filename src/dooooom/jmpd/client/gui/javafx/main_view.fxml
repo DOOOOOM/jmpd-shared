@@ -11,6 +11,9 @@
 <AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" style="" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="dooooom.jmpd.client.gui.javafx.MainViewController">
   <children>
     <BorderPane prefHeight="400.0000999999975" prefWidth="600.0000999999975" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <bottom>
+        <Label fx:id="status_bar" prefWidth="1024.0" style="-fx-background-color: #555555;" text="" textFill="WHITE" />
+      </bottom>
       <center>
         <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
           <tabs>
@@ -61,7 +64,7 @@
             <ColumnConstraints hgrow="NEVER" maxWidth="255.0" minWidth="10.0" prefWidth="64.0" />
             <ColumnConstraints hgrow="NEVER" maxWidth="481.0" minWidth="10.0" prefWidth="64.0" />
             <ColumnConstraints hgrow="NEVER" maxWidth="683.0" minWidth="10.0" prefWidth="64.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="836.0" minWidth="10.0" prefWidth="823.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="836.0" minWidth="10.0" prefWidth="823.0" />
           </columnConstraints>
           <rowConstraints>
             <RowConstraints maxHeight="32.0" minHeight="32.0" prefHeight="32.0" vgrow="NEVER" />
