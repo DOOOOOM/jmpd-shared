@@ -48,7 +48,7 @@ public class TrackList extends ArrayList<Track>
 			getID.add(t.get("id"));
 		}
 		
-		ArrayList<String> getID = new FileSystemScanner.returnTracks();
+		//ArrayList<String> getID = new FileSystemScanner.returnTracks();
 		for(int i = 0; i < getID.size(); i++){
 			Map<String,String> result = getEntry(getID.get(i));
 			Track newTrack = new Track();
