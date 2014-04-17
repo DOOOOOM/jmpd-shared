@@ -1,16 +1,15 @@
-//package dooooom.jmpd;
+package dooooom.jmpd;
+
+import dooooom.jmpd.data.JParser;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import dooooom.jmpd.data.Track;
+import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.Command;
 
 public class UDPServer implements Runnable{
-    public enum Command {
-        NULL, TOGGLE, PAUSE, PLAY, STOP, PREV,
-        NEXT, ADD, ADDTOPLAYLIST, REM,
-        REMPLAYLIST, DEL, ACK
-    }
-
 	final static int messageLength = 1024;
     public JParser jsonParser;
     private Map <String,Object> _requestContainer = new HashMap<String,Object>();
@@ -39,7 +38,7 @@ public class UDPServer implements Runnable{
             try {
                 jsonParser = new JParser(this.socket,receivePacket);
                 //_requestContainer = jsonParser.jsonParser();
-                ArrayList<Map> dataContainer = jsonParser.jsonParser();
+                ArrayList<Map<String,Object>> dataContainer = jsonParser.jsonParser();
                 for(int index = 0; index < dataContainer.size(); index++){
                 	_requestContainer = dataContainer.get(index);
                 	System.out.println(_requestContainer.toString());

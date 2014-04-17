@@ -6,7 +6,8 @@ package dooooom.jmpd;
  */
 
 import dooooom.jmpd.MetadataExtractor;
-import javafx.scene.media.Track;
+import dooooom.jmpd.data.Track;
+import dooooom.jmpd.data.TrackList;
 
 import java.lang.*;
 import java.util.ArrayList;

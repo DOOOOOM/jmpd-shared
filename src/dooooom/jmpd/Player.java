@@ -1,5 +1,7 @@
 package dooooom.jmpd;
 
+import dooooom.jmpd.client.UDPClient;
+import dooooom.jmpd.data.Command;
 import javafx.application.Application;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
@@ -191,15 +193,19 @@ public class Player extends Application {
      */
     {
         String s = System.getProperty("file.separator");
-        File musicFolder = new File("/home/zap/music/Rustie/Glass Swords/");
+        File musicFolder = new File("C:/Users/phider/Music/Wave 1");
 
         File[] abstractPaths = musicFolder.listFiles();
 
         ArrayList<String> arrayToReturn = new ArrayList<String>();
 
-        for(File f :abstractPaths) {
-            if(f.isFile())
-                arrayToReturn.add("file:" + f.getAbsolutePath());
+        for(File f : abstractPaths) {
+            if(f.isFile()) {
+                String fpath = f.getAbsolutePath();
+                fpath = fpath.replace('\\','/');
+                arrayToReturn.add("file:///" + fpath);
+            }
+                //arrayToReturn.add("file:///" + f.getAbsolutePath());
         }
 
         ArrayList<String> list = new ArrayList<String>();
@@ -244,7 +250,7 @@ public class Player extends Application {
                         System.out.println(getTime());
                     } else if (input.equals("m")) {
                         try {
-                            client.sendMessage(UDPServer.Command.TOGGLE, "");
+                            client.sendMessage(Command.TOGGLE, "");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

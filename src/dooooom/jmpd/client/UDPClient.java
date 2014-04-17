@@ -2,6 +2,7 @@ package dooooom.jmpd.client;
 import java.io.*;
 
 import dooooom.jmpd.client.DaemonRequest;
+import dooooom.jmpd.data.Command;
 import dooooom.jmpd.data.JParser;
 
 import java.net.*;
@@ -10,7 +11,7 @@ import java.util.*;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 
-public class UDPClient {
+public class UDPClient implements Runnable {
     final static int messageLength = 1024;
     static DatagramSocket clientSocket;
     InetAddress IPAddress;
@@ -18,7 +19,7 @@ public class UDPClient {
     DataInputStream inFromServer;
     JParser jsonParser;
 
-    public static void main(String[] args){
+    public void run() {
         final int port = 5006;
         try {
             final UDPClient client = new UDPClient();
@@ -45,15 +46,15 @@ public class UDPClient {
                     String input = in.nextLine();
                     System.out.println(input);
                     if (input.equals("t")) {
-                        client.sendMessage(DaemonRequest.Command.TOGGLE, "");
+                        client.sendMessage(Command.TOGGLE, "");
                     } else if (input.equals("n")) {
-                        client.sendMessage(DaemonRequest.Command.NEXT, "");
+                        client.sendMessage(Command.NEXT, "");
                     } else if (input.equals("p")) {
-                        client.sendMessage(DaemonRequest.Command.PREV, "");
+                        client.sendMessage(Command.PREV, "");
                     } else if (input.equals("s")) {
-                        client.sendMessage(DaemonRequest.Command.STOP, "");
+                        client.sendMessage(Command.STOP, "");
                     } else if (input.equals("a")) {
-                        client.sendMessage(DaemonRequest.Command.ADD, "");
+                        client.sendMessage(Command.ADD, "");
                     }
                 }
             } catch (NoSuchElementException e) {
@@ -81,7 +82,7 @@ public class UDPClient {
         }
     }
 
-    public void sendMessage(DaemonRequest.Command cmd,String arg) throws Exception{
+    public void sendMessage(Command cmd,String arg) throws Exception{
         int port = 5005;
         byte[] envelope;
         ByteArrayOutputStream outGoing = new ByteArrayOutputStream();
@@ -98,7 +99,7 @@ public class UDPClient {
         clientSocket.send(sendPacket);
     }
 
-    public void sendMessageWithArgList(DaemonRequest.Command cmd, List<String> result) throws Exception{
+    public void sendMessageWithArgList(Command cmd, List<String> result) throws Exception{
         int port = 5005;
         byte[] envelope;
         int PORT = Configure();
@@ -172,13 +173,11 @@ public class UDPClient {
 
     public void getPlaylist() throws Exception{
         System.out.println("about to send");
-        jsonParser.sendMessage(DaemonRequest.Command.ADDTOPLAYLIST, "soul");
-        if(clientSocket.isClosed()){
+        jsonParser.sendMessage(Command.ADDTOPLAYLIST, "soul");
+        if(clientSocket.isClosed()) {
             System.out.println("clientSocket is already closed at this point");
         }
-        Map <String,Object> result = jsonParser.jsonParser();
+        ArrayList<Map<String, Object>> result = jsonParser.jsonParser();
         //System.out.println(result.toString());
     }
-
-
 }

@@ -27,6 +27,8 @@ public class LibraryController {
      * ObservableList objects for the ListViews
      */
     private final ObservableList<String> artistList = FXCollections.observableArrayList();
+    private final ObservableList<String> albumList = FXCollections.observableArrayList();
+    private final ObservableList<Track> trackList = FXCollections.observableArrayList();
 
     /*
 	 * Current Selections (for filtering purposes)
@@ -58,6 +60,8 @@ public class LibraryController {
         this.mainViewController = mainViewController;
 
         artist_list_view.setItems(artistList);
+        album_list_view.setItems(albumList);
+        track_list_view.setItems(trackList);
     }
 
     public void setLibrary(TrackList tl) {
@@ -83,15 +87,34 @@ public class LibraryController {
             albumTracks.get(t.get("album")).add(t);
         }
 
-        updateAlbumListView();
+        updateArtistListView();
     }
 
-    private void updateAlbumListView() {
+    /*
+	 * After changes have been made to the selection, update the JLists with the new filters
+	 */
+    private void updateArtistListView() {
         artistList.clear();
-        artistList.add("[any");
+        artistList.add("[any]");
 
         for (String s : artistAlbums.keySet()) {
             artistList.add(s);
+        }
+    }
+
+    private void updateAlbumListView() {
+        albumList.clear();
+
+        albumList.add("[any]");
+
+        if(selectedArtist == null || selectedArtist.isEmpty()) {
+            //if no selected artist, add all albums
+            for (String s : albumTracks.keySet())
+                albumList.add(s);
+        } else {
+            //if there is a selected artist, filter albums
+            for (String s : artistAlbums.get(selectedArtist))
+                albumList.add(s);
         }
     }
 

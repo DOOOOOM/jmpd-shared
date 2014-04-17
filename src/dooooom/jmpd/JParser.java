@@ -1,6 +1,6 @@
-//package dooooom.jmpd;
+package dooooom.jmpd;
 
-//import dooooom.jmpd.UDPServer;
+import dooooom.jmpd.data.Command;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ public class JParser {
 		
 	}
 	
-	public void sendMessage(UDPServer.Command cmd,String arg) throws Exception{
+	public void sendMessage(Command cmd,String arg) throws Exception{
 		JsonGenerator jsonGen = Json.createGenerator(outGoing);
 		jsonGen.writeStartObject()
 			.write(cmd.toString(),arg)
@@ -52,7 +52,7 @@ public class JParser {
 		this.socket.send(sendPacket);
 	}
 	
-	public void sendMessageWithArgList(UDPServer.Command cmd, List<String> result) throws Exception{
+	public void sendMessageWithArgList(Command cmd, List<String> result) throws Exception{
 		JsonGenerator jsonGen = Json.createGenerator(outGoing);
 		Integer count = new Integer(0);
         JsonGenerator jarray = jsonGen.writeStartObject().writeStartArray(cmd.toString()).writeStartObject();
@@ -68,11 +68,11 @@ public class JParser {
 		this.socket.send(sendPacket);
 	}
 	
-	public ArrayList<Map> jsonParser ()throws Exception{
+	public ArrayList<Map<String,Object>> jsonParser() throws Exception {
 		String _key = null;
     	JsonParser jParser = Json.createParser(inComing);
     	Map<String,Object> record = new HashMap<String,Object>();
-    	ArrayList<Map>dataContainer = new ArrayList<Map>();
+    	ArrayList<Map<String,Object>>dataContainer = new ArrayList<Map<String,Object>>();
     	try{
     		while(jParser.hasNext()){
         		JsonParser.Event event = jParser.next();
