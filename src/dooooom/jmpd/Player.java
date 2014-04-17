@@ -29,9 +29,9 @@ public class Player extends Application {
             Thread serverThread = new Thread(server);
             serverThread.start();
 
-            PlayerControl control = new PlayerControl();
-            Thread controllerThread = new Thread(control);
-            controllerThread.start();
+//            PlayerControl control = new PlayerControl();
+//            Thread controllerThread = new Thread(control);
+//            controllerThread.start();
 
             setPlayQueue();
         } catch (Exception e) {
@@ -72,6 +72,18 @@ public class Player extends Application {
             playQueue.add(p);
         }
         playQueueFiles.addAll(newSongs);
+    }
+
+    public static void remove(ArrayList<String> removeSongs) {
+        playQueue.removeAll(removeSongs);
+        playQueueFiles.removeAll(removeSongs);
+//        for (String s : newSongs) {
+//            String path = s.replace(" ", "%20");
+//            System.out.println(path);
+//            final MediaPlayer p = new MediaPlayer(new Media(path));
+//            playQueue.add(p);
+//        }
+//        playQueueFiles.addAll(newSongs);
     }
 
     public static void toggle() {
@@ -172,94 +184,53 @@ public class Player extends Application {
     }
 
     //Testing only
-    public void addSongs() {
-        playQueueFiles.clear();
-        ArrayList<String> pq = new ArrayList<String>();
-        pq.addAll(returnPathNames());
-        Collections.sort(pq);
-        add(pq);
-        setPlayQueue();
-    }
-
-    public ArrayList<String> returnPathNames()
-    /**
-     * This method provided with the default music directory for the system,
-     * will return an array of Strings, each corresponding to the pathName
-     * of the file in question. Directories will not be returned
-     * @ Pre: the musicFolderPath is a valid String
-     * @ Pre: the musicFolderPath is a valid directory path
-     * @ Post: None of the paths returned by the method are folders
-     *
-     */
-    {
-        String s = System.getProperty("file.separator");
-        File musicFolder = new File("C:/Users/phider/Music/Wave 1");
-
-        File[] abstractPaths = musicFolder.listFiles();
-
-        ArrayList<String> arrayToReturn = new ArrayList<String>();
-
-        for(File f : abstractPaths) {
-            if(f.isFile()) {
-                String fpath = f.getAbsolutePath();
-                fpath = fpath.replace('\\','/');
-                arrayToReturn.add("file:///" + fpath);
-            }
-                //arrayToReturn.add("file:///" + f.getAbsolutePath());
-        }
-
-        ArrayList<String> list = new ArrayList<String>();
-
-        for (String str : arrayToReturn)  // flush null values
-        {
-            if (str != null && s.length() > 0) {
-                if ((str.substring(str.length() - 4, str.length()).equalsIgnoreCase(".mp3")))
-                    list.add(str);
-            }
-        }
-        arrayToReturn = list;
-
-        return arrayToReturn;
-    } //end Testing
+//    public void addSongs() {
+//        playQueueFiles.clear();
+//        ArrayList<String> pq = new ArrayList<String>();
+//        pq.addAll(returnPathNames());
+//        Collections.sort(pq);
+//        add(pq);
+//        setPlayQueue();
+//    }
 
     //TODO: remove main and launch from Server as a thread
     public static void main(String[] args) {
         launch(args);
     }
-
-    public class PlayerControl implements Runnable {
-//        public PlayerControl() {}
-        public void run() {
-            Scanner in = new Scanner(System.in);
-            UDPClient client = new UDPClient();
-            try {
-                while (true) {
-                    String input = in.nextLine();
-                    System.out.println(input);
-                    if (input.equals("t")) {
-                        toggle();
-                    } else if (input.equals("n")) {
-                        next();
-                    } else if (input.equals("p")) {
-                        prev();
-                    } else if (input.equals("s")) {
-                        stopPlayback();
-                    } else if (input.equals("a")) {
-                        addSongs();
-                    } else if (input.equals("c")) {
-                        System.out.println(getTime());
-                    } else if (input.equals("m")) {
-                        try {
-                            client.sendMessage(Command.TOGGLE, "");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            } catch (NoSuchElementException e) {
-                in.close();
-            }
-        }
-    }
+//
+//    public class PlayerControl implements Runnable {
+////        public PlayerControl() {}
+//        public void run() {
+//            Scanner in = new Scanner(System.in);
+//            UDPClient client = new UDPClient();
+//            try {
+//                while (true) {
+//                    String input = in.nextLine();
+//                    System.out.println(input);
+//                    if (input.equals("t")) {
+//                        toggle();
+//                    } else if (input.equals("n")) {
+//                        next();
+//                    } else if (input.equals("p")) {
+//                        prev();
+//                    } else if (input.equals("s")) {
+//                        stopPlayback();
+//                    } else if (input.equals("a")) {
+////                        addSongs();
+//                    } else if (input.equals("c")) {
+//                        System.out.println(getTime());
+//                    } else if (input.equals("m")) {
+//                        try {
+//                            client.sendMessage(Command.TOGGLE, "");
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            } catch (NoSuchElementException e) {
+//                in.close();
+//            }
+//        }
+//    }
 
 }

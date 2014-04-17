@@ -16,6 +16,7 @@ public class UDPServer implements Runnable{
     int PORT = Configure();
     byte[] receiveData = new byte[messageLength];
     //TestDatabase tdb = new TestDatabase();
+
     DatagramSocket socket;
 
     public UDPServer() throws Exception {
@@ -24,6 +25,7 @@ public class UDPServer implements Runnable{
 
     public void run() {
         Player controller = new Player();
+        TrackList database = new TrackList();
 
         while(true){
             //Receiving
@@ -36,8 +38,9 @@ public class UDPServer implements Runnable{
                 e1.printStackTrace();
             }
             try {
+                String args;
                 jsonParser = new JParser(this.socket,receivePacket);
-                //_requestContainer = jsonParser.jsonParser();
+//                _requestContainer = jsonParser.jsonParser();
                 ArrayList<Map<String,Object>> dataContainer = jsonParser.jsonParser();
                 for(int index = 0; index < dataContainer.size(); index++){
                 	_requestContainer = dataContainer.get(index);
@@ -60,25 +63,30 @@ public class UDPServer implements Runnable{
                                 controller.next();
                                 break;
                             case ADD:
-//                                controller.add();
+                                controller.add((ArrayList<String>) entry.getValue());
                                 break;
                             case ADDTOPLAYLIST:
                                 break;
                             case REM:
+                                controller.remove((ArrayList<String>) entry.getValue());
                                 break;
                             case REMPLAYLIST:
+                                break;
+                            case DATA:
+                                TrackList tr = new TrackList();
+                                sendDatabase(tr,socket,receivePacket);
                                 break;
                             case DEL:
                                 break;
                             case ACK:
-                            	TrackList tr = new TrackList();
+//                            	TrackList tr = new TrackList();
                             	//returns all the database to client.
-                            	sendDatabase(tr,socket,receivePacket);
+//                            	sendDatabase(tr,socket,receivePacket);
                                 break;
                             case NULL:
                                 break;
                             default:
-                                jsonParser.sendMessage(Command.ACK, "unknownCommand");
+//                                jsonParser.sendMessage(Command.ACK, "unknownCommand");
                         }
                    }//end for(Map.Entry<String, Object> entry : _requestContainer.entrySet())
                 }

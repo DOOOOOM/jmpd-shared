@@ -2,6 +2,7 @@ package dooooom.jmpd.client;
 import java.io.*;
 
 import dooooom.jmpd.client.DaemonRequest;
+import dooooom.jmpd.client.gui.javafx.MainViewController;
 import dooooom.jmpd.data.Command;
 import dooooom.jmpd.data.JParser;
 
@@ -18,11 +19,15 @@ public class UDPClient implements Runnable {
     DataOutputStream outToServer;
     DataInputStream inFromServer;
     JParser jsonParser;
+    private MainViewController mvc;
+
+    public UDPClient(MainViewController m) {
+        mvc = m;
+    }
 
     public void run() {
         final int port = 5006;
         try {
-            final UDPClient client = new UDPClient();
             clientSocket = new DatagramSocket(port);
             System.out.println("Now listening on "+String.valueOf(port));
             //start function to receive responses from server.
@@ -31,7 +36,7 @@ public class UDPClient implements Runnable {
                 public void run() {
                     // TODO Auto-generated method stub
                     try {
-                        client.listener(port);
+                        listener(port);
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -46,15 +51,15 @@ public class UDPClient implements Runnable {
                     String input = in.nextLine();
                     System.out.println(input);
                     if (input.equals("t")) {
-                        client.sendMessage(Command.TOGGLE, "");
+                        sendMessage(Command.TOGGLE, "");
                     } else if (input.equals("n")) {
-                        client.sendMessage(Command.NEXT, "");
+                        sendMessage(Command.NEXT, "");
                     } else if (input.equals("p")) {
-                        client.sendMessage(Command.PREV, "");
+                        sendMessage(Command.PREV, "");
                     } else if (input.equals("s")) {
-                        client.sendMessage(Command.STOP, "");
+                        sendMessage(Command.STOP, "");
                     } else if (input.equals("a")) {
-                        client.sendMessage(Command.ADD, "");
+                        sendMessage(Command.ADD, "");
                     }
                 }
             } catch (NoSuchElementException e) {
@@ -90,7 +95,7 @@ public class UDPClient implements Runnable {
         InetAddress IPAddress = InetAddress.getByName("localhost");
         JsonGenerator jsonGen = Json.createGenerator(outGoing);
         jsonGen.writeStartObject()
-                .write(cmd.toString(),arg)
+                .write("cmd", cmd.toString())
                 .writeEnd();
         jsonGen.close();
         //convert ByteStream .. to byte array to send packet
