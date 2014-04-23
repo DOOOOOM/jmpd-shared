@@ -1,14 +1,11 @@
 package dooooom.jmpd;
 
-import dooooom.jmpd.client.UDPClient;
-import dooooom.jmpd.data.Command;
 import javafx.application.Application;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.util.*;
 
 public class Player extends Application {
@@ -39,13 +36,16 @@ public class Player extends Application {
 //            Thread controllerThread = new Thread(control);
 //            controllerThread.start();
 //endTest
-
             setPlayQueue();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     *	Precondition: The play queue exists
+     *	Postcondition: Queue is populated with MediaPlayers
+     */
     public static void setPlayQueue() {
         for (int i = 0; i < playQueue.size(); i++) {
             if (i < playQueue.size() - 1) {
@@ -71,6 +71,10 @@ public class Player extends Application {
         }
     }
 
+    /**
+     *	Precondition: Given a list of songs
+     *	Postcondition: Given songs added to play queue
+     */
     public static void add(ArrayList<String> newSongs) {
         for (String s : newSongs) {
             String path = s.replace(" ", "%20");
@@ -91,8 +95,8 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: PlayQueue contains tracks
+	* 	Postcondition: Playback state reversed
 	*/
     public static void toggle() {
         try {
@@ -109,8 +113,8 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track being played
+	* 	Postcondition: Track is now paused
 	*/
     public static void pause() {
         try {
@@ -122,8 +126,8 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track not being played
+	* 	Postcondition: Track is now playing
 	*/
     public static void play() {
         try {
@@ -137,8 +141,8 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track
+	* 	Postcondition: Track is now paused at 0:00
 	*/
     public static void stopPlayback() {
         try {
@@ -150,8 +154,8 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track
+	* 	Postcondition: The next track in the queue is now playing
 	*/
     public static void next() {
         try {
@@ -168,8 +172,10 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: Given a track index
+	* 	Postcondition: Gives the next track in the queue
+    *                  looping to the front if the last
+    *                  track index is given
 	*/
     public static int getNextTrackIndex(int current) {
         int nextTrackIndex = 0;
@@ -178,10 +184,10 @@ public class Player extends Application {
         return nextTrackIndex;
     }
 
-	/**
-	*	Precondition:
-	* 	Postcondition:
-	*/
+    /**
+     *	Precondition: There is a current track
+     * 	Postcondition: The previous track in the queue is now playing
+     */
     public static void prev() {
         try {
             if (!playQueue.isEmpty()) {
@@ -194,20 +200,22 @@ public class Player extends Application {
         }
     }
 
-	/**
-	*	Precondition:
-	* 	Postcondition:
-	*/
+    /**
+     *	Precondition: Given a track index
+     * 	Postcondition: Gives the previous track in the queue
+     *                  looping to the back if the first
+     *                  track index is given
+     */
     public static int getPrevTrackIndex(int current) {
-        int nextTrackIndex = playQueue.size() - 1;
+        int prevTrackIndex = playQueue.size() - 1;
         if (current != 0)
-            nextTrackIndex = current - 1;
-        return nextTrackIndex;
+            prevTrackIndex = current - 1;
+        return prevTrackIndex;
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track
+	* 	Postcondition: Gives MediaPlayer for current track
 	*/
     public static MediaPlayer getCurrent() {
         if(playQueue.isEmpty())
@@ -217,8 +225,8 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track
+	* 	Postcondition: Gives metadata for the current track
 	*/
     public static String getStat() {
         MediaPlayer p = getCurrent();
@@ -229,8 +237,9 @@ public class Player extends Application {
     }
 
 	/**
-	*	Precondition:
-	* 	Postcondition:
+	*	Precondition: There is a current track
+	* 	Postcondition: Gives the elapsed time for
+    *                  the current track
 	*/
     public static double getTime() {
         if(!playQueue.isEmpty())
@@ -286,5 +295,4 @@ public class Player extends Application {
 //        setPlayQueue();
 //    }
 //endTest
-
 }
