@@ -78,7 +78,7 @@ public class MainViewController implements Initializable {
     @Override
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
 
-        client = new UDPClient();
+        client = new UDPClient(this);
         Thread clientThread = new Thread(client);
         clientThread.start();
 
