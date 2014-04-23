@@ -72,8 +72,8 @@ public class DaemonConnectionController implements Runnable {
 
                     String s = in.readLine();
 
-                    Map<String, String> request = JsonParser.stringToMap(s);
-                    Map<String, String> response = rc.processRequest(request);
+                    Map<String,Object> request = JsonParser.stringToMap(s);
+                    Map<String,Object> response = rc.processRequest(request);
                     String responseString = JsonParser.mapToString(response);
 
                     if (!responseString.endsWith("\n"))

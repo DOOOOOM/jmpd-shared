@@ -19,7 +19,7 @@ public interface ResponseController {
      * allows the implementation to do whatever it needs to with
      * this information
      */
-    public void processResponse(Map<String,String> request, Map<String,String> response);
+    public void processResponse(Map<String,Object> request, Map<String,Object> response);
 
     /*
      * Method to call whenever the connection is established

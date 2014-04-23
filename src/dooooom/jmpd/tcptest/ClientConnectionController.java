@@ -34,7 +34,7 @@ public class ClientConnectionController implements Runnable {
 
     ResponseController rc;
 
-    private List<Map<String,String>> requests = new ArrayList<Map<String,String>>();
+    private List<Map<String,Object>> requests = new ArrayList<Map<String,Object>>();
     int nextUID = 1;
 
     public ClientConnectionController(String host, int port, ResponseController rc) {
@@ -55,15 +55,15 @@ public class ClientConnectionController implements Runnable {
 
                     String s = in.readLine();
 
-                    Map<String, String> response;// = new HashMap<String, String>();
+                    Map<String,Object> response;
 
                     response = JsonParser.stringToMap(s);
 
-                    String uid = response.get("request_id");
+                    String uid = (String) response.get("request_id");
 
                     int requestsFound = 0;
-                    Map<String, String> request = null;
-                    for(Map<String, String> request_i : requests) {
+                    Map<String,Object> request = null;
+                    for(Map<String,Object> request_i : requests) {
                         if(request_i.get("request_id").equals(uid)) {
                             request = request_i;
                             requestsFound++;
@@ -163,7 +163,7 @@ public class ClientConnectionController implements Runnable {
     /*
      * Wrapper for sendMsg.
      */
-    public void sendMap(Map<String,String> toSend) {
+    public void sendMap(Map<String,Object> toSend) {
         Object uidObject = toSend.get("request_id");
         if (uidObject != null)
             System.err.println("[WARN]    request_id already set, overwriting");

@@ -19,7 +19,7 @@ public class DaemonMainController implements Runnable,RequestController {
     }
 
     @Override
-    public Map<String, String> processRequest(Map<String, String> request) {
+    public Map<String, Object> processRequest(Map<String, Object> request) {
         request.put("ack","ack");
         return request;
     }

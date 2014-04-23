@@ -27,7 +27,7 @@ public class ClientMainController implements ResponseController,Runnable {
         t.schedule(new TimerTask() {
             @Override
             public void run() {
-                Map<String,String> testRequest = new HashMap<String,String>();
+                Map<String,Object> testRequest = new HashMap<String,Object>();
                 testRequest.put("test"+n,"test"+n+"value");
                 ccc.sendMap(testRequest);
                 n++;
@@ -42,7 +42,7 @@ public class ClientMainController implements ResponseController,Runnable {
     }
 
     @Override
-    public void processResponse(Map<String, String> request, Map<String, String> response) {
+    public void processResponse(Map<String, Object> request, Map<String, Object> response) {
         System.out.println("[INFO]    request: " + request + " response: " + response);
     }
 
@@ -51,7 +51,7 @@ public class ClientMainController implements ResponseController,Runnable {
         System.out.println("[INFO]    Connection established");
         System.out.flush();
 
-        Map<String,String> testRequest = new HashMap<String,String>();
+        Map<String,Object> testRequest = new HashMap<String,Object>();
         testRequest.put("test","testvalue");
         ccc.sendMap(testRequest);
     }
