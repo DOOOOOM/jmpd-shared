@@ -33,7 +33,6 @@ public class Player extends Application {
         try {
             UDPServer server  = new UDPServer();
             Thread serverThread = new Thread(server);
-			_requestContainer = jsonParser.jsonParser();
             serverThread.start();
 //beginTest
 //            PlayerControl control = new PlayerControl();
