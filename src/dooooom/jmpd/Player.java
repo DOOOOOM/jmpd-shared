@@ -13,25 +13,33 @@ import java.util.*;
 
 public class Player extends Application {
 
+	// The list of file paths for each track in the play queue, in 
+	// the order of playback.
     private static ArrayList<String> playQueueFiles = new ArrayList<String>();
-    private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
-    private static boolean loopingRepeat = false;
-    private static int currentPlayer;
 
-//    public Player() {
-//        PlayerControl p = new PlayerControl();
-//    }
+	// The list of media players for each track in the play queue, in 
+	// the order of playback.
+    private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
+
+	// Whether the play queue loops back to the first track or not
+    private static boolean loopingRepeat = false;
+
+	// Keeps a record of the current track so clients can request
+	// elapsed time, etc
+    private static int currentPlayer;
 
     @Override
     public void start(Stage arg0) {
         try {
             UDPServer server  = new UDPServer();
             Thread serverThread = new Thread(server);
+			_requestContainer = jsonParser.jsonParser();
             serverThread.start();
-
+//beginTest
 //            PlayerControl control = new PlayerControl();
 //            Thread controllerThread = new Thread(control);
 //            controllerThread.start();
+//endTest
 
             setPlayQueue();
         } catch (Exception e) {
@@ -50,7 +58,7 @@ public class Player extends Application {
                         play();
                     }
                 });
-            } else if (loopingRepeat) {
+            } else if (loopingRepeat) { //essentially restarts the play queue on the last track
                 playQueue.get(playQueue.size() - 1).setOnEndOfMedia(new Runnable() {
                     @Override
                     public void run() {
@@ -74,18 +82,19 @@ public class Player extends Application {
         playQueueFiles.addAll(newSongs);
     }
 
+	/**
+	*	Precondition: Given a list of songs
+	*	Postcondition: Given songs removed from play queue
+	*/
     public static void remove(ArrayList<String> removeSongs) {
         playQueue.removeAll(removeSongs);
         playQueueFiles.removeAll(removeSongs);
-//        for (String s : newSongs) {
-//            String path = s.replace(" ", "%20");
-//            System.out.println(path);
-//            final MediaPlayer p = new MediaPlayer(new Media(path));
-//            playQueue.add(p);
-//        }
-//        playQueueFiles.addAll(newSongs);
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static void toggle() {
         try {
             if (!playQueue.isEmpty()) {
@@ -100,6 +109,10 @@ public class Player extends Application {
         }
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static void pause() {
         try {
             if (!playQueue.isEmpty())
@@ -109,6 +122,10 @@ public class Player extends Application {
         }
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static void play() {
         try {
             if (!playQueue.isEmpty()) {
@@ -120,6 +137,10 @@ public class Player extends Application {
         }
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static void stopPlayback() {
         try {
             if (!playQueue.isEmpty())
@@ -129,6 +150,10 @@ public class Player extends Application {
         }
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static void next() {
         try {
             if (!playQueue.isEmpty()) {
@@ -143,6 +168,10 @@ public class Player extends Application {
         }
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static int getNextTrackIndex(int current) {
         int nextTrackIndex = 0;
         if (current != playQueue.size() - 1)
@@ -150,6 +179,10 @@ public class Player extends Application {
         return nextTrackIndex;
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static void prev() {
         try {
             if (!playQueue.isEmpty()) {
@@ -162,6 +195,10 @@ public class Player extends Application {
         }
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static int getPrevTrackIndex(int current) {
         int nextTrackIndex = playQueue.size() - 1;
         if (current != 0)
@@ -169,6 +206,10 @@ public class Player extends Application {
         return nextTrackIndex;
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static MediaPlayer getCurrent() {
         if(playQueue.isEmpty())
             return null;
@@ -176,6 +217,22 @@ public class Player extends Application {
             return playQueue.get(currentPlayer);
     }
 
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
+    public static String getStat() {
+        MediaPlayer p = getCurrent();
+        Media m = p.getMedia();
+        String meta = m.getMetadata().toString();
+        System.out.println(meta);
+        return meta;
+    }
+
+	/**
+	*	Precondition:
+	* 	Postcondition:
+	*/
     public static double getTime() {
         if(!playQueue.isEmpty())
             return getCurrent().getCurrentTime().toSeconds();
@@ -183,21 +240,10 @@ public class Player extends Application {
             return 0.0;
     }
 
-    //Testing only
-//    public void addSongs() {
-//        playQueueFiles.clear();
-//        ArrayList<String> pq = new ArrayList<String>();
-//        pq.addAll(returnPathNames());
-//        Collections.sort(pq);
-//        add(pq);
-//        setPlayQueue();
-//    }
-
-    //TODO: remove main and launch from Server as a thread
     public static void main(String[] args) {
         launch(args);
     }
-//
+//beginTest
 //    public class PlayerControl implements Runnable {
 ////        public PlayerControl() {}
 //        public void run() {
@@ -232,5 +278,14 @@ public class Player extends Application {
 //            }
 //        }
 //    }
+//    public void addSongs() {
+//        playQueueFiles.clear();
+//        ArrayList<String> pq = new ArrayList<String>();
+//        pq.addAll(returnPathNames());
+//        Collections.sort(pq);
+//        add(pq);
+//        setPlayQueue();
+//    }
+//endTest
 
 }
