@@ -1,5 +1,7 @@
 package dooooom.jmpd.data;
 
+import dooooom.jmpd.daemon.DaemonMainController;
+
 import javax.json.*;
 import javax.json.stream.JsonParser;
 import java.io.FileNotFoundException;
@@ -11,12 +13,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class TrackList extends ArrayList<Track> 
+public class Database extends ArrayList<Track>
 {
-	public final String dbLocation = new FileSystemScanner().getFolderPath() + new FileSystemScanner().getS() + "database";
+	public final String dbLocation = DaemonMainController.getDatabasePath();
 	int nextID = 1;
 
-	public TrackList(ArrayList<Track> list)
+	public Database(ArrayList<Track> list)
 	{
 		for(Track t : list)
 		{
@@ -24,7 +26,7 @@ public class TrackList extends ArrayList<Track>
 		}
 	}
 
-	public TrackList()
+	public Database()
 	{
 		loadDatabase();
 	}
@@ -54,9 +56,9 @@ public class TrackList extends ArrayList<Track>
 		updateNextID();
 	}
 
-	public TrackList search(String key, String value) 
+	public Database search(String key, String value)
 	{
-		TrackList result = new TrackList();
+		Database result = new Database();
 
 		for(Track tr : this) 
 		{
