@@ -78,7 +78,7 @@ public class FileSystemScanner
 			nextID++;
 		}
 
-		Database tl = new Database(trackList);
+		TrackList tl = new TrackList(trackList);
 
 		return tl;
 	}

@@ -2,8 +2,8 @@ package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.client.ClientConnectionController;
 import dooooom.jmpd.client.ResponseController;
-import dooooom.jmpd.data.Track;
 import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.Track;
 import dooooom.jmpd.data.testing.TrackListGenerator;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

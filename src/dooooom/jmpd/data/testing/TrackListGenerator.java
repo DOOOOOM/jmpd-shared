@@ -2,8 +2,8 @@ package dooooom.jmpd.data.testing;
 
 import java.util.Random;
 
-import dooooom.jmpd.data.Track;
 import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.Track;
 
 public class TrackListGenerator {
 	private static String getRandomSyllable() {
