@@ -208,7 +208,7 @@ public class MetadataExtractor
 	static String extractTrackFrom(String filePath)
 	/*
 	 * The extractTrackFrom method checks the ID3 version of the mp3 file and 
-	 * extracts the artist's name from the MP3 file.
+	 * extracts the track number from the MP3 file.
 	 */
 	{
 		String track = null;
