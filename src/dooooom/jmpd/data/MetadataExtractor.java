@@ -204,4 +204,53 @@ public class MetadataExtractor
 				
 		return trackLength;
 	}
+	
+	static String extractTrackFrom(String filePath)
+	/*
+	 * The extractTrackFrom method checks the ID3 version of the mp3 file and 
+	 * extracts the artist's name from the MP3 file.
+	 */
+	{
+		String track = null;
+		
+		try 
+		{
+			Mp3File mp3File = new Mp3File(filePath);
+			if (mp3File.hasId3v2Tag())
+			{
+				ID3v2 id3v2Tag = mp3File.getId3v2Tag();
+				track = id3v2Tag.getTrack();
+			}
+			
+			else if (mp3File.hasId3v1Tag())
+			{
+				ID3v1 id3v1Tag = mp3File.getId3v1Tag();
+				track = id3v1Tag.getTrack();
+			}			
+			
+		} catch (UnsupportedTagException e) 
+		  {
+			   e.printStackTrace();
+		  } 
+		  catch (InvalidDataException e) 
+		  {
+			System.out.print("Invalid Data");
+			return " - Unknown Track Number";
+			//e.printStackTrace();
+		  } 
+		  catch (IOException e) 
+		  {
+			   e.printStackTrace();
+		  }
+		try
+		{
+			if(track.equals(null))
+				track = "Unknown Track number";
+		} catch (Exception e) 
+		  {track = "Unknown Track number";
+			//e.printStackTrace();
+		  }
+		
+		return track;
+	}
 }
