@@ -54,7 +54,7 @@ public class DaemonMainController implements Runnable, RequestController {
 
         File configFile;
 
-        String linuxConfig = s + "home" + s + "" + userName.toLowerCase() + s + "music";
+        String linuxConfig = s + "home" + s + "" + userName.toLowerCase() + s + ".config" + s + "jmpd" + s + "jmpd.properties";
 
         try {
             if (osName.equalsIgnoreCase("windows 7")) {
@@ -75,7 +75,7 @@ public class DaemonMainController implements Runnable, RequestController {
                 System.err.println("Unable to determine operating system.");
             }
         } catch (IOException e) {
-            
+
         }
     }
 
