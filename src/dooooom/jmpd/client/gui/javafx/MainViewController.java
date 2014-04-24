@@ -335,6 +335,8 @@ public class MainViewController implements Initializable,ResponseController {
             } else if(cmd.equals("PLDEL")) {
 
             }
+
+            //things to do no matter what was received
         } else {
             System.err.println("[WARN]    Malformed request in processResponse(...)");
         }
