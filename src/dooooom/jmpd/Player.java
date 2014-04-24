@@ -1,5 +1,7 @@
 package dooooom.jmpd;
 
+import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.Track;
 import javafx.application.Application;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
@@ -10,9 +12,9 @@ import java.util.*;
 
 public class Player extends Application {
 
-	// The list of file paths for each track in the play queue, in 
+	// The list of each track in the play queue, in
 	// the order of playback.
-    private static ArrayList<String> playQueueFiles = new ArrayList<String>();
+    private static TrackList playQueueFiles = new TrackList();
 
 	// The list of media players for each track in the play queue, in 
 	// the order of playback.
@@ -75,23 +77,32 @@ public class Player extends Application {
      *	Precondition: Given a list of songs
      *	Postcondition: Given songs added to play queue
      */
-    public static void add(ArrayList<String> newSongs) {
-        for (String s : newSongs) {
-            String path = s.replace(" ", "%20");
+    public static void add(TrackList newSongs) {
+        for (Track t : newSongs) {
+            String path = t.get("filepath").replace(" ", "%20");
             System.out.println(path);
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
         }
         playQueueFiles.addAll(newSongs);
+        setPlayQueue();
     }
 
 	/**
 	*	Precondition: Given a list of songs
 	*	Postcondition: Given songs removed from play queue
 	*/
-    public static void remove(ArrayList<String> removeSongs) {
-        playQueue.removeAll(removeSongs);
+    public static void remove(TrackList removeSongs) {
+        for(Track t: removeSongs) {
+            String path = t.get("filepath").replace(" ", "%20");
+            for (MediaPlayer p: playQueue) {
+                if(path.equals(p.getMedia().getSource())) {
+                    playQueue.remove(p);
+                }
+            }
+        }
         playQueueFiles.removeAll(removeSongs);
+        setPlayQueue();
     }
 
 	/**
