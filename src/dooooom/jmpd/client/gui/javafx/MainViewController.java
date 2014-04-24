@@ -1,7 +1,7 @@
 package dooooom.jmpd.client.gui.javafx;
 
-import dooooom.jmpd.client.UDPClient;
-import dooooom.jmpd.data.Command;
+import dooooom.jmpd.client.ClientConnectionController;
+import dooooom.jmpd.client.ResponseController;
 import dooooom.jmpd.data.Track;
 import dooooom.jmpd.data.TrackList;
 import dooooom.jmpd.data.testing.TrackListGenerator;
@@ -18,12 +18,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class MainViewController implements Initializable {
+public class MainViewController implements Initializable,ResponseController {
     /*
      * GUI Elements injected from FXML
      */
@@ -43,7 +40,8 @@ public class MainViewController implements Initializable {
     @FXML private TextArea lyrics_text;
     @FXML private Label status_bar;
 
-    private UDPClient client;
+    //private UDPClient client;
+    private ClientConnectionController cc;
 
     /*
 	 * The actual library of tracks to choose from
@@ -61,8 +59,10 @@ public class MainViewController implements Initializable {
     /*
 	 * Current Selections (for filtering purposes)
 	 */
-    private String selectedArtist;
-    private String selectedAlbum;
+    private List<String> selectedArtists;
+    private List<String> selectedAlbums;
+    private TrackList filteredTracks;
+
 
     /*
      * HashMaps to track which artists created which albums, and which albums contain which tracks
@@ -78,8 +78,8 @@ public class MainViewController implements Initializable {
     @Override
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
 
-        client = new UDPClient(this);
-        Thread clientThread = new Thread(client);
+        cc = new ClientConnectionController("localhost", 4444, this);
+        Thread clientThread = new Thread(cc);
         clientThread.start();
 
         /*
@@ -165,30 +165,34 @@ public class MainViewController implements Initializable {
 
         albumList.add("[any]");
 
-        if(selectedArtist == null || selectedArtist.isEmpty()) {
+        if(selectedArtists == null || selectedArtists.isEmpty()) {
             //if no selected artist, add all albums
             for (String s : albumTracks.keySet())
                 albumList.add(s);
         } else {
             //if there is a selected artist, filter albums
-            for (String s : artistAlbums.get(selectedArtist))
-                albumList.add(s);
+            for (String art : selectedArtists) {
+                for (String s : artistAlbums.get(art))
+                    albumList.add(s);
+            }
         }
     }
 
     private void updateTrackListView() {
         trackList.clear();
 
-        TrackList availableTracks = (TrackList) (library.clone());
+        TrackList availableTracks = new TrackList();
 
         //if there is an artist selected, filter the results
-        if(selectedArtist != null && !selectedArtist.isEmpty()) {
-            availableTracks = availableTracks.search("artist", selectedArtist);
+        if(selectedArtists != null && !selectedArtists.isEmpty()) {
+            for(String artist : selectedArtists)
+                availableTracks.addAll(availableTracks.search("artist", artist));
         }
 
         //likewise for albums
-        if(selectedAlbum != null && !selectedAlbum.isEmpty()) {
-            availableTracks = availableTracks.search("album", selectedAlbum);
+        if(selectedAlbums != null && !selectedAlbums.isEmpty()) {
+            for(String album : selectedAlbums)
+                filteredTracks.addAll(availableTracks.search("album", album));
         }
 
         //add selected tracks to listmodel, wrapping in TrackJListItem objects
@@ -210,50 +214,56 @@ public class MainViewController implements Initializable {
     }
 
     private void addActionListeners() {
-        /*
-         * Playback Controls
+        /* ****************************
+         * PLAYBACK CONTROLS
          */
+
+        /* Play/Pause */
         play_button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                try {
-                    client.sendMessage(Command.TOGGLE, "");
-                } catch (Exception e) {
-
-                }
+                Map<String, Object> request = new HashMap<String, Object>();
+                request.put("command", "TOGGLE");
+                cc.sendMap(request);
             }
         });
 
+        /* Previous Track */
         prev_button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                try {
-                    client.sendMessage(Command.PREV, "");
-                } catch (Exception e) {
-
-                }
+                Map<String, Object> request = new HashMap<String, Object>();
+                request.put("command", "PREV");
+                cc.sendMap(request);
             }
         });
 
+        /* Next Track */
         next_button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                try {
-                    client.sendMessage(Command.NEXT, "");
-                } catch (Exception e) {
-
-                }
+                Map<String, Object> request = new HashMap<String, Object>();
+                request.put("command", "NEXT");
+                cc.sendMap(request);
             }
         });
 
+        /* ****************************
+         * LIBRARY SELECTION
+         */
         artist_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
+                selectedArtists = new ArrayList<String>();
+
                 //if [any] selected
-                if(artist_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)
-                    selectedArtist = "";
-                else
-                    selectedArtist = s2;
+                if((artist_list_view.getSelectionModel().getSelectedIndices().size() == 1)
+                    && (artist_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)) {
+                    //do nothing, there are no selected artists
+                } else {
+                    selectedArtists.addAll(artist_list_view.getSelectionModel().getSelectedItems());
+                }
+
                 updateAlbumListView();
                 updateTrackListView();
             }
@@ -262,11 +272,15 @@ public class MainViewController implements Initializable {
         album_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
+                selectedAlbums = new ArrayList<String>();
+
                 //if [any] selected
-                if(album_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)
-                    selectedAlbum = "";
-                else
-                    selectedAlbum = s2;
+                if((album_list_view.getSelectionModel().getSelectedIndices().size() == 1)
+                        && (album_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)) {
+                    //do nothing, there are no selected artists
+                } else {
+                    selectedAlbums.addAll(album_list_view.getSelectionModel().getSelectedItems());
+                }
 
                 updateTrackListView();
             }
@@ -285,5 +299,61 @@ public class MainViewController implements Initializable {
                 }
             }
         });
+    }
+
+    @Override
+    public void processResponse(Map<String, Object> request, Map<String, Object> response) {
+        String cmd = (String) request.get("command");
+
+        if(cmd != null && cmd instanceof String) {
+            if(cmd.equals("TOGGLE")) {
+
+            } else if(cmd.equals("PLAY")) {
+
+            } else if(cmd.equals("PAUSE")) {
+
+            } else if(cmd.equals("STOP")) {
+
+            } else if(cmd.equals("NEXT")) {
+
+            } else if(cmd.equals("PREV")) {
+
+            } else if(cmd.equals("DATABASE")) {
+
+            } else if(cmd.equals("ADD")) {
+
+            } else if(cmd.equals("UPDATE")) {
+
+            } else if(cmd.equals("REMOVE")) {
+
+            } else if(cmd.equals("CURRENT")) {
+
+            } else if(cmd.equals("QUEUE")) {
+
+            } else if(cmd.equals("PLADD")) {
+
+            } else if(cmd.equals("PLDEL")) {
+
+            }
+
+            //things to do no matter what was received
+        } else {
+            System.err.println("[WARN]    Malformed request in processResponse(...)");
+        }
+    }
+
+    @Override
+    public void onConnect() {
+
+    }
+
+    @Override
+    public void onDisconnect() {
+
+    }
+
+    @Override
+    public void giveStatusInformation(String s) {
+        status_bar.setText(s);
     }
 }
