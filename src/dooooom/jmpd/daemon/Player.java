@@ -1,6 +1,6 @@
 package dooooom.jmpd.daemon;
 
-import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
 import javafx.application.Application;
 import javafx.scene.media.Media;
@@ -14,7 +14,7 @@ public class Player extends Application {
 
 	// The list of each track in the play queue, in
 	// the order of playback.
-    private static TrackList playQueueFiles = new TrackList();
+    private static Database playQueueFiles;
 
 	// The list of media players for each track in the play queue, in 
 	// the order of playback.
@@ -33,6 +33,8 @@ public class Player extends Application {
             DaemonMainController server  = new DaemonMainController();
             Thread serverThread = new Thread(server);
             serverThread.start();
+            Thread.sleep(1000);
+            playQueueFiles = new Database();
 //beginTest
 //            PlayerControl control = new PlayerControl();
 //            Thread controllerThread = new Thread(control);
@@ -77,7 +79,7 @@ public class Player extends Application {
      *	Precondition: Given a list of songs
      *	Postcondition: Given songs added to play queue
      */
-    public static void add(TrackList newSongs) {
+    public static void add(Database newSongs) {
         for (Track t : newSongs) {
             String path = t.get("filepath").replace(" ", "%20");
             System.out.println(path);
@@ -92,7 +94,7 @@ public class Player extends Application {
 	*	Precondition: Given a list of songs
 	*	Postcondition: Given songs removed from play queue
 	*/
-    public static void remove(TrackList removeSongs) {
+    public static void remove(Database removeSongs) {
         for(Track t: removeSongs) {
             String path = t.get("filepath").replace(" ", "%20");
             for (MediaPlayer p: playQueue) {
@@ -299,7 +301,7 @@ public class Player extends Application {
     }
     public void addSongs() {
         playQueueFiles.clear();
-        TrackList pq = new TrackList();
+        Database pq = new Database();
 //        pq.addAll(returnPathNames());
         add(pq);
         setPlayQueue();
