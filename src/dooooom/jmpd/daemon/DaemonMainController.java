@@ -1,13 +1,10 @@
 package dooooom.jmpd.daemon;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 
-public class DaemonMainController implements Runnable,RequestController {
+public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration = Configure();
 
     public static void main(String[] args) {
@@ -24,7 +21,7 @@ public class DaemonMainController implements Runnable,RequestController {
 
     @Override
     public Map<String, Object> processRequest(Map<String, Object> request) {
-        request.put("ack","ack");
+        request.put("ack", "ack");
         return request;
     }
 
@@ -40,7 +37,7 @@ public class DaemonMainController implements Runnable,RequestController {
 
         } catch (IOException e) {
 
-        }finally {
+        } finally {
             try {
                 in.close();
             } catch (IOException e) {
@@ -52,38 +49,46 @@ public class DaemonMainController implements Runnable,RequestController {
 
     private static void createConfig() {
         String userName = System.getProperty("user.name");
-        String sep = System.getProperty("file.separator");
+        String s = System.getProperty("file.separator");
         String osName = System.getProperty("os.name");
 
-        String linuxConfig = "";
+        File configFile;
 
-        if(osName.equalsIgnoreCase("windows 7")) {
+        String linuxConfig = s + "home" + s + "" + userName.toLowerCase() + s + "music";
 
-        } else if(osName.equalsIgnoreCase("windows vista")) {
+        try {
+            if (osName.equalsIgnoreCase("windows 7")) {
 
-        } else if(osName.equalsIgnoreCase("windows xp")) {
+            } else if (osName.equalsIgnoreCase("windows vista")) {
 
-        } else if(osName.equalsIgnoreCase("linux")) {
+            } else if (osName.equalsIgnoreCase("windows xp")) {
 
-        } else if(osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
+            } else if (osName.equalsIgnoreCase("linux")) {
+                configFile = new File(linuxConfig);
+                configFile.mkdirs();
+                configFile.createNewFile();
+            } else if (osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
 
-        } else if(osName.equalsIgnoreCase("solaris")) {
+            } else if (osName.equalsIgnoreCase("solaris")) {
 
-        } else {
-            System.err.println("Unable to determine operating system.");
+            } else {
+                System.err.println("Unable to determine operating system.");
+            }
+        } catch (IOException e) {
+            
         }
     }
 
     private static int getPortNumber() {
         int port = 5005;
-        if(daemonConfiguration.getProperty("Port") != null) {
+        if (daemonConfiguration.getProperty("Port") != null) {
             port = Integer.parseInt(daemonConfiguration.getProperty("Port"));
         }
         return port;
     }
 
     public static String getMusicFolder() {
-        if(daemonConfiguration.getProperty("MusicFolder") != null)
+        if (daemonConfiguration.getProperty("MusicFolder") != null)
             return daemonConfiguration.getProperty("MusicFolder");
         else
             return null;
