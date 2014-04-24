@@ -1,4 +1,6 @@
-package dooooom.jmpd.tcptest;
+package dooooom.jmpd.client;
+
+import dooooom.jmpd.data.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

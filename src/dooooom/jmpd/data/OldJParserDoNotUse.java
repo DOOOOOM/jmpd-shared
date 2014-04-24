@@ -1,4 +1,4 @@
-package dooooom.jmpd.data;//import dooooom.jmpd.UDPServer;
+package dooooom.jmpd.data;//import dooooom.jmpd.daemon.UDPServer;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JParser {
+public class OldJParserDoNotUse {
 	DatagramSocket socket;
 	ByteArrayOutputStream outGoing;
 	ByteArrayInputStream inComing;
@@ -23,7 +23,7 @@ public class JParser {
 	byte[] envelope;
 	private Map <String,Object> _responseContainer = new HashMap<String,Object>();
 	private Map <String,Object> _requestContainer = new HashMap<String,Object>();
-	public JParser(DatagramSocket socket,DatagramPacket receivePacket) throws Exception{
+	public OldJParserDoNotUse(DatagramSocket socket, DatagramPacket receivePacket) throws Exception{
 		this.socket = socket;
 		outGoing = new ByteArrayOutputStream();
 		IPAddress = receivePacket.getAddress();

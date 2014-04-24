@@ -1,4 +1,4 @@
-package dooooom.jmpd.tcptest;
+package dooooom.jmpd.daemon;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

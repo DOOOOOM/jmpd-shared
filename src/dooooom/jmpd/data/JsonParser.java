@@ -1,11 +1,11 @@
-package dooooom.jmpd.tcptest;
+package dooooom.jmpd.data;
 
 
 import javax.json.*;
 import java.io.StringReader;
 import java.util.*;
 
-public class ObiJParser {
+public class JsonParser {
     public static void main(String[] args) {
         //testcase one
 		Map<String,Object> data = new HashMap<String,Object>();

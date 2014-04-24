@@ -1,7 +1,7 @@
 package dooooom.jmpd.client;
 import dooooom.jmpd.client.gui.javafx.MainViewController;
 import dooooom.jmpd.data.Command;
-import dooooom.jmpd.data.JParser;
+import dooooom.jmpd.data.OldJParserDoNotUse;
 
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -17,7 +17,7 @@ public class UDPClient implements Runnable {
     InetAddress IPAddress;
     DataOutputStream outToServer;
     DataInputStream inFromServer;
-    JParser jsonParser;
+    OldJParserDoNotUse jsonParser;
     private MainViewController mvc;
 
     public UDPClient(MainViewController m) {
@@ -127,13 +127,13 @@ public class UDPClient implements Runnable {
 
 
     private final class daemonRequest implements Runnable {
-        public JParser jsonParser;
+        public OldJParserDoNotUse jsonParser;
         private Map <String,Object> _requestContainer = new HashMap<String,Object>();
         DatagramSocket socket;
 
         public daemonRequest(DatagramSocket socket,DatagramPacket packet) throws Exception {
             this.socket = socket;
-            jsonParser = new JParser(this.socket,packet);
+            jsonParser = new OldJParserDoNotUse(this.socket,packet);
         }
 
         public void run() {

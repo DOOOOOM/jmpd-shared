@@ -1,4 +1,4 @@
-package dooooom.jmpd;
+package dooooom.jmpd.daemon;
 
 import dooooom.jmpd.data.TrackList;
 import dooooom.jmpd.data.Track;

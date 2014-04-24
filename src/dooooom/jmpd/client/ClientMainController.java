@@ -1,4 +1,4 @@
-package dooooom.jmpd.tcptest;
+package dooooom.jmpd.client;
 
 import java.util.HashMap;
 import java.util.Map;

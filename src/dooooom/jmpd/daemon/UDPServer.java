@@ -1,7 +1,7 @@
-package dooooom.jmpd;
+package dooooom.jmpd.daemon;
 
 import dooooom.jmpd.data.Command;
-import dooooom.jmpd.data.JParser;
+import dooooom.jmpd.data.OldJParserDoNotUse;
 import dooooom.jmpd.data.TrackList;
 
 import java.io.*;
@@ -15,7 +15,7 @@ import java.util.Properties;
 
 public class UDPServer implements Runnable{
 	final static int messageLength = 1024;
-    public JParser jsonParser;
+    public OldJParserDoNotUse jsonParser;
     private Map <String,Object> _requestContainer = new HashMap<String,Object>();
     int PORT = Configure();
     byte[] receiveData = new byte[messageLength];
@@ -43,7 +43,7 @@ public class UDPServer implements Runnable{
             }
             try {
                 String args;
-                jsonParser = new JParser(this.socket,receivePacket);
+                jsonParser = new OldJParserDoNotUse(this.socket,receivePacket);
 //                _requestContainer = jsonParser.jsonParser();
                 ArrayList<Map<String,Object>> dataContainer = jsonParser.jsonParser();
                 for(int index = 0; index < dataContainer.size(); index++){

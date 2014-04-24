@@ -5,7 +5,7 @@ package dooooom.jmpd.data;
  * Besides constructors, the only method that should interface with the outside is returnTracks
  */
 
-import dooooom.jmpd.tcptest.DaemonMainController;
+import dooooom.jmpd.daemon.DaemonMainController;
 
 import java.io.File;
 import java.util.ArrayList;
