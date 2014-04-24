@@ -171,4 +171,37 @@ public class MetadataExtractor
 		
 		return albumName;
 	}
+	
+	static Double extractLengthFrom(String filePath)
+	/*
+	 * The extractLengthFrom method checks the length of the track
+	 * and returns a double that represents the length
+	 */
+	{
+		double trackLength = 0.0;
+		
+		Mp3File mp3File;
+		try 
+		{
+			mp3File = new Mp3File(filePath);
+			trackLength = mp3File.getLengthInSeconds();	
+		} catch (UnsupportedTagException e) 
+		  {
+			e.printStackTrace();
+		  } 
+		  catch (InvalidDataException e) 
+		  {
+			e.printStackTrace();
+		  } 
+		  catch (IOException e) 
+		  {
+			e.printStackTrace();
+		  }
+		
+		 if (trackLength < 0)
+			 trackLength = 0.0;		
+			
+				
+		return trackLength;
+	}
 }
