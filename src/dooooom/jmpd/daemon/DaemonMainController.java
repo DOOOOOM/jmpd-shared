@@ -34,7 +34,7 @@ public class DaemonMainController implements Runnable, RequestController {
             prop.load(in);
         } catch (FileNotFoundException e) {
             System.out.println("No user configuration. Creating new file");
-
+            createConfig();
         } catch (IOException e) {
 
         } finally {
@@ -55,25 +55,90 @@ public class DaemonMainController implements Runnable, RequestController {
         File configFile;
 
         String linuxConfig = s + "home" + s + "" + userName.toLowerCase() + s + ".config" + s + "jmpd" + s + "jmpd.properties";
+        String windows7Config = "C:" + s + "Users" + s + userName + s + "jmpd.properties";
+        String windows8Config = windows7Config;
+        String windowsVistaConfig = windows7Config;
+        String windowsXPConfig = "C:" + s + "Documents and Settings" + s + userName + s + "My Documents" + s + "jmpd.properties";
+        String solarisConfig = linuxConfig;
+        String macConfig = s + "Users" + s + userName.toLowerCase() + s + "jmpd.properties";
+
+        String windows7MusicFolderName = "C:" +s+ "Users" +s+ userName +s+ "Music";
+        String windows8MusicFolderName = windows7MusicFolderName;
+        String windowsVistaMusicFolderName = windows7MusicFolderName;
+        String windowsXPMusicFolderName = "C:" +s+ "Documents and Settings" +s+ userName +s+ "My Documents" +s+ "My Music";
+        String linuxMusicFolderName = s+ "home" +s+ "" + userName.toLowerCase() +s+ "music";
+        String solarisMusicFolderName = linuxMusicFolderName;
+        String macMusicFolderName = "/Users/" + userName.toLowerCase() + "/Music";
+
+        String basePath;
+        String musicPath;
 
         try {
             if (osName.equalsIgnoreCase("windows 7")) {
-
+                basePath = "C:" + s + "Users" + s + userName + s;
+                musicPath = windows7MusicFolderName;
+                configFile = new File(windows7Config);
+                configFile.mkdirs();
+                configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
+            } else if (osName.equalsIgnoreCase("windows 8")) {
+                basePath = "C:" + s + "Users" + s + userName + s;
+                musicPath = windows8MusicFolderName;
+                configFile = new File(windows8Config);
+                configFile.mkdirs();
+                configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
             } else if (osName.equalsIgnoreCase("windows vista")) {
-
+                musicPath = windowsVistaMusicFolderName;
+                basePath = "C:" + s + "Users" + s + userName + s;
+                configFile = new File(windowsVistaConfig);
+                configFile.mkdirs();
+                configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
             } else if (osName.equalsIgnoreCase("windows xp")) {
-
+                basePath = "C:" + s + "Documents and Settings" + s + userName + s + "My Documents" + s;
+                musicPath = windowsXPMusicFolderName;
+                configFile = new File(windowsXPConfig);
+                configFile.mkdirs();
+                configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
             } else if (osName.equalsIgnoreCase("linux")) {
+                basePath = s + "home" + s + "" + userName.toLowerCase() + s + ".config" + s + "jmpd" + s;
+                musicPath = linuxMusicFolderName;
                 configFile = new File(linuxConfig);
                 configFile.mkdirs();
                 configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
             } else if (osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
-
+                basePath = s + "Users" + s + userName.toLowerCase() + s;
+                musicPath = macMusicFolderName;
+                configFile = new File(macConfig);
+                configFile.mkdirs();
+                configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
             } else if (osName.equalsIgnoreCase("solaris")) {
-
+                basePath = s + "home" + s + "" + userName.toLowerCase() + s + ".config" + s + "jmpd" + s;
+                musicPath = solarisMusicFolderName;
+                configFile = new File(solarisConfig);
+                configFile.mkdirs();
+                configFile.createNewFile();
+                setDefaultConfiguration(configFile, basePath, musicPath);
             } else {
                 System.err.println("Unable to determine operating system.");
             }
+        } catch (IOException e) {
+
+        }
+    }
+
+    private static void setDefaultConfiguration(File config, String basePath, String musicPath) {
+        try {
+            Properties props = new Properties();
+            props.setProperty("Database", basePath + "database" );
+            props.setProperty("Port", "" + 5005);
+            props.setProperty("MusicFolder", musicPath);
+            OutputStream out = new FileOutputStream(config);
+            props.store(out, "");
         } catch (IOException e) {
 
         }
@@ -95,7 +160,7 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public static String getDatabasePath() {
-        if(daemonConfiguration.getProperty("Database") != null)
+        if (daemonConfiguration.getProperty("Database") != null)
             return daemonConfiguration.getProperty("Database");
         else
             return null;
