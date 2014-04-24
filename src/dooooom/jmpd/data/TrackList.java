@@ -13,12 +13,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Database extends ArrayList<Track>
+public class TrackList extends ArrayList<Track>
 {
 	public final String dbLocation = DaemonMainController.getDatabasePath();
 	int nextID = 1;
 
-	public Database(ArrayList<Track> list)
+	public TrackList(ArrayList<Track> list)
 	{
 		for(Track t : list)
 		{
@@ -26,7 +26,7 @@ public class Database extends ArrayList<Track>
 		}
 	}
 
-	public Database()
+	public TrackList()
 	{
 		loadDatabase();
 	}
@@ -56,9 +56,9 @@ public class Database extends ArrayList<Track>
 		updateNextID();
 	}
 
-	public Database search(String key, String value)
+	public TrackList search(String key, String value)
 	{
-		Database result = new Database();
+		TrackList result = new TrackList();
 
 		for(Track tr : this) 
 		{
@@ -78,7 +78,7 @@ public class Database extends ArrayList<Track>
 	}
 
 	/**
-	 * Database Json functions
+	 * TrackList Json functions
 	 */
 	public void addEntry(Map<String, String> data,String tag){
 		/**
@@ -176,7 +176,7 @@ public class Database extends ArrayList<Track>
 		String ldKEY = null;
 		ArrayList<String> trackID = new ArrayList<String>();
 		try {
-			jp = Json.createParser(new FileReader(dbLocation));
+			jp = Json.createParser(new FileReader(DaemonMainController.getDatabasePath()));
 			while(jp.hasNext()){				
 				JsonParser.Event event = jp.next();				
 				switch(event){
