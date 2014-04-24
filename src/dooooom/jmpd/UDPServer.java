@@ -1,13 +1,17 @@
 package dooooom.jmpd;
 
+import dooooom.jmpd.data.Command;
 import dooooom.jmpd.data.JParser;
+import dooooom.jmpd.data.TrackList;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
-import dooooom.jmpd.data.Track;
-import dooooom.jmpd.data.TrackList;
-import dooooom.jmpd.data.Command;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class UDPServer implements Runnable{
 	final static int messageLength = 1024;

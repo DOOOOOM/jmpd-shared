@@ -75,15 +75,6 @@ public class TrackList extends ArrayList<Track>
 			return false;
 	}
 
-	public static void main(String[] args)
-	{
-		TrackList t = new TrackList();
-		t.loadDatabase();
-		for (Track tr : t)
-			System.out.println(tr.get("id") + " " + tr.get("title") + " " + tr.get("artist") + " " + tr.get("album"));
-		System.out.print("The next ID is :" + t.nextID);
-	}
-
 	/**
 	 * Database Json functions
 	 */
