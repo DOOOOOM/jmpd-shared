@@ -1,28 +1,30 @@
 package dooooom.jmpd.tcptest;
 
+
 import javax.json.*;
+import java.io.StringReader;
 import java.util.*;
 
 public class ObiJParser {
-    public static Map<String,Object> mapContainer = new HashMap<String,Object>();
-    static List<Object> stlst = new ArrayList<Object>();
-    static Map<String,Object> mapit = new HashMap<String,Object>();
-
     public static void main(String[] args) {
         //testcase one
-		/*Map<String,Object> data = new HashMap<String,Object>();
+		Map<String,Object> data = new HashMap<String,Object>();
 		List<String> alist = Arrays.asList("firstt","tests","plc","kinda late");
 		data.put("trackID", "1");
 		data.put("ADD", alist);
-		JsonObject d = mapToString(data);
-		System.out.println(d.toString());*/
+		String d1 = mapToString(data);
+        System.out.println(data.toString());
+		System.out.println(d1);
+        Map<String,Object> sm2 = new HashMap<String,Object>();
+        sm2 = stringToMap(d1);
+        System.out.println(sm2.toString());
         //testcase two
         Map<String,Object> data2 = new HashMap<String,Object>();
         List<Map<String,Object>> anotherList = new ArrayList<Map<String,Object>>();
         data2.put("requestID", "2");
         Map<String,Object> pairs = new HashMap<String,Object>();
-        pairs.put("some\"data","otherdata");
-        pairs.put("someeesta","otherdssa");
+        pairs.put("some\"data","o\\ther\"data");
+        pairs.put("s\\omeeesta","ot\"herds\\sa");
         pairs.put("somedwwa","othsddata");
         anotherList.add(pairs);
         Map<String,Object> pair = new HashMap<String,Object>();
@@ -32,31 +34,15 @@ public class ObiJParser {
         anotherList.add(pair);
         data2.put("ADD",anotherList);
         System.out.println(data2.toString());
-        JsonObject d = mapToString(data2);
+        String d = mapToString(data2);
         System.out.println(d.toString());
         Map<String,Object> sm = new HashMap<String,Object>();
-        //mapContainer.clear();
-        sm = stringToMap2(d);
+        sm = stringToMap(d);
         System.out.println(sm.toString());
 
     }
 
-
-    public static JsonObject mapToJsonObject(Iterator<String> keys,JsonObjectBuilder obj,Map <String,String> data){
-        /**
-         * Helper function used to parse json
-         */
-        if(keys.hasNext()){
-            String k = (String)keys.next();
-            JsonObjectBuilder ob = obj.add(k,data.get(k));
-            return mapToJsonObject(keys,ob,data);
-        }else{
-            JsonObject jb = obj.build();
-            return jb;
-        }
-    }
-
-    public static JsonObject mapToString(Map<String,Object> toSend) {
+    public static String mapToString(Map<String,Object> toSend) {
         String key = null;
         Object object = null;
         JsonObjectBuilder dataContainer = Json.createObjectBuilder();
@@ -89,50 +75,72 @@ public class ObiJParser {
 
         }
 
-        return dataContainer.build();
+        return dataContainer.build().toString();
     }
 
-    public static Map<String,Object> stringToMap2(JsonObject object){
-        JsonValue objV = null;
-        String key = null;
-        Map<String,Object> mapContainer = new HashMap<String,Object>();
-        for(Map.Entry<String, JsonValue> entry: object.entrySet()){
-            key = entry.getKey();
-            objV = entry.getValue();
-            switch(objV.getValueType()){
+    public static Map<String,Object> stringToMap(String inComing){
+        Map<String,Object> result = new HashMap<String,Object>();
+
+        JsonReader jsonReader = Json.createReader(new StringReader(inComing));
+        JsonObject object = jsonReader.readObject();
+
+        //iterate through map entries
+        for(Map.Entry<String,JsonValue> entry : object.entrySet()) {
+            String key = entry.getKey();
+            JsonValue objV = entry.getValue();
+
+            //determine if entry is a: Map, Array, or String
+            switch(objV.getValueType()) {
                 case OBJECT:
+                    //Apparently this is bad?
                     System.out.println("got object");
                     break;
                 case ARRAY:
-                    List<Object> lstObject = new ArrayList<Object>();
+                    List<Object> listObject = new ArrayList<Object>();
                     JsonArray array = (JsonArray) objV;
-                    for(JsonValue val : array){
-                        switch(val.getValueType()){
+
+                    //iterate through items in array
+                    for(JsonValue val : array) {
+                        switch(val.getValueType()) {
                             case OBJECT:
-                                Map<String,Object> lstMaps = new HashMap<String,Object>();
+                                //found a map, eg. the array is a TrackList and this is a Track
+                                Map<String,Object> listMap = new HashMap<String,Object>();
                                 JsonObject obj = (JsonObject) val;
-                                for(String name : obj.keySet()){
-                                    lstMaps.put(name, obj.get(name));
+                                for(String name : obj.keySet()) {
+                                    listMap.put(name, obj.getString(name));
                                 }
-                                lstObject.add(lstMaps);
+                                listObject.add(listMap);
                                 break;
                             case STRING:
                                 JsonString arrayString = (JsonString) val;
-                                lstObject.add(arrayString.getString());
+                                listObject.add(arrayString.getString());
                                 break;
                         }
                     }
-                    mapContainer.put(key,lstObject);
+
+                    result.put(key, listObject);
                     break;
                 case STRING:
                     JsonString st = (JsonString) objV;
-                    mapContainer.put(key, st.getString());
+                    result.put(key, st.getString());
                     break;
             }
-
         }
 
-        return mapContainer;
+        return result;
     }
 
+    private static JsonObject mapToJsonObject(Iterator<String> keys,JsonObjectBuilder obj,Map <String,String> data){
+        /**
+         * Helper function used to parse json
+         */
+        if(keys.hasNext()){
+            String k = (String)keys.next();
+            JsonObjectBuilder ob = obj.add(k,data.get(k));
+            return mapToJsonObject(keys,ob,data);
+        }else{
+            JsonObject jb = obj.build();
+            return jb;
+        }
+    }
 }
