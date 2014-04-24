@@ -53,6 +53,25 @@ public class DaemonMainController implements Runnable,RequestController {
     private static void createConfig() {
         String userName = System.getProperty("user.name");
         String sep = System.getProperty("file.separator");
+        String osName = System.getProperty("os.name");
+
+        String linuxConfig = "";
+
+        if(osName.equalsIgnoreCase("windows 7")) {
+
+        } else if(osName.equalsIgnoreCase("windows vista")) {
+
+        } else if(osName.equalsIgnoreCase("windows xp")) {
+
+        } else if(osName.equalsIgnoreCase("linux")) {
+
+        } else if(osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
+
+        } else if(osName.equalsIgnoreCase("solaris")) {
+
+        } else {
+            System.err.println("Unable to determine operating system.");
+        }
     }
 
     private static int getPortNumber() {
