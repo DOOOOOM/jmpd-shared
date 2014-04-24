@@ -71,6 +71,7 @@ public class FileSystemScanner
 			t.put("album", MetadataExtractor.extractAlbumFrom(path));
 			t.put("title", MetadataExtractor.extractTitleFrom(path));
 			t.put("length", MetadataExtractor.extractLengthFrom(path).toString());
+			t.put("track", MetadataExtractor.extractTrackFrom(path));
 			t.put("id", new Integer(nextID).toString());
 			t.put("filepath", path);
 			trackList.add(t);
