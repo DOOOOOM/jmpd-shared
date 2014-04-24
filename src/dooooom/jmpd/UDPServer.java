@@ -63,12 +63,12 @@ public class UDPServer implements Runnable{
                                 controller.next();
                                 break;
                             case ADD:
-                                controller.add((ArrayList<String>) entry.getValue());
+                                controller.add((TrackList) entry.getValue());
                                 break;
                             case ADDTOPLAYLIST:
                                 break;
                             case REM:
-                                controller.remove((ArrayList<String>) entry.getValue());
+                                controller.remove((TrackList) entry.getValue());
                                 break;
                             case REMPLAYLIST:
                                 break;

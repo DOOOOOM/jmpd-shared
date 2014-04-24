@@ -263,47 +263,46 @@ public class Player extends Application {
         launch(args);
     }
 //beginTest
-//    public class PlayerControl implements Runnable {
-////        public PlayerControl() {}
-//        public void run() {
-//            Scanner in = new Scanner(System.in);
+    public class PlayerControl implements Runnable {
+//        public PlayerControl() {}
+        public void run() {
+            Scanner in = new Scanner(System.in);
 //            UDPClient client = new UDPClient();
-//            try {
-//                while (true) {
-//                    String input = in.nextLine();
-//                    System.out.println(input);
-//                    if (input.equals("t")) {
-//                        toggle();
-//                    } else if (input.equals("n")) {
-//                        next();
-//                    } else if (input.equals("p")) {
-//                        prev();
-//                    } else if (input.equals("s")) {
-//                        stopPlayback();
-//                    } else if (input.equals("a")) {
-////                        addSongs();
-//                    } else if (input.equals("c")) {
-//                        System.out.println(getTime());
-//                    } else if (input.equals("m")) {
+            try {
+                while (true) {
+                    String input = in.nextLine();
+                    System.out.println(input);
+                    if (input.equals("t")) {
+                        toggle();
+                    } else if (input.equals("n")) {
+                        next();
+                    } else if (input.equals("p")) {
+                        prev();
+                    } else if (input.equals("s")) {
+                        stopPlayback();
+                    } else if (input.equals("a")) {
+                        addSongs();
+                    } else if (input.equals("c")) {
+                        System.out.println(getTime());
+                    } else if (input.equals("m")) {
 //                        try {
 //                            client.sendMessage(Command.TOGGLE, "");
 //                        } catch (Exception e) {
 //                            e.printStackTrace();
 //                        }
-//                    }
-//                }
-//            } catch (NoSuchElementException e) {
-//                in.close();
-//            }
-//        }
-//    }
-//    public void addSongs() {
-//        playQueueFiles.clear();
-//        ArrayList<String> pq = new ArrayList<String>();
+                    }
+                }
+            } catch (NoSuchElementException e) {
+                in.close();
+            }
+        }
+    }
+    public void addSongs() {
+        playQueueFiles.clear();
+        TrackList pq = new TrackList();
 //        pq.addAll(returnPathNames());
-//        Collections.sort(pq);
-//        add(pq);
-//        setPlayQueue();
-//    }
+        add(pq);
+        setPlayQueue();
+    }
 //endTest
 }

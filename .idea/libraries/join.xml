@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="join">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/javax.json-1.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/mp3agic-0.8.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

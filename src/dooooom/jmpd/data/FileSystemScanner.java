@@ -5,6 +5,8 @@ package dooooom.jmpd.data;
  * Besides constructors, the only method that should interface with the outside is returnTracks
  */
 
+import dooooom.jmpd.tcptest.DaemonMainController;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ public class FileSystemScanner
 	String windows8MusicFolderName = windows7MusicFolderName;
 	String windowsVistaMusicFolderName = windows7MusicFolderName;
 	String windowsXPMusicFolderName = "C:" +s+ "Documents and Settings" +s+ userName +s+ "My Documents" +s+ "My Music";
-	String linuxMusicFolderName = s+ "home" +s+ "" + userName.toLowerCase() +s+ "Music";
+	String linuxMusicFolderName = s+ "home" +s+ "" + userName.toLowerCase() +s+ "music";
 	String solarisMusicFolderName = linuxMusicFolderName;
 	String macMusicFolderName = "/Users/" + userName.toLowerCase() + "/Music";	
 	
@@ -124,24 +126,28 @@ public class FileSystemScanner
 	
 	private String findMusicFolder()
 	{
-		if(osName.equalsIgnoreCase("windows 7"))
-			musicFolderPath = windows7MusicFolderName;
-			
-		else if(osName.equalsIgnoreCase("windows vista")) 
-			musicFolderPath = windowsVistaMusicFolderName;
-			
-		else if(osName.equalsIgnoreCase("windows xp")) 
-			musicFolderPath = windowsXPMusicFolderName;
-			
-		else if(osName.equalsIgnoreCase("linux"))
-			musicFolderPath = linuxMusicFolderName;
-			
-		else if(osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x"))
-			musicFolderPath = macMusicFolderName;
-			
-		else if(osName.equalsIgnoreCase("solaris"))
-			musicFolderPath = solarisMusicFolderName;	
-	
-		return musicFolderPath;
+        if(DaemonMainController.getMusicFolder() == null) {
+            if(osName.equalsIgnoreCase("windows 7"))
+                musicFolderPath = windows7MusicFolderName;
+
+            else if(osName.equalsIgnoreCase("windows vista"))
+                musicFolderPath = windowsVistaMusicFolderName;
+
+            else if(osName.equalsIgnoreCase("windows xp"))
+                musicFolderPath = windowsXPMusicFolderName;
+
+            else if(osName.equalsIgnoreCase("linux"))
+                musicFolderPath = linuxMusicFolderName;
+
+            else if(osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x"))
+                musicFolderPath = macMusicFolderName;
+
+            else if(osName.equalsIgnoreCase("solaris"))
+                musicFolderPath = solarisMusicFolderName;
+
+            return musicFolderPath;
+        } else {
+            return DaemonMainController.getMusicFolder();
+        }
 	}	
 }
