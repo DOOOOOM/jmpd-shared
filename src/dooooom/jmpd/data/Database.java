@@ -199,7 +199,9 @@ public class Database extends ArrayList<Track>
 					trackID.add(jp.getString()) ;
 					break;
 				case END_OBJECT:
-					break;				
+					break;
+                default:
+                    break;				
 				}
 			}
 		} catch (FileNotFoundException e) {
