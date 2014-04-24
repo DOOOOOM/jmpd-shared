@@ -30,7 +30,7 @@ public class Player extends Application {
     @Override
     public void start(Stage arg0) {
         try {
-            UDPServer server  = new UDPServer();
+            DaemonMainController server  = new DaemonMainController();
             Thread serverThread = new Thread(server);
             serverThread.start();
 //beginTest

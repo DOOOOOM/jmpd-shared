@@ -93,4 +93,11 @@ public class DaemonMainController implements Runnable, RequestController {
         else
             return null;
     }
+
+    public static String getDatabasePath() {
+        if(daemonConfiguration.getProperty("Database") != null)
+            return daemonConfiguration.getProperty("Database");
+        else
+            return null;
+    }
 }
