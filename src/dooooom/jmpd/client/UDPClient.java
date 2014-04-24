@@ -1,16 +1,15 @@
 package dooooom.jmpd.client;
-import java.io.*;
-
-import dooooom.jmpd.client.DaemonRequest;
 import dooooom.jmpd.client.gui.javafx.MainViewController;
 import dooooom.jmpd.data.Command;
 import dooooom.jmpd.data.JParser;
 
-import java.net.*;
-import java.util.*;
-
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import java.io.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.*;
 
 public class UDPClient implements Runnable {
     final static int messageLength = 1024;
