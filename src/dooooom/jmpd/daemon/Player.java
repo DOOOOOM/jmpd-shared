@@ -1,5 +1,6 @@
 package dooooom.jmpd.daemon;
 
+import dooooom.jmpd.data.FileSystemScanner;
 import dooooom.jmpd.data.TrackList;
 import dooooom.jmpd.data.Track;
 import javafx.application.Application;
@@ -14,7 +15,7 @@ public class Player extends Application {
 
 	// The list of each track in the play queue, in
 	// the order of playback.
-    private static TrackList playQueueFiles;
+    private static ArrayList<Track> playQueueFiles;
 
 	// The list of media players for each track in the play queue, in 
 	// the order of playback.
@@ -35,9 +36,9 @@ public class Player extends Application {
             serverThread.start();
 //            playQueueFiles = new TrackList();
 //beginTest
-//            PlayerControl control = new PlayerControl();
-//            Thread controllerThread = new Thread(control);
-//            controllerThread.start();
+            PlayerControl control = new PlayerControl();
+            Thread controllerThread = new Thread(control);
+            controllerThread.start();
 //endTest
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,14 +75,15 @@ public class Player extends Application {
     }
 
     public static void setPlayQueueFiles() {
-        playQueueFiles = new TrackList();
+//        playQueueFiles = new TrackList();
+
     }
 
     /**
      *	Precondition: Given a list of songs
      *	Postcondition: Given songs added to play queue
      */
-    public static void add(TrackList newSongs) {
+    public static void add(ArrayList<Track> newSongs) {
         for (Track t : newSongs) {
             String path = t.get("filepath").replace(" ", "%20");
             System.out.println(path);
@@ -96,7 +98,7 @@ public class Player extends Application {
 	*	Precondition: Given a list of songs
 	*	Postcondition: Given songs removed from play queue
 	*/
-    public static void remove(TrackList removeSongs) {
+    public static void remove(ArrayList<Track> removeSongs) {
         for(Track t: removeSongs) {
             String path = t.get("filepath").replace(" ", "%20");
             for (MediaPlayer p: playQueue) {
@@ -302,11 +304,10 @@ public class Player extends Application {
         }
     }
     public void addSongs() {
-        playQueueFiles.clear();
-        TrackList pq = new TrackList();
-//        pq.addAll(returnPathNames());
-        add(pq);
-        setPlayQueue();
+        FileSystemScanner f = new FileSystemScanner("/home/zap/music/Baths/Cerulean");
+        System.out.println(f.returnTracks());
+        playQueueFiles.addAll(f.returnTracks());
+        add(playQueueFiles);
     }
 //endTest
 }
