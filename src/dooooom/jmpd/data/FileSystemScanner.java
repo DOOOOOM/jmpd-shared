@@ -83,6 +83,31 @@ public class FileSystemScanner
 		return tl;
 	}
 	
+	
+	public void pathRecurse(File file, List<String> targetList)
+	{		
+		if(file.isDirectory())
+		{
+			if (file.list().length > 0)
+			{	
+				File[] f = file.listFiles();
+				for(File fil : f)
+					pathRecurse(fil, targetList);
+			}
+			else return;			
+		}
+		else
+		{
+			String str = file.getPath();
+			if(str.substring(str.length()-4,str.length()).equalsIgnoreCase(".mp3")) 
+				targetList.add(file.getPath());
+		}
+		
+		//return;
+	}
+	
+	
+	
 	public String[] returnPathNames()
 	/**
 	 * This method provided with the default music directory for the system,
@@ -98,7 +123,7 @@ public class FileSystemScanner
 		
 		File[] abstractPaths = musicFolder.listFiles();		
 		
-		String[] arrayToReturn = new String[abstractPaths.length];
+		/*String[] arrayToReturn = new String[abstractPaths.length];
 		
 		for(int i = 0, j = 0; i < abstractPaths.length && j < arrayToReturn.length; j++)
 		{
@@ -107,11 +132,11 @@ public class FileSystemScanner
 				arrayToReturn[i] = abstractPaths[j].getPath();
 				i++;
 			}
-		}
+		}*/
 		
 		List<String> list = new ArrayList<String>();
 
-	    for(String str : arrayToReturn)  // flush null values
+	    /*for(String str : arrayToReturn)  // flush null values
 	    {
 	       if(str != null && s.length() > 0) 
 	       {
@@ -120,9 +145,27 @@ public class FileSystemScanner
 	       }
 	    }
 		
-		arrayToReturn = list.toArray(new String[list.size()]);		
+		arrayToReturn = list.toArray(new String[list.size()]);*/	
 		
-		return arrayToReturn;
+		for(File f : abstractPaths)
+			pathRecurse(f, list);
+		
+		//String[] go = new String[list.size()]; 
+		//for(int i = 0; i < go.length; i++)
+		
+			//go[i] = list.get(i);
+		
+		
+		//System.out.println("The size of the list is" + list.size());
+		
+		String[] go = list.toArray(new String[0]);
+			
+		//return (String[]) list.toArray();
+		
+		
+		
+		//System.out.println("The size of go is" + go.length);
+		return go;
 	}
 	
 	
