@@ -4,6 +4,9 @@ import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+
 public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration;
 
@@ -86,8 +89,9 @@ public class DaemonMainController implements Runnable, RequestController {
     private static void setBlankDatabase(File db) {
         try {
             PrintWriter out = new PrintWriter(db);
-            out.println("{}");
-            out.close();
+            JsonGenerator gen = Json.createGenerator(out);
+            gen.writeStartObject().writeEnd();
+            gen.close();
         } catch (IOException e) {
 
         }
