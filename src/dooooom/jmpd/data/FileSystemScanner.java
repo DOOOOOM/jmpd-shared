@@ -78,12 +78,12 @@ public class FileSystemScanner
 			nextID++;
 		}
 
-		Database tl = new Database(trackList);
+		TrackList tl = new TrackList(trackList);
 
 		return tl;
 	}
 	
-	public String[] returnPathNames() 
+	public String[] returnPathNames()
 	/**
 	 * This method provided with the default music directory for the system,
 	 * will return an array of Strings, each corresponding to the pathName

@@ -2,7 +2,7 @@ package dooooom.jmpd.data;
 
 import java.util.HashMap;
 
-public class Track extends HashMap<String,String> 
+public class Track extends HashMap<String,String> implements Comparable<Track>
 {
 	public Track(String filepath, String artist, String album, String title)
 	{
@@ -16,4 +16,40 @@ public class Track extends HashMap<String,String>
 	{
 		this("", "Unknown Artist","Unknown Album","Unknown Title");
 	}
+
+
+    @Override
+    public int compareTo(Track o) {
+        int artistcompare = this.get("artist").compareToIgnoreCase(o.get("artist"));
+        if(artistcompare == 0) {
+
+
+            try {
+                int albumcompare = this.get("album").compareToIgnoreCase(o.get("album"));
+                if (albumcompare == 0) {
+
+                    try {
+                        int trackcompare = this.get("track").compareToIgnoreCase(o.get("track"));
+                        if (trackcompare == 0) {
+                            return 0;
+                        } else {
+                            return trackcompare;
+                        }
+                    } catch(Error e){
+                        //track is null or something
+                    }
+
+                } else {
+                    return albumcompare;
+                }
+            } catch(Error e){
+                //album is null or something
+            }
+
+
+        } else {
+            return artistcompare;
+        }
+        return 0;
+    }
 }

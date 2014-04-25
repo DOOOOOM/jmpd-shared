@@ -1,8 +1,8 @@
 package dooooom.jmpd.daemon;
 
 import dooooom.jmpd.data.Command;
-import dooooom.jmpd.data.OldJParserDoNotUse;
 import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.OldJParserDoNotUse;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -138,7 +138,7 @@ public class UDPServer implements Runnable{
 		int port = receivePacket.getPort();
 		FileInputStream fis = null;
 		try {
-			fis = new FileInputStream(dbLocation.dbLocation);
+			fis = new FileInputStream(DaemonMainController.getDatabasePath());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -18,6 +18,8 @@ public class DaemonMainController implements Runnable, RequestController {
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
+        Player.setPlayQueueFiles();
+        Player.setPlayQueue();
     }
 
     @Override
@@ -45,13 +47,25 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     private static void createConfig() {
-        File configFile;
+        File configFile, configDir;
 
         try {
+            configDir = new File(getDefaultConfigPath());
             configFile = new File(getDefaultConfigPath() + "jmpd.properties");
-            configFile.mkdirs();
+            configDir.mkdirs();
             configFile.createNewFile();
             setDefaultConfiguration(configFile);
+        } catch (IOException e) {
+
+        }
+    }
+
+    private static void createDatabaseFile() {
+        File dbFile;
+        try {
+            dbFile = new File(getDefaultConfigPath() + "database");
+            dbFile.createNewFile();
+            setBlankDatabase(dbFile);
         } catch (IOException e) {
 
         }
@@ -60,11 +74,21 @@ public class DaemonMainController implements Runnable, RequestController {
     private static void setDefaultConfiguration(File config) {
         try {
             Properties props = new Properties();
-            props.setProperty("Database", getDefaultConfigPath() + "database" );
+            props.setProperty("TrackList", getDefaultConfigPath() + "database" );
             props.setProperty("Port", "" + 5005);
             props.setProperty("MusicFolder", getBasePath() + "Music");
             OutputStream out = new FileOutputStream(config);
             props.store(out, "");
+        } catch (IOException e) {
+
+        }
+    }
+
+    private static void setBlankDatabase(File db) {
+        try {
+            PrintWriter out = new PrintWriter(db);
+            out.println("{}");
+            out.close();
         } catch (IOException e) {
 
         }
@@ -86,12 +110,7 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public static String getDatabasePath() {
-        if (daemonConfiguration.getProperty("Database") == null) {
-            Configure();
             return daemonConfiguration.getProperty("Database");
-        } else {
-            return daemonConfiguration.getProperty("Database");
-        }
     }
 
     public static String getBasePath() {
