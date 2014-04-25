@@ -23,15 +23,18 @@ import dooooom.jmpd.daemon.DaemonMainController;
 public class Database {
 	
 	public final String dbLocation = DaemonMainController.getDatabasePath();
+    public static ArrayList<Track> library;
 	int nextID = 1;
-	public Database(){
-		FileSystemScanner fss = new FileSystemScanner(dbLocation);
-		ArrayList<Track> allTracks = fss.returnTracks();
-		//add all Track to database
-		for(Track t : allTracks){
-			addEntry(t,t.get("id"));
-		}
-	}
+	public Database(){ }
+
+    public void updateDatabase() {
+        FileSystemScanner fss = new FileSystemScanner(dbLocation);
+        library = fss.returnTracks();
+        //add all Track to database
+        for(Track t : library){
+            addEntry(t,t.get("id"));
+        }
+    }
 	
 	public void addEntry(Map<String, String> data,String tag){
 		/**

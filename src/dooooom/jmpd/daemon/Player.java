@@ -1,7 +1,6 @@
 package dooooom.jmpd.daemon;
 
 import dooooom.jmpd.data.FileSystemScanner;
-import dooooom.jmpd.data.TrackList;
 import dooooom.jmpd.data.Track;
 import javafx.application.Application;
 import javafx.scene.media.Media;
@@ -15,14 +14,14 @@ public class Player extends Application {
 
 	// The list of each track in the play queue, in
 	// the order of playback.
-    private static ArrayList<Track> playQueueFiles;
+    private static ArrayList<Track> playQueueTracks = new ArrayList<Track>();
 
 	// The list of media players for each track in the play queue, in 
 	// the order of playback.
     private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
 
 	// Whether the play queue loops back to the first track or not
-    private static boolean loopingRepeat = false;
+    private static boolean loopingRepeat = true;
 
 	// Keeps a record of the current track so clients can request
 	// elapsed time, etc
@@ -34,7 +33,6 @@ public class Player extends Application {
             DaemonMainController server  = new DaemonMainController();
             Thread serverThread = new Thread(server);
             serverThread.start();
-//            playQueueFiles = new TrackList();
 //beginTest
             PlayerControl control = new PlayerControl();
             Thread controllerThread = new Thread(control);
@@ -74,23 +72,19 @@ public class Player extends Application {
         }
     }
 
-    public static void setPlayQueueFiles() {
-//        playQueueFiles = new TrackList();
-
-    }
-
     /**
      *	Precondition: Given a list of songs
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
         for (Track t : newSongs) {
-            String path = t.get("filepath").replace(" ", "%20");
+            String path = "file:" + t.get("filepath").replace(" ", "%20");
             System.out.println(path);
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
+//            playQueueTracks.add(t);
         }
-        playQueueFiles.addAll(newSongs);
+        playQueueTracks.addAll(newSongs);
         setPlayQueue();
     }
 
@@ -100,14 +94,14 @@ public class Player extends Application {
 	*/
     public static void remove(ArrayList<Track> removeSongs) {
         for(Track t: removeSongs) {
-            String path = t.get("filepath").replace(" ", "%20");
+            String path = "file:/" + t.get("filepath").replace(" ", "%20");
             for (MediaPlayer p: playQueue) {
                 if(path.equals(p.getMedia().getSource())) {
                     playQueue.remove(p);
                 }
             }
         }
-        playQueueFiles.removeAll(removeSongs);
+        playQueueTracks.removeAll(removeSongs);
         setPlayQueue();
     }
 
@@ -150,7 +144,7 @@ public class Player extends Application {
         try {
             if (!playQueue.isEmpty()) {
                 playQueue.get(currentPlayer).play();
-                System.out.println("Now playing: " + playQueueFiles.get(currentPlayer));
+                System.out.println("Now playing: " + playQueueTracks.get(currentPlayer));
             }
         } catch (MediaException e) {
             System.out.println("Invalid media type.");
@@ -304,10 +298,11 @@ public class Player extends Application {
         }
     }
     public void addSongs() {
-        FileSystemScanner f = new FileSystemScanner("/home/zap/music/Baths/Cerulean");
+        FileSystemScanner f = new FileSystemScanner("/home/zap/music/Baths/Obsidian");
         System.out.println(f.returnTracks());
-        playQueueFiles.addAll(f.returnTracks());
-        add(playQueueFiles);
+        ArrayList<Track> t = f.returnTracks();
+        Collections.sort(t);
+        add(t);
     }
 //endTest
 }

@@ -18,7 +18,6 @@ public class DaemonMainController implements Runnable, RequestController {
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
-        Player.setPlayQueueFiles();
         Player.setPlayQueue();
     }
 
