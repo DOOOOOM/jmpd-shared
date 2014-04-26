@@ -82,7 +82,7 @@ public class FileSystemScanner
 
             try {
                 if (nextID % (paths.size() / 25) == 0)
-                    System.err.println("[INFO]    Metadata collected " + (nextID * 100) / paths.size());
+                    System.err.println("[INFO]    Metadata collected " + (nextID * 100) / paths.size() + "%");
             } catch (ArithmeticException e) {
 
             }
