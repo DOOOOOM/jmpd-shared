@@ -120,6 +120,7 @@ public class Player extends Application {
     public static void add(ArrayList<Track> newSongs) {
         for (Track t : newSongs) {
             String path = "file:///" + t.get("filepath").replace(" ", "%20").replace("\\", "/");
+            path = encodeURIComponent(path);
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
         }
@@ -353,6 +354,32 @@ public class Player extends Application {
 
     public void addSongs() {
 
+    }
+
+    public static String encodeURIComponent(String s)
+    {
+        StringBuilder o = new StringBuilder();
+        for (char ch : s.toCharArray()) {
+            if (isUnsafe(ch)) {
+                o.append('%');
+                o.append(toHex(ch / 16));
+                o.append(toHex(ch % 16));
+            }
+            else o.append(ch);
+        }
+        return o.toString();
+    }
+
+    private static char toHex(int ch)
+    {
+        return (char)(ch < 10 ? '0' + ch : 'A' + ch - 10);
+    }
+
+    private static boolean isUnsafe(char ch)
+    {
+        if (ch > 128 || ch < 0)
+            return true;
+        return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
     }
 //endTest
 }
