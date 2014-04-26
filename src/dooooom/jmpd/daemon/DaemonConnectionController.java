@@ -46,11 +46,10 @@ public class DaemonConnectionController implements Runnable {
                     System.err.println("[INFO]    Connection accepted");
 
                     ConnectionHandler ch = new ConnectionHandler(socket);
-//                    connectionHandlers.add(ch);
 
 
                     Thread connectionThread = new Thread(ch);
-//                    threads.add(connectionThread);
+
                     connectionHandlerThreadMap.put(ch,connectionThread);
                     connectionThread.start();
                 } catch (IOException e) {
@@ -86,6 +85,12 @@ public class DaemonConnectionController implements Runnable {
                     responseString += "\n";
 
                 out.writeBytes(responseString);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+
+                }
             }
         } catch (IOException e) {
             System.err.println("[ERROR]   Error in communication with client in send()");
@@ -116,7 +121,15 @@ public class DaemonConnectionController implements Runnable {
                     Map<String,Object> request = JsonParser.stringToMap(s);
                     Map<String,Object> response = rc.processRequest(request);
 
-                    send(socket, response);
+                    if(response.containsKey("DCC_SEND_MULTIPLE")) {
+                        List<Map<String,Object>> responses = (List<Map<String,Object>>) response.get("DCC_SEND_MULTIPLE");
+
+                        for(Map<String,Object> sub_response : responses) {
+                            send(socket,sub_response);
+                        }
+                    } else {
+                        send(socket, response);
+                    }
                 } catch (IOException e) {
                     System.err.println("[ERROR]   Error in communication with client in ConnectionHandler");
 
@@ -141,11 +154,13 @@ public class DaemonConnectionController implements Runnable {
         @Override
         public void run() {
             for (ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
-                Thread th = connectionHandlerThreadMap.get(ch);
+                synchronized (ch) {
+                    Thread th = connectionHandlerThreadMap.get(ch);
 
-                if(th.getState() == Thread.State.TERMINATED) {
-                    System.err.println("[INFO]    Removing dead ConnectionHandler thread");
-                    connectionHandlerThreadMap.remove(ch);
+                    if (th.getState() == Thread.State.TERMINATED) {
+                        System.err.println("[INFO]    Removing dead ConnectionHandler thread");
+                        connectionHandlerThreadMap.remove(ch);
+                    }
                 }
             }
         }
