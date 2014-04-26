@@ -1,6 +1,5 @@
 package dooooom.jmpd.daemon;
 
-import dooooom.jmpd.data.FileSystemScanner;
 import dooooom.jmpd.data.Track;
 import javafx.application.Application;
 import javafx.scene.media.Media;
@@ -8,8 +7,9 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class Player extends Application {
 
@@ -35,7 +35,7 @@ public class Player extends Application {
     @Override
     public void start(Stage arg0) {
         try {
-            DaemonMainController server  = new DaemonMainController();
+            DaemonMainController server  = new DaemonMainController(this);
             Thread serverThread = new Thread(server);
             serverThread.start();
 //beginTest
@@ -79,11 +79,12 @@ public class Player extends Application {
 
     public static void setCurrentTrack(Track newCurrent) {
         MediaPlayer oldCurrent = currentTrack;
-        String trackPath = "file:///" + newCurrent.get("filepath").replace(" ", "%20");
+        String trackPath = "file:///" + newCurrent.get("filepath").replace(" ", "%20").replace("\\","/");
 
         currentTrack = new MediaPlayer(new Media(trackPath));
 
-        oldCurrent.dispose();
+        if(oldCurrent != null)
+            oldCurrent.dispose();
 
         int i = playQueueTracks.indexOf(newCurrent);
 
@@ -115,7 +116,7 @@ public class Player extends Application {
      */
     public static void add(ArrayList<Track> newSongs) {
         for (Track t : newSongs) {
-            String path = "file:///" + t.get("filepath").replace(" ", "%20");
+            String path = "file:///" + t.get("filepath").replace(" ", "%20").replace("\\", "/");
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
         }
@@ -131,7 +132,7 @@ public class Player extends Application {
 	*/
     public static void remove(ArrayList<Track> removeSongs) {
         for(Track t: removeSongs) {
-            String path = "file:/" + t.get("filepath").replace(" ", "%20");
+            String path = "file:/" + t.get("filepath").replace(" ", "%20").replace("\\", "/");
             for (MediaPlayer p: playQueue) {
                 if(path.equals(p.getMedia().getSource())) {
                     playQueue.remove(p);
@@ -272,6 +273,21 @@ public class Player extends Application {
             return playQueue.get(currentPlayer);
     }
 
+
+    /*
+     * Zach please make these work properly
+     */
+    public static Track getCurrentTrack() {
+        if(playQueueTracks.isEmpty())
+            return null;
+        else
+            return playQueueTracks.get(currentPlayer);
+    }
+
+    public static boolean getState() {
+        return true;
+    }
+
 	/**
 	*	Precondition: There is a current track
 	* 	Postcondition: Gives metadata for the current track
@@ -305,6 +321,7 @@ public class Player extends Application {
         public void run() {
             Scanner in = new Scanner(System.in);
 //            UDPClient client = new UDPClient();
+            System.out.println("[INFO]    Started player control");
             try {
                 while (true) {
                     String input = in.nextLine();
@@ -334,13 +351,9 @@ public class Player extends Application {
             }
         }
     }
+
     public void addSongs() {
 
-        FileSystemScanner f = new FileSystemScanner("/home/zap/tmp/test");
-        ArrayList<Track> t = f.returnTracks();
-        System.out.println(t);
-        Collections.sort(t);
-        add(t);
     }
 //endTest
 }
