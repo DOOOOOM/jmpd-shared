@@ -88,7 +88,7 @@ public class LyricsFetcher
 	        in.close();
 		} catch (Exception e)
 		{
-			e.printStackTrace();
+			return "[lyrics unavailable]";
 		}
         
         if (lyricsText.equals(null))
