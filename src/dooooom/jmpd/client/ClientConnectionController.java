@@ -66,17 +66,29 @@ public class ClientConnectionController implements Runnable {
 
                     String uid = (String) response.get("request_id");
 
-                    int requestsFound = 0;
-                    Map<String,Object> request = null;
-                    for(Map<String,Object> request_i : requests) {
-                        if(request_i.get("request_id").equals(uid)) {
-                            request = request_i;
-                            requestsFound++;
-                        }
-                    }
+                    Map<String, Object> request = null;
 
-                    if(requestsFound > 1)
-                        System.err.println("[WARN]    Duplicate request_id");
+                    if (uid.equals("0")) {
+                        /*
+                         * request_id:0 is a special case reserved for
+                         * the server sending unsolicited information to the client
+                         */
+                        request = new HashMap<String, Object>();
+                        request.put("command","INFO");
+                        request.put("request_id","0");
+                    } else {
+                        int requestsFound = 0;
+
+                        for (Map<String, Object> request_i : requests) {
+                            if (request_i.get("request_id").equals(uid)) {
+                                request = request_i;
+                                requestsFound++;
+                            }
+                        }
+
+                        if (requestsFound > 1)
+                            System.err.println("[WARN]    Duplicate request_id");
+                    }
 
                     if(request != null && response != null) {
                         Platform.runLater(new ProcessRequestHandler(rc, request, response));
