@@ -104,15 +104,19 @@ public class MetadataExtractor
 			
 			  e.printStackTrace();
 		  }
-		
-		try
-		{
-			if(title.equals(null))
-				title = "Unknown Title";
-		} catch (Exception e) 
-		  {title = "Unknown Title";
-			//e.printStackTrace();
-		  }
+
+
+
+		if(title == null) {
+            int lastSlash = filePath.lastIndexOf('\\');
+            if(filePath.lastIndexOf('/') > lastSlash)
+                lastSlash = filePath.lastIndexOf('/');
+
+            title = filePath.substring(lastSlash + 1).replaceAll("\\.mp3$","");
+        }
+
+
+
 		
 		return title;
 	}
