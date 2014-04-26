@@ -1,11 +1,13 @@
 package dooooom.jmpd.daemon;
 
+import dooooom.jmpd.data.Database;
+import dooooom.jmpd.data.FileSystemScanner;
+import dooooom.jmpd.data.Track;
+
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration;
@@ -19,6 +21,14 @@ public class DaemonMainController implements Runnable, RequestController {
         daemonConfiguration = Configure();
         DaemonConnectionController dcc = new DaemonConnectionController(getPortNumber(), this);
 
+        //temporarily hard-coded
+        FileSystemScanner f = new FileSystemScanner("C:\\Music\\Incubus");
+        ArrayList<Track> t = f.returnTracks();
+        System.out.println(t);
+        Collections.sort(t);
+        Database.library = t;
+        player.add(t);
+
         Thread dccThread = new Thread(dcc);
         dccThread.start();
         Player.setPlayQueue();
@@ -27,40 +37,72 @@ public class DaemonMainController implements Runnable, RequestController {
     @Override
     public Map<String, Object> processRequest(Map<String, Object> request) {
         String cmd = (String) request.get("command");
+        String req_id = (String) request.get("request_id");
 
         Map<String,Object> response = new HashMap<String,Object>();
 
+        if(req_id == null) {
+            //Bad request
+            response.put("status_code","400");
+            response.put("status_message","Bad Request: Missing request_id");
+            return response;
+        }
+
         if(cmd != null && cmd instanceof String) {
+            response.put("request_id", req_id);
+
             if(cmd.equals("TOGGLE")) {
-
-            } else if(cmd.equals("PLAY")) {
-
-            } else if(cmd.equals("PAUSE")) {
-
-            } else if(cmd.equals("STOP")) {
-
+                player.toggle();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+                addTrackInfo(response);
+//            } else if(cmd.equals("PLAY")) {
+//
+//            } else if(cmd.equals("PAUSE")) {
+//
+//            } else if(cmd.equals("STOP")) {
+//
             } else if(cmd.equals("NEXT")) {
-
+                player.next();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+                addTrackInfo(response);
             } else if(cmd.equals("PREV")) {
-
+                player.prev();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+                addTrackInfo(response);
             } else if(cmd.equals("DATABASE")) {
+                ArrayList<Track> data = Database.library;
 
-            } else if(cmd.equals("ADD")) {
-
-            } else if(cmd.equals("UPDATE")) {
-
-            } else if(cmd.equals("REMOVE")) {
-
-            } else if(cmd.equals("CURRENT")) {
-
-            } else if(cmd.equals("QUEUE")) {
-
-            } else if(cmd.equals("SET")) {
-
-            } else if(cmd.equals("PLADD")) {
-
-            } else if(cmd.equals("PLDEL")) {
-
+                if(data != null) {
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                    response.put("data",data);
+                } else {
+                    response.put("status_code","404");
+                    response.put("status_message","Not Found: database not found");
+                }
+//
+//            } else if(cmd.equals("ADD")) {
+//
+//            } else if(cmd.equals("UPDATE")) {
+//
+//            } else if(cmd.equals("REMOVE")) {
+//
+//            } else if(cmd.equals("CURRENT")) {
+//
+//            } else if(cmd.equals("QUEUE")) {
+//
+//            } else if(cmd.equals("SET")) {
+//
+//            } else if(cmd.equals("PLADD")) {
+//
+//            } else if(cmd.equals("PLDEL")) {
+//
+            } else {
+                response.put("status_code","501");
+                response.put("status_message","Not Implemented: " + cmd);
             }
 
             //things to do no matter what was received
@@ -71,6 +113,18 @@ public class DaemonMainController implements Runnable, RequestController {
         }
 
         return response;
+    }
+
+    private void addTrackInfo(Map<String,Object> response) {
+        Track currentTrack = player.getCurrentTrack();
+
+        if(currentTrack != null) {
+            response.put("track_id", currentTrack.get("id"));
+            response.put("time", Double.toString(player.getTime()));
+            response.put("state", player.getState());
+        } else {
+
+        }
     }
 
     private static Properties Configure() {
