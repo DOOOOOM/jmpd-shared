@@ -2,9 +2,8 @@ package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.client.ClientConnectionController;
 import dooooom.jmpd.client.ResponseController;
-import dooooom.jmpd.data.TrackList;
+import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
-import dooooom.jmpd.data.testing.TrackListGenerator;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -18,7 +17,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+//import dooooom.jmpd.data.TrackList;
 
 public class MainViewController implements Initializable,ResponseController {
     /*
@@ -46,7 +50,7 @@ public class MainViewController implements Initializable,ResponseController {
     /*
 	 * The actual library of tracks to choose from
 	 */
-    private TrackList library = new TrackList();
+    private ArrayList<Track> library = new ArrayList<Track>();
 
     /*
      * ObservableList objects for the ListViews
@@ -59,9 +63,8 @@ public class MainViewController implements Initializable,ResponseController {
     /*
 	 * Current Selections (for filtering purposes)
 	 */
-    private List<String> selectedArtists;
-    private List<String> selectedAlbums;
-    private TrackList filteredTracks;
+    private String selectedArtist;
+    private String selectedAlbum;
 
 
     /*
@@ -78,7 +81,7 @@ public class MainViewController implements Initializable,ResponseController {
     @Override
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
 
-        cc = new ClientConnectionController("localhost", 4444, this);
+        cc = new ClientConnectionController("localhost", 5005, this);
         Thread clientThread = new Thread(cc);
         clientThread.start();
 
@@ -86,7 +89,7 @@ public class MainViewController implements Initializable,ResponseController {
 		 * This line adds random garbage data to the library in order to test library filter panes.
 		 * Comment it out if you don't want garbage data
 		 */
-        setLibrary(TrackListGenerator.randomTracksGib(1000));
+        //setLibrary(TrackListGenerator.randomTracksGib(1000));
 
         artist_list_view.setItems(artistList);
         album_list_view.setItems(albumList);
@@ -116,7 +119,7 @@ public class MainViewController implements Initializable,ResponseController {
      * LIBRARY CONTROL
      */
 
-    public void setLibrary(TrackList tl) {
+    public void setLibrary(ArrayList<Track> tl) {
         library = tl;
 
         artistAlbums = new HashMap<String, ArrayList<String>>();
@@ -165,34 +168,30 @@ public class MainViewController implements Initializable,ResponseController {
 
         albumList.add("[any]");
 
-        if(selectedArtists == null || selectedArtists.isEmpty()) {
+        if(selectedArtist == null || selectedArtist.isEmpty()) {
             //if no selected artist, add all albums
             for (String s : albumTracks.keySet())
                 albumList.add(s);
         } else {
             //if there is a selected artist, filter albums
-            for (String art : selectedArtists) {
-                for (String s : artistAlbums.get(art))
-                    albumList.add(s);
-            }
+            for (String s : artistAlbums.get(selectedArtist))
+                albumList.add(s);
         }
     }
 
     private void updateTrackListView() {
         trackList.clear();
 
-        TrackList availableTracks = new TrackList();
+        ArrayList<Track> availableTracks = (ArrayList<Track>) library.clone();
 
         //if there is an artist selected, filter the results
-        if(selectedArtists != null && !selectedArtists.isEmpty()) {
-            for(String artist : selectedArtists)
-                availableTracks.addAll(availableTracks.search("artist", artist));
+        if(selectedArtist != null && !selectedArtist.isEmpty()) {
+            availableTracks = Database.search(availableTracks, "artist", selectedArtist);
         }
 
         //likewise for albums
-        if(selectedAlbums != null && !selectedAlbums.isEmpty()) {
-            for(String album : selectedAlbums)
-                filteredTracks.addAll(availableTracks.search("album", album));
+        if(selectedAlbum != null && !selectedAlbum.isEmpty()) {
+            availableTracks = Database.search(availableTracks, "album", selectedAlbum);
         }
 
         //add selected tracks to listmodel, wrapping in TrackJListItem objects
@@ -206,10 +205,6 @@ public class MainViewController implements Initializable,ResponseController {
     }
 
     private void removeFromPlayQueue(PlayQueueTrackListItem t) {
-
-    }
-
-    public void setPlayQueue(TrackList tl) {
 
     }
 
@@ -254,16 +249,11 @@ public class MainViewController implements Initializable,ResponseController {
         artist_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
-                selectedArtists = new ArrayList<String>();
-
                 //if [any] selected
-                if((artist_list_view.getSelectionModel().getSelectedIndices().size() == 1)
-                    && (artist_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)) {
-                    //do nothing, there are no selected artists
-                } else {
-                    selectedArtists.addAll(artist_list_view.getSelectionModel().getSelectedItems());
-                }
-
+                if(artist_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)
+                    selectedArtist = "";
+                else
+                    selectedArtist = s2;
                 updateAlbumListView();
                 updateTrackListView();
             }
@@ -272,15 +262,11 @@ public class MainViewController implements Initializable,ResponseController {
         album_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
-                selectedAlbums = new ArrayList<String>();
-
                 //if [any] selected
-                if((album_list_view.getSelectionModel().getSelectedIndices().size() == 1)
-                        && (album_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)) {
-                    //do nothing, there are no selected artists
-                } else {
-                    selectedAlbums.addAll(album_list_view.getSelectionModel().getSelectedItems());
-                }
+                if(album_list_view.getSelectionModel().getSelectedIndices().get(0) == 0)
+                    selectedAlbum = "";
+                else
+                    selectedAlbum = s2;
 
                 updateTrackListView();
             }
@@ -303,6 +289,8 @@ public class MainViewController implements Initializable,ResponseController {
 
     @Override
     public void processResponse(Map<String, Object> request, Map<String, Object> response) {
+        System.err.println("[DEBUG]   " + request + "\n\t" + response);
+
         String cmd = (String) request.get("command");
 
         if(cmd != null && cmd instanceof String) {
@@ -319,7 +307,19 @@ public class MainViewController implements Initializable,ResponseController {
             } else if(cmd.equals("PREV")) {
 
             } else if(cmd.equals("DATABASE")) {
+                String status = (String) response.get("status_code");
+                if(status != null && status.equals("200")) {
+                    ArrayList<Track> newLibrary = new ArrayList<Track>();
+                    ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
 
+                    if(data != null) {
+                        for(Map<String,String> t : data) {
+                            newLibrary.add(new Track(t));
+                        }
+
+                        setLibrary(newLibrary);
+                    }
+                }
             } else if(cmd.equals("ADD")) {
 
             } else if(cmd.equals("UPDATE")) {
@@ -330,9 +330,22 @@ public class MainViewController implements Initializable,ResponseController {
 
             } else if(cmd.equals("QUEUE")) {
 
+            } else if(cmd.equals("SET")) {
+
             } else if(cmd.equals("PLADD")) {
 
             } else if(cmd.equals("PLDEL")) {
+
+            }
+
+            if(response.containsKey("track_id")) {
+                ArrayList<Track> tl = Database.search(library,"id",(String) response.get("track_id"));
+
+                if(tl.isEmpty()) {
+                    System.err.println("[WARN]    Currently playing track not found in client database");
+                } else {
+                    updateTrackLabel(tl.get(0));
+                }
 
             }
 
@@ -344,7 +357,9 @@ public class MainViewController implements Initializable,ResponseController {
 
     @Override
     public void onConnect() {
-
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("command", "DATABASE");
+        cc.sendMap(request);
     }
 
     @Override
