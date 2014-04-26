@@ -69,8 +69,8 @@ public class JsonParser {
                 }
                 dataContainer.add(key, arrayObj);
             }else{
-                System.out.println("illegal object nested in Map returning... null");
-                return null;
+                System.err.println("[WARN]   Unrecognized object (" + object.getClass() + ") in map in mapToString(...), using .toString()");
+                dataContainer = dataContainer.add(key, object.toString());
             }
 
         }
