@@ -3,6 +3,7 @@ package dooooom.jmpd.client;
 import dooooom.jmpd.data.JsonParser;
 import javafx.application.Platform;
 
+import javax.json.stream.JsonParsingException;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -62,13 +63,20 @@ public class ClientConnectionController implements Runnable {
 
                     Map<String,Object> response;
 
-                    response = JsonParser.stringToMap(s);
+                    try {
+                        response = JsonParser.stringToMap(s);
+                    } catch (JsonParsingException e) {
+                        System.err.println("[SEVERE]  Json parsing exception for daemon message: " + s);
+                        continue;
+                    }
 
                     String uid = (String) response.get("request_id");
 
                     Map<String, Object> request = null;
 
-                    if (uid.equals("0")) {
+                    if (uid == null) {
+                        System.err.println("[WARN]    Missing request_id in daemon message");
+                    } else if (uid.equals("0")) {
                         /*
                          * request_id:0 is a special case reserved for
                          * the server sending unsolicited information to the client
