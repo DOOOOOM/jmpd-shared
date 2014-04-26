@@ -24,9 +24,11 @@ public class Player extends Application {
 	// the order of playback.
     private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
 
-    private static MediaPlayer currentTrack;
-    private static MediaPlayer prevTrack;
-    private static MediaPlayer nextTrack;
+    private static MediaPlayer currentPlayback;
+
+    private static Track currentTrack;
+    private static Track prevTrack;
+    private static Track nextTrack;
 
 	// Whether the play queue loops back to the first track or not
     private static boolean loopingRepeat = true;
@@ -81,36 +83,68 @@ public class Player extends Application {
     }
 
     public static void setCurrentTrack(Track newCurrent) {
-        MediaPlayer oldCurrent = currentTrack;
+        MediaPlayer oldCurrent = currentPlayback;
+        currentTrack = newCurrent;
         String trackPath = "file:///" + newCurrent.get("filepath").replace(" ", "%20").replace("\\","/");
 
-        currentTrack = new MediaPlayer(new Media(trackPath));
+        currentPlayback = new MediaPlayer(new Media(trackPath));
 
         if(oldCurrent != null)
             oldCurrent.dispose();
 
         int i = playQueueTracks.indexOf(newCurrent);
 
-        if (i < playQueue.size() - 1) {
-            final int t = i + 1;
-            currentTrack.setOnEndOfMedia(new Runnable() {
+        if(i == 0) {
+            if(loopingRepeat)
+                setPrevTrack(playQueueTracks.get(playQueueTracks.size()-1));
+            else
+                setPrevTrack(null);
+
+            setNextTrack(playQueueTracks.get(i+1));
+
+            currentPlayback.setOnEndOfMedia(new Runnable() {
                 @Override
                 public void run() {
-                    setCurrentTrack(playQueueTracks.get(t));
+                    setCurrentTrack(nextTrack);
                     play();
                 }
             });
-        } else if (loopingRepeat) { //essentially restarts the play queue on the last track
-            playQueue.get(playQueue.size() - 1).setOnEndOfMedia(new Runnable() {
+
+        } else if(i == playQueueTracks.size() - 1) {
+            if(loopingRepeat)
+                setPrevTrack(playQueueTracks.get(playQueueTracks.size()-1));
+            else
+                setPrevTrack(null);
+
+            setNextTrack(playQueueTracks.get(i+1));
+
+            currentPlayback.setOnEndOfMedia(new Runnable() {
                 @Override
                 public void run() {
-                    playQueue.clear();
-                    setPlayQueue();
-                    currentPlayer = 0;
+                    setCurrentTrack(nextTrack);
+                    play();
+                }
+            });
+        } else {
+            setPrevTrack(playQueueTracks.get(i-1));
+            setNextTrack(playQueueTracks.get(i+1));
+
+            currentPlayback.setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    setCurrentTrack(nextTrack);
                     play();
                 }
             });
         }
+    }
+
+    public static void setPrevTrack(Track newPrevious) {
+
+    }
+
+    public static void setNextTrack(Track newNext) {
+
     }
 
     /**
