@@ -1,18 +1,18 @@
 package dooooom.jmpd.daemon;
 
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
-
 public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration;
+    private Player player;
 
-    public static void main(String[] args) {
-        DaemonMainController dmc = new DaemonMainController();
-        dmc.run();
+    public DaemonMainController(Player player) {
+        this.player = player;
     }
 
     public void run() {
@@ -26,8 +26,51 @@ public class DaemonMainController implements Runnable, RequestController {
 
     @Override
     public Map<String, Object> processRequest(Map<String, Object> request) {
-        request.put("ack", "ack");
-        return request;
+        String cmd = (String) request.get("command");
+
+        Map<String,Object> response = new HashMap<String,Object>();
+
+        if(cmd != null && cmd instanceof String) {
+            if(cmd.equals("TOGGLE")) {
+
+            } else if(cmd.equals("PLAY")) {
+
+            } else if(cmd.equals("PAUSE")) {
+
+            } else if(cmd.equals("STOP")) {
+
+            } else if(cmd.equals("NEXT")) {
+
+            } else if(cmd.equals("PREV")) {
+
+            } else if(cmd.equals("DATABASE")) {
+
+            } else if(cmd.equals("ADD")) {
+
+            } else if(cmd.equals("UPDATE")) {
+
+            } else if(cmd.equals("REMOVE")) {
+
+            } else if(cmd.equals("CURRENT")) {
+
+            } else if(cmd.equals("QUEUE")) {
+
+            } else if(cmd.equals("SET")) {
+
+            } else if(cmd.equals("PLADD")) {
+
+            } else if(cmd.equals("PLDEL")) {
+
+            }
+
+            //things to do no matter what was received
+        } else {
+            //Bad request
+            response.put("status_code","400");
+            response.put("status_message","Bad Request: No command given");
+        }
+
+        return response;
     }
 
     private static Properties Configure() {
@@ -35,10 +78,10 @@ public class DaemonMainController implements Runnable, RequestController {
         InputStream in = null;
 
         try {
-            in = new FileInputStream(getDefaultConfigPath());
+            in = new FileInputStream(getDefaultConfigPath() + "jmpd.properties");
             prop.load(in);
         } catch (FileNotFoundException e) {
-            System.out.println("No user configuration. Creating new file");
+            System.out.println("[INFO]    No user configuration. Creating new file");
             createConfig();
         } catch (IOException e) {
 
