@@ -8,6 +8,7 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Player extends Application {
@@ -19,6 +20,10 @@ public class Player extends Application {
 	// The list of media players for each track in the play queue, in 
 	// the order of playback.
     private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
+
+    private static MediaPlayer currentTrack;
+    private static MediaPlayer prevTrack;
+    private static MediaPlayer nextTrack;
 
 	// Whether the play queue loops back to the first track or not
     private static boolean loopingRepeat = true;
@@ -72,16 +77,54 @@ public class Player extends Application {
         }
     }
 
+    public static void setCurrentTrack(Track newCurrent) {
+        MediaPlayer oldCurrent = currentTrack;
+        String trackPath = "file:///" + newCurrent.get("filepath").replace(" ", "%20");
+
+        currentTrack = new MediaPlayer(new Media(trackPath));
+
+        oldCurrent.dispose();
+
+        int i = playQueueTracks.indexOf(newCurrent);
+
+        if (i < playQueue.size() - 1) {
+            final int t = i + 1;
+            currentTrack.setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    setCurrentTrack(playQueueTracks.get(t));
+                    play();
+                }
+            });
+        } else if (loopingRepeat) { //essentially restarts the play queue on the last track
+            playQueue.get(playQueue.size() - 1).setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    playQueue.clear();
+                    setPlayQueue();
+                    currentPlayer = 0;
+                    play();
+                }
+            });
+        }
+    }
+
     /**
      *	Precondition: Given a list of songs
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
+        int i  = 1;
         for (Track t : newSongs) {
-            String path = "file:" + t.get("filepath").replace(" ", "%20");
-            System.out.println(path);
+            String path = "file:///" + t.get("filepath").replace(" ", "%20");
+            System.out.println(path + " " + i++);
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+
+            }
 //            playQueueTracks.add(t);
         }
         playQueueTracks.addAll(newSongs);
@@ -298,9 +341,10 @@ public class Player extends Application {
         }
     }
     public void addSongs() {
-        FileSystemScanner f = new FileSystemScanner("/home/zap/music/Baths/Obsidian");
-        System.out.println(f.returnTracks());
+
+        FileSystemScanner f = new FileSystemScanner("/home/zap/tmp/test");
         ArrayList<Track> t = f.returnTracks();
+        System.out.println(t);
         Collections.sort(t);
         add(t);
     }
