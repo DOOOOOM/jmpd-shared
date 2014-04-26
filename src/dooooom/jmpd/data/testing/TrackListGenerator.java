@@ -1,9 +1,10 @@
 package dooooom.jmpd.data.testing;
 
-import java.util.Random;
-
-import dooooom.jmpd.data.TrackList;
 import dooooom.jmpd.data.Track;
+import dooooom.jmpd.data.TrackList;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class TrackListGenerator {
 	private static String getRandomSyllable() {
@@ -102,8 +103,8 @@ public class TrackListGenerator {
 		return tracks;
 	}
 	
-	public static TrackList randomTracksGib(int nArtists) {
-		TrackList tracks = new TrackList();
+	public static ArrayList<Track> randomTracksGib(int nArtists) {
+        ArrayList<Track> tracks = new ArrayList<Track>();
 
 		final int albumsPerArtist = 3;
 		final int tracksPerAlbum = 8;
