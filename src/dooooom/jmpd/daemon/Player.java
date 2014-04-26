@@ -114,21 +114,15 @@ public class Player extends Application {
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
-        int i  = 1;
         for (Track t : newSongs) {
             String path = "file:///" + t.get("filepath").replace(" ", "%20");
-            System.out.println(path + " " + i++);
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-
-            }
-//            playQueueTracks.add(t);
         }
         playQueueTracks.addAll(newSongs);
         setPlayQueue();
+        if(playQueueTracks.equals(newSongs))
+            setCurrentTrack(playQueueTracks.get(0));
     }
 
 	/**

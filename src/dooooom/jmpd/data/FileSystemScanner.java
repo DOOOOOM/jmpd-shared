@@ -64,7 +64,8 @@ public class FileSystemScanner
 	{
 		ArrayList<Track> trackList = new ArrayList<Track>();
 		int nextID = 1;
-		ArrayList<String> paths = this.returnPathNames();
+		ArrayList<String> paths = new ArrayList<String>();
+        pathRecurse(musicFolderPath, paths);
 		for(String path : paths)
 		{
 			Track t = new Track();
@@ -100,26 +101,6 @@ public class FileSystemScanner
             } //or ignore it
         }
 	}
-
-
-
-	public ArrayList<String> returnPathNames()
-	/**
-	 * This method provided with the default music directory for the system,
-	 * will return an array of Strings, each corresponding to the pathName
-	 * of the file in question. Directories will not be returned
-	 * @ Pre: the musicFolderPath is a valid String
-	 * @ Pre: the musicFolderPath is a valid directory path
-	 * @ Post: None of the paths returned by the method are folders
-	 *
-	 */
-	{
-        ArrayList<String> pathNameList = new ArrayList<String>();
-        pathRecurse(musicFolderPath, pathNameList);
-
-        return pathNameList;
-	}
-
 
 	private String findMusicFolder()
 	{
