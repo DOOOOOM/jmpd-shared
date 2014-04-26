@@ -53,6 +53,12 @@ public class MainViewController implements Initializable,ResponseController {
     private ArrayList<Track> library = new ArrayList<Track>();
 
     /*
+     * Keep track of how many and which segments have been received for the current library
+     */
+    private Map<Integer,Boolean> segmentsReceived = new HashMap<Integer,Boolean>();
+    private int n_segments;
+
+    /*
      * ObservableList objects for the ListViews
      */
     private final ObservableList<String> artistList = FXCollections.observableArrayList();
@@ -249,7 +255,12 @@ public class MainViewController implements Initializable,ResponseController {
     }
 
     private void addToPlayQueue(PlayQueueTrackListItem t) {
-
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("command", "ADD");
+        ArrayList<String> tracksToAdd = new ArrayList<String>();
+        tracksToAdd.add(t.getTrack().get("id"));
+        request.put("ids",tracksToAdd);
+        cc.sendMap(request);
     }
 
     private void removeFromPlayQueue(PlayQueueTrackListItem t) {
@@ -328,7 +339,7 @@ public class MainViewController implements Initializable,ResponseController {
                         TrackListItem tli = track_list_view.getSelectionModel().getSelectedItems().get(0);
                         PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
                         addToPlayQueue(pqtli);
-                        status_bar.setText("Added 1 track (" + pqtli + ") to play queue.");
+
                     }
                 }
             }
@@ -342,6 +353,8 @@ public class MainViewController implements Initializable,ResponseController {
         String cmd = (String) request.get("command");
 
         if(cmd != null && cmd instanceof String) {
+            String status = (String) response.get("status_code");
+
             if(cmd.equals("TOGGLE")) {
 
             } else if(cmd.equals("PLAY")) {
@@ -355,9 +368,21 @@ public class MainViewController implements Initializable,ResponseController {
             } else if(cmd.equals("PREV")) {
 
             } else if(cmd.equals("DATABASE")) {
-                String status = (String) response.get("status_code");
                 if(status != null && status.equals("200")) {
                     ArrayList<Track> newLibrary = new ArrayList<Track>();
+                    ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
+
+                    segmentsReceived = new HashMap<Integer,Boolean>();
+
+                    if(data != null) {
+                        for(Map<String,String> t : data) {
+                            newLibrary.add(new Track(t));
+                        }
+
+                        setLibrary(newLibrary);
+                    }
+                } else if (status != null && status.equals("206")) {
+                    ArrayList<Track> newLibrary = (ArrayList<Track>) library.clone();
                     ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
 
                     if(data != null) {
@@ -368,8 +393,44 @@ public class MainViewController implements Initializable,ResponseController {
                         setLibrary(newLibrary);
                     }
                 }
-            } else if(cmd.equals("ADD")) {
 
+                if (status != null && (status.equals("200") || status.equals("206"))) {
+                    try {
+                        int segment_id = Integer.parseInt((String) response.get("segment_id"));
+                        n_segments = Integer.parseInt((String) response.get("n_segments"));
+
+                        segmentsReceived.put(segment_id,true);
+                        for(int i = 0; i < segment_id; i++) {
+                            Boolean received = segmentsReceived.get(i);
+
+                            if(received == null || received == false) {
+                                Map<String, Object> new_request = new HashMap<String, Object>();
+                                new_request.put("command", "DATABASE");
+                                new_request.put("segment_id", Integer.toString(i));
+                                System.err.println("[INFO]    Retry grabbing database segment " + i);
+                                cc.sendMap(new_request);
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("[ERROR]   Bad parse on segment_id or n_segments: " + response);
+                    }
+                }
+            } else if(cmd.equals("ADD")) {
+                if(status != null && status.equals("200")) {
+                    ArrayList<String> ids = (ArrayList<String>) request.get("ids");
+
+                    ArrayList<Track> tracksToAdd = new ArrayList<Track>();
+
+                    for(String id : ids) {
+                        tracksToAdd.addAll(Database.search("id",id));
+                    }
+
+                    if(tracksToAdd.size() == 1) {
+                        status_bar.setText("Added 1 track (" + new PlayQueueTrackListItem(tracksToAdd.get(0)) + ") to play queue.");
+                    } else {
+                        status_bar.setText("Added " + tracksToAdd.size() + " tracks to play queue.");
+                    }
+                }
             } else if(cmd.equals("UPDATE")) {
 
             } else if(cmd.equals("REMOVE")) {
