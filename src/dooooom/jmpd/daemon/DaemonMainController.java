@@ -24,7 +24,7 @@ public class DaemonMainController implements Runnable, RequestController {
          dcc = new DaemonConnectionController(getPortNumber(), this);
 
         //temporarily hard-coded
-        FileSystemScanner f = new FileSystemScanner("C:\\Music\\TestLibrary");
+        FileSystemScanner f = new FileSystemScanner(getMusicFolder());
         ArrayList<Track> t = f.returnTracks();
         System.out.println(t);
         Collections.sort(t);
