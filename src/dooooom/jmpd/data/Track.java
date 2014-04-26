@@ -1,9 +1,16 @@
 package dooooom.jmpd.data;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Track extends HashMap<String,String> implements Comparable<Track>
 {
+    public Track(Map<String,String> t) {
+        for(Entry<String,String> e : t.entrySet()) {
+            this.put(e.getKey(), e.getValue());
+        }
+    }
+
 	public Track(String filepath, String artist, String album, String title)
 	{
         this.put("filepath", filepath);
