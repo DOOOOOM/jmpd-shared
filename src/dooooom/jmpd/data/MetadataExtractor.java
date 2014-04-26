@@ -32,21 +32,22 @@ public class MetadataExtractor
 		try 
 		{
 			Mp3File mp3File = new Mp3File(filePath);
+
+
+
 			if (mp3File.hasId3v2Tag())
 			{
 				ID3v2 id3v2Tag = mp3File.getId3v2Tag();
 				artistName = id3v2Tag.getArtist();
-			}
-			
-			else if (mp3File.hasId3v1Tag())
-			{
+			} else if (mp3File.hasId3v1Tag()) {
 				ID3v1 id3v1Tag = mp3File.getId3v1Tag();
 				artistName = id3v1Tag.getArtist();
-			}			
+			} else {
+                System.err.print("[DEBUG]   No ID3 tags found for " + filePath + ": ");
+            }
 			
 		} catch (UnsupportedTagException e) 
 		  {
-			
 			e.printStackTrace();
 		  } 
 		  catch (InvalidDataException e) 
@@ -59,15 +60,9 @@ public class MetadataExtractor
 		  {			
 			e.printStackTrace();
 		  }
-		
-		try
-		{
-			if(artistName.equals(null))
-				artistName = "Unknown Artist";
-		} catch (Exception e) 
-		  {artistName = "Unknown Artist";
-			//e.printStackTrace();
-		  }
+
+		if(artistName == null)
+			artistName = "Unknown Artist";
 		
 		return artistName;
 	}
