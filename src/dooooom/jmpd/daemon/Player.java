@@ -12,6 +12,9 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Player extends Application {
+    // The class responsible for controlling most of the external
+    // functions of the server
+    DaemonMainController server;
 
 	// The list of each track in the play queue, in
 	// the order of playback.
@@ -35,7 +38,7 @@ public class Player extends Application {
     @Override
     public void start(Stage arg0) {
         try {
-            DaemonMainController server  = new DaemonMainController(this);
+            server  = new DaemonMainController(this);
             Thread serverThread = new Thread(server);
             serverThread.start();
 //beginTest
@@ -338,12 +341,8 @@ public class Player extends Application {
                         addSongs();
                     } else if (input.equals("c")) {
                         System.out.println(getTime());
-                    } else if (input.equals("m")) {
-//                        try {
-//                            client.sendMessage(Command.TOGGLE, "");
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
+                    } else if (input.equals("i")) {
+                        server.onTrackChange();
                     }
                 }
             } catch (NoSuchElementException e) {
