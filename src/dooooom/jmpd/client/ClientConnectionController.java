@@ -67,6 +67,7 @@ public class ClientConnectionController implements Runnable {
                         response = JsonParser.stringToMap(s);
                     } catch (JsonParsingException e) {
                         System.err.println("[SEVERE]  Json parsing exception for daemon message: " + s);
+                        e.printStackTrace();
                         continue;
                     }
 
