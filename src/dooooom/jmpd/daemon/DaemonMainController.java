@@ -12,14 +12,16 @@ import java.util.*;
 public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration;
     private Player player;
+    DaemonConnectionController dcc;
 
     public DaemonMainController(Player player) {
         this.player = player;
     }
 
+
     public void run() {
         daemonConfiguration = Configure();
-        DaemonConnectionController dcc = new DaemonConnectionController(getPortNumber(), this);
+         dcc = new DaemonConnectionController(getPortNumber(), this);
 
         //temporarily hard-coded
         FileSystemScanner f = new FileSystemScanner("C:\\Music\\Incubus");
@@ -32,6 +34,9 @@ public class DaemonMainController implements Runnable, RequestController {
         Thread dccThread = new Thread(dcc);
         dccThread.start();
         Player.setPlayQueue();
+
+        Timer sendTrackInfoTimer = new Timer();
+        sendTrackInfoTimer.schedule(new SendTrackInfoTask(), 1000, 1000);
     }
 
     @Override
@@ -83,7 +88,6 @@ public class DaemonMainController implements Runnable, RequestController {
                     response.put("status_code","404");
                     response.put("status_message","Not Found: database not found");
                 }
-//
 //            } else if(cmd.equals("ADD")) {
 //
 //            } else if(cmd.equals("UPDATE")) {
@@ -115,17 +119,46 @@ public class DaemonMainController implements Runnable, RequestController {
         return response;
     }
 
+    public Map<String,Object> createTrackInfoResponse() {
+        Map<String,Object> response = new HashMap<String,Object>();
+
+        response.put("request_id","0");
+        addTrackInfo(response);
+
+        return response;
+    }
+
     private void addTrackInfo(Map<String,Object> response) {
         Track currentTrack = player.getCurrentTrack();
 
         if(currentTrack != null) {
             response.put("track_id", currentTrack.get("id"));
             response.put("time", Double.toString(player.getTime()));
-            response.put("state", player.getState());
+            response.put("state", Boolean.toString(player.getState()));
         } else {
 
         }
     }
+
+    public class SendTrackInfoTask extends TimerTask {
+        @Override
+        public void run() {
+            dcc.sendToAll(createTrackInfoResponse());
+        }
+    }
+
+    /*
+     * This method should be called by the Player whenever the track is changed
+     * it notifies all clients of the changes
+     */
+    public void onTrackChange() {
+        dcc.sendToAll(createTrackInfoResponse());
+    }
+
+    /* ********************************
+     *       ABANDON ALL HOPE,
+     *       YE WHO ENTER HERE
+     */
 
     private static Properties Configure() {
         Properties prop = new Properties();
