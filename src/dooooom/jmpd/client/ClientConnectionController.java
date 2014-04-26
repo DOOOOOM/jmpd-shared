@@ -1,6 +1,7 @@
 package dooooom.jmpd.client;
 
 import dooooom.jmpd.data.JsonParser;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -57,6 +58,8 @@ public class ClientConnectionController implements Runnable {
 
                     String s = in.readLine();
 
+                    System.out.println("[DEBUG]   Received: " + s);
+
                     Map<String,Object> response;
 
                     response = JsonParser.stringToMap(s);
@@ -73,9 +76,13 @@ public class ClientConnectionController implements Runnable {
                     }
 
                     if(requestsFound > 1)
-                        System.err.println("[WARN]    ");
+                        System.err.println("[WARN]    Duplicate request_id");
 
-                    rc.processResponse(request, response);
+                    if(request != null && response != null) {
+                        Platform.runLater(new ProcessRequestHandler(rc, request, response));
+                    } else {
+
+                    }
 
                 } catch (IOException e) {
                     if(connected) {
@@ -207,9 +214,26 @@ public class ClientConnectionController implements Runnable {
     /*
      * This class is used by the reconnect timer to retry after 5 seconds.
      */
-    public class ReconnectTask extends TimerTask {
+    private class ReconnectTask extends TimerTask {
         public void run() {
             reconnect();
+        }
+    }
+
+    private class ProcessRequestHandler implements Runnable {
+        private Map<String,Object> request;
+        private Map<String,Object> response;
+        ResponseController rc;
+
+        public ProcessRequestHandler(ResponseController rc, Map<String,Object> request, Map<String,Object> response) {
+            this.rc = rc;
+            this.request = request;
+            this.response = response;
+        }
+
+        @Override
+        public void run() {
+            rc.processResponse(request, response);
         }
     }
 }
