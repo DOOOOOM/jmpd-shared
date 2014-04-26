@@ -8,7 +8,6 @@ package dooooom.jmpd.data;
 import dooooom.jmpd.daemon.DaemonMainController;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +64,9 @@ public class FileSystemScanner
 		ArrayList<Track> trackList = new ArrayList<Track>();
 		int nextID = 1;
 		ArrayList<String> paths = new ArrayList<String>();
+        System.err.println("[INFO]    Begin scanning filesystem at " + musicFolderPath);
         pathRecurse(musicFolderPath, paths);
+        System.err.println("[INFO]    Finished scanning filesystem, now extracting metadata");
 		for(String path : paths)
 		{
 			Track t = new Track();
@@ -76,9 +77,20 @@ public class FileSystemScanner
 			t.put("track", MetadataExtractor.extractTrackFrom(path));
 			t.put("id", new Integer(nextID).toString());
 			t.put("filepath", path);
+
 			trackList.add(t);
+
+            try {
+                if (nextID % (paths.size() / 25) == 0)
+                    System.err.println("[INFO]    Metadata collected " + (nextID * 100) / paths.size());
+            } catch (ArithmeticException e) {
+
+            }
+
 			nextID++;
 		}
+
+        System.err.println("[INFO]    Metadata extraction finished");
 
 		TrackList tl = new TrackList(trackList);
 
@@ -98,9 +110,13 @@ public class FileSystemScanner
                 targetList.add(path.getPath());
             } else if(path.isDirectory()) { //otherwise we must go deeper
                 pathRecurse(path.getPath(), targetList);
-            } //or ignore it
+            } // /or ignore it
         }
+
 	}
+
+
+
 
 	private String findMusicFolder()
 	{
