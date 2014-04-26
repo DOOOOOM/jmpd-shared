@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DaemonConnectionController implements Runnable {
     private ServerSocket listenSocket;
@@ -18,7 +16,9 @@ public class DaemonConnectionController implements Runnable {
     private int port;
     private RequestController rc;
 
-    private List<Thread> threads = new ArrayList<Thread>();
+//    private List<Thread> threads = new ArrayList<Thread>();
+//    private List<ConnectionHandler> connectionHandlers = new ArrayList<ConnectionHandler>();
+    private Map<ConnectionHandler,Thread> connectionHandlerThreadMap = new HashMap<ConnectionHandler, Thread>();
 
     public DaemonConnectionController(int port, RequestController rc) {
         this.port = port;
@@ -35,16 +35,24 @@ public class DaemonConnectionController implements Runnable {
             System.exit(1);
         }
 
+        Timer connectionTimer = new Timer();
+        connectionTimer.schedule(new RemoveUnusedConnectionsTask(), 0, 100);
+
         try {
             while (true) {
                 Socket socket = null;
                 try {
                     socket = listenSocket.accept();
                     System.err.println("[INFO]    Connection accepted");
-                    Thread connectionThread = new Thread(new ConnectionHandler(socket));
-                    threads.add(connectionThread);
+
+                    ConnectionHandler ch = new ConnectionHandler(socket);
+//                    connectionHandlers.add(ch);
+
+
+                    Thread connectionThread = new Thread(ch);
+//                    threads.add(connectionThread);
+                    connectionHandlerThreadMap.put(ch,connectionThread);
                     connectionThread.start();
-                    socket = null;
                 } catch (IOException e) {
                     System.err.println("[ERROR]   Server could not accept connection");
                     System.exit(1);
@@ -59,8 +67,40 @@ public class DaemonConnectionController implements Runnable {
         }
     }
 
+    public void sendToAll(Map<String,Object> response) {
+        for(ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
+            Socket socket = ch.getSocket();
+
+            send(socket, response);
+        }
+    }
+
+    private void send(Socket socket, Map<String,Object> response) {
+        try {
+            synchronized (socket) {
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+                String responseString = JsonParser.mapToString(response);
+
+                if (!responseString.endsWith("\n"))
+                    responseString += "\n";
+
+                out.writeBytes(responseString);
+            }
+        } catch (IOException e) {
+            System.err.println("[ERROR]   Error in communication with client in send()");
+
+            try {
+                if (socket != null)
+                    socket.close();
+            } catch (IOException e0) {
+                System.err.println("[ERROR]   Error in closing socket");
+            }
+        }
+    }
+
     private class ConnectionHandler implements Runnable {
-        Socket socket;
+        private Socket socket;
 
         public ConnectionHandler(Socket socket) {
             this.socket = socket;
@@ -70,20 +110,15 @@ public class DaemonConnectionController implements Runnable {
             while (socket != null && socket.isConnected()) {
                 try {
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
                     String s = in.readLine();
 
                     Map<String,Object> request = JsonParser.stringToMap(s);
                     Map<String,Object> response = rc.processRequest(request);
-                    String responseString = JsonParser.mapToString(response);
 
-                    if (!responseString.endsWith("\n"))
-                        responseString += "\n";
-
-                    out.writeBytes(responseString);
+                    send(socket, response);
                 } catch (IOException e) {
-                    System.err.println("[ERROR]   Error in communication with client");
+                    System.err.println("[ERROR]   Error in communication with client in ConnectionHandler");
 
                     try {
                         if (socket != null)
@@ -93,6 +128,24 @@ public class DaemonConnectionController implements Runnable {
                     }
 
                     break;
+                }
+            }
+        }
+
+        public Socket getSocket() {
+            return socket;
+        }
+    }
+
+    private class RemoveUnusedConnectionsTask extends TimerTask {
+        @Override
+        public void run() {
+            for (ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
+                Thread th = connectionHandlerThreadMap.get(ch);
+
+                if(th.getState() == Thread.State.TERMINATED) {
+                    System.err.println("[INFO]    Removing dead ConnectionHandler thread");
+                    connectionHandlerThreadMap.remove(ch);
                 }
             }
         }
