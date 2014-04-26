@@ -1,6 +1,7 @@
 package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.client.ClientConnectionController;
+import dooooom.jmpd.client.LyricsFetcher;
 import dooooom.jmpd.client.ResponseController;
 import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
@@ -17,10 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 //import dooooom.jmpd.data.TrackList;
 
@@ -43,6 +41,8 @@ public class MainViewController implements Initializable,ResponseController {
 
     @FXML private TextArea lyrics_text;
     @FXML private Label status_bar;
+
+    private boolean playing = false;
 
     //private UDPClient client;
     private ClientConnectionController cc;
@@ -98,6 +98,20 @@ public class MainViewController implements Initializable,ResponseController {
         addActionListeners();
     }
 
+    /* ********************************
+     * TRACK INFO UPDATE
+     */
+
+    public void updateTrack(Track t) {
+        updateTrackLabel(t);
+        updateLyricsPane(t);
+        updateSeekMax(t);
+    }
+
+    /*
+     * Populates the label at the top of the GUI with information
+     * based on the given track
+     */
     public void updateTrackLabel(Track t) {
         String result = "";
 
@@ -114,6 +128,40 @@ public class MainViewController implements Initializable,ResponseController {
 
         track_label.setText(result);
     }
+
+    /*
+     * If possible, updates the lyrics pane
+     * with lyrics from the given track
+     */
+    public void updateLyricsPane(Track t) {
+        String artist = t.get("artist");
+        String title = t.get("title");
+
+        String lyrics;
+        if(artist != null && !artist.isEmpty()
+                && title != null && !title.isEmpty())
+            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+        else
+            lyrics = "[lyrics unavailable]";
+
+        lyrics_text.setText(lyrics);
+    }
+
+    public void updateSeekMax(Track t) {
+        String lengthString = (String) t.get("length");
+
+        if(lengthString != null && lengthString instanceof String) {
+            try {
+                double length = Double.parseDouble(lengthString);
+                seek_slider.setMax(length);
+                seek_slider.setDisable(false);
+            } catch (NumberFormatException e) {
+                seek_slider.setDisable(true);
+            }
+        }
+    }
+
+
 
     /* ********************************
      * LIBRARY CONTROL
@@ -289,7 +337,7 @@ public class MainViewController implements Initializable,ResponseController {
 
     @Override
     public void processResponse(Map<String, Object> request, Map<String, Object> response) {
-        System.err.println("[DEBUG]   " + request + "\n\t" + response);
+        System.err.println("[DEBUG]   " + request + "\n          " + response);
 
         String cmd = (String) request.get("command");
 
@@ -344,9 +392,21 @@ public class MainViewController implements Initializable,ResponseController {
                 if(tl.isEmpty()) {
                     System.err.println("[WARN]    Currently playing track not found in client database");
                 } else {
-                    updateTrackLabel(tl.get(0));
+                    updateTrack(tl.get(0));
                 }
+            }
 
+            if(response.containsKey("time")) {
+                String timeString = (String) response.get("time");
+
+                if(timeString != null && timeString instanceof String) {
+                    try {
+                        double time = Double.parseDouble(timeString);
+                        seek_slider.setValue(time);
+                    } catch (NumberFormatException e) {
+
+                    }
+                }
             }
 
             //things to do no matter what was received
@@ -370,5 +430,12 @@ public class MainViewController implements Initializable,ResponseController {
     @Override
     public void giveStatusInformation(String s) {
         status_bar.setText(s);
+    }
+
+    private class UpdateSeekTask extends TimerTask {
+        @Override
+        public void run() {
+
+        }
     }
 }
