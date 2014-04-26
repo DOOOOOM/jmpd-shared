@@ -1,8 +1,8 @@
 package dooooom.jmpd.data;
 
-import java.io.IOException;
+import com.mpatric.mp3agic.*;
 
-import com.mpatric.mp3agic.*; 
+import java.io.IOException;
 
 /**
  * REQUIRES THE com PACKAGE IN our src FOLDER (https://github.com/mpatric/mp3agic/tree/master/src/main/java)
@@ -21,7 +21,7 @@ public class MetadataExtractor
 		
 	}
 	
-	static String extractArtistFrom(String filePath)
+	public static String extractArtistFrom(String filePath)
 	/*
 	 * The extractArtistFrom method checks the ID3 version of the mp3 file and 
 	 * extracts the artist's name from the MP3 file.
@@ -73,7 +73,7 @@ public class MetadataExtractor
 	}
 
 
-	static String extractTitleFrom(String filePath)
+	public static String extractTitleFrom(String filePath)
 	/*
 	 *  The extractNameFrom method checks the ID3 version of the mp3 file and 
 	 * extracts the song title from the MP3 file.
@@ -123,7 +123,7 @@ public class MetadataExtractor
 	}
 	
 
-	static String extractAlbumFrom(String filePath)
+	public static String extractAlbumFrom(String filePath)
 	/*
 	 * The extractAlbumFrom method checks the ID3 version of the mp3 file and 
 	 * extracts the artist's name from the MP3 file.
@@ -172,7 +172,7 @@ public class MetadataExtractor
 		return albumName;
 	}
 	
-	static Double extractLengthFrom(String filePath)
+	public static Double extractLengthFrom(String filePath)
 	/*
 	 * The extractLengthFrom method checks the length of the track
 	 * and returns a double that represents the length
@@ -205,7 +205,7 @@ public class MetadataExtractor
 		return trackLength;
 	}
 	
-	static String extractTrackFrom(String filePath)
+	public static String extractTrackFrom(String filePath)
 	/*
 	 * The extractTrackFrom method checks the ID3 version of the mp3 file and 
 	 * extracts the track number from the MP3 file.
