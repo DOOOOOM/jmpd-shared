@@ -1,4 +1,8 @@
 package dooooom.jmpd.data;
+import dooooom.jmpd.daemon.DaemonMainController;
+
+import javax.json.*;
+import javax.json.stream.JsonParser;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -8,20 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonStructure;
-import javax.json.JsonValue;
-import javax.json.JsonWriter;
-import javax.json.stream.JsonParser;
-
-import dooooom.jmpd.daemon.DaemonMainController;
-
 public class Database {
-	
 	public final String dbLocation = DaemonMainController.getDatabasePath();
     public static ArrayList<Track> library;
 	int nextID = 1;
@@ -34,6 +25,30 @@ public class Database {
         for(Track t : library){
             addEntry(t,t.get("id"));
         }
+    }
+
+    public static ArrayList<Track> search(ArrayList<Track> tl, String key, String value) {
+        ArrayList<Track> result = new ArrayList<Track>();
+
+        for(Track tr : tl)
+        {
+            if(tr.get(key).equals(value))
+                result.add(tr);
+        }
+
+        return result;
+    }
+
+    public static ArrayList<Track> search(String key, String value) {
+        ArrayList<Track> result = new ArrayList<Track>();
+
+        for(Track tr : library)
+        {
+            if(tr.get(key).equals(value))
+                result.add(tr);
+        }
+
+        return result;
     }
 	
 	public void addEntry(Map<String, String> data,String tag){
