@@ -331,19 +331,33 @@ public class MainViewController implements Initializable,ResponseController {
             }
         });
 
-        track_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
-                    if(mouseEvent.getClickCount() == 2) {
-                        TrackListItem tli = track_list_view.getSelectionModel().getSelectedItems().get(0);
-                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
-                        addToPlayQueue(pqtli);
+        track_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TrackListItem>() {
+                   @Override
+                   public void changed(ObservableValue<? extends TrackListItem> observableValue, TrackListItem tli, TrackListItem tli2) {
+                       if(tli2 == null) {
+                           status_bar.setText("");
+                       } else {
+                           Track t = (Track) tli2.getTrack().clone();
+                           t.remove("filepath");
+                           t.remove("id");
+                           status_bar.setText(t.toString());
+                       }
+                   }
+               });
 
+                track_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                            if (mouseEvent.getClickCount() == 2) {
+                                TrackListItem tli = track_list_view.getSelectionModel().getSelectedItems().get(0);
+                                PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
+                                addToPlayQueue(pqtli);
+
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     @Override
