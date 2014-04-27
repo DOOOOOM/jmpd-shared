@@ -403,7 +403,7 @@ public class Player extends Application {
             }
             else o.append(ch);
         }
-        return o.toString();
+        return o.toString().replace(" ","%20");
     }
 
     private static char toHex(int ch)
