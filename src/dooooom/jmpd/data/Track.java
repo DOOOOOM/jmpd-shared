@@ -6,13 +6,9 @@ import java.util.Map;
 public class Track extends HashMap<String,String> implements Comparable<Track>
 {
     public Track(Map<String,String> t) {
-        for(Entry<String,String> e : t.entrySet()) {
+        for(Map.Entry<String,String> e : t.entrySet()) {
             this.put(e.getKey(), e.getValue());
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 
 	public Track(String filepath, String artist, String album, String title)
@@ -32,11 +28,11 @@ public class Track extends HashMap<String,String> implements Comparable<Track>
         if(hours > 0) {
             response += Integer.toString(hours) + ":";
         }
-        if(minutes < 10) {
+        if(minutes < 10 && hours > 0) {
             response += "0";
         }
         response += Integer.toString(minutes) + ":";
-        if(seconds < 10)
+        if(((int) seconds % 60) < 10)
             response += "0";
         response += Integer.toString((int) seconds % 60);
 
