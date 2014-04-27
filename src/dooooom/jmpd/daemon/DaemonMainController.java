@@ -11,6 +11,7 @@ import java.util.*;
 public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration;
     private Player player;
+    private Database database;
     DaemonConnectionController dcc;
 
     public DaemonMainController(Player player) {
@@ -20,13 +21,9 @@ public class DaemonMainController implements Runnable, RequestController {
 
     public void run() {
         daemonConfiguration = Configure();
-         dcc = new DaemonConnectionController(getPortNumber(), this);
+        dcc = new DaemonConnectionController(getPortNumber(), this);
 
-//        FileSystemScanner f = new FileSystemScanner(getMusicFolder());
-//        ArrayList<Track> t = f.returnTracks();
-//        System.out.println(t);
-//        Collections.sort(t);
-//        Database.library = t;
+        database.updateDatabase();
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
@@ -60,12 +57,18 @@ public class DaemonMainController implements Runnable, RequestController {
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);
-//            } else if(cmd.equals("PLAY")) {
-//
-//            } else if(cmd.equals("PAUSE")) {
-//
-//            } else if(cmd.equals("STOP")) {
-//
+            } else if(cmd.equals("PLAY")) {
+                Player.play();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+            } else if(cmd.equals("PAUSE")) {
+                Player.pause();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+            } else if(cmd.equals("STOP")) {
+                Player.stopPlayback();
+                response.put("status_code","200");
+                response.put("status_message","OK");
             } else if(cmd.equals("NEXT")) {
                 Player.next();
                 response.put("status_code","200");
@@ -154,21 +157,114 @@ public class DaemonMainController implements Runnable, RequestController {
                         tracksToAdd.addAll(Database.search("id", id));
                     }
 
-                    player.add(tracksToAdd);
+                    Player.add(tracksToAdd);
                 } else {
                     response.put("status_code","400");
                     response.put("status_message","Bad Request: ADD without ids");
                 }
-//            } else if(cmd.equals("UPDATE")) {
-//
-//            } else if(cmd.equals("REMOVE")) {
-//
-//            } else if(cmd.equals("CURRENT")) {
-//
-//            } else if(cmd.equals("QUEUE")) {
-//
-//            } else if(cmd.equals("SET")) {
-//
+            } else if(cmd.equals("UPDATE")) {
+                database.updateDatabase();
+                response.put("status_code", "200");
+                response.put("status_message", "OK");
+            } else if(cmd.equals("REMOVE")) {
+                if(request.containsKey("ids")) {
+                    ArrayList<String> ids = (ArrayList<String>) request.get("ids");
+
+                    ArrayList<Track> tracksToRemove = new ArrayList<Track>();
+
+                    for(String id : ids) {
+                        tracksToRemove.addAll(Database.search("id", id));
+                    }
+
+                    Player.remove(tracksToRemove);
+                } else {
+                    response.put("status_code","400");
+                    response.put("status_message","Bad Request: ADD without ids");
+                }
+            } else if(cmd.equals("CURRENT")) {
+                response = createTrackInfoResponse();
+            } else if(cmd.equals("QUEUE")) {
+                ArrayList<Track> data = Player.getPlayQueue();
+
+                if(data != null) {
+                    final int max_tracks_per_response = 50;
+
+                    if (request.containsKey("segment_id")) {
+                        int i;
+
+                        try {
+                            i = Integer.parseInt((String) request.get("segment_id"));
+
+                            int max = (i + 1) * max_tracks_per_response;
+
+                            if (max >= data.size())
+                                max = data.size() - 1;
+
+                            if (i == 0) {
+                                response.put("status_code", "200");
+                                response.put("status_message", "OK");
+                            } else {
+                                response.put("status_code", "206");
+                                response.put("status_message", "OK");
+                            }
+
+                            int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
+
+                            response.put("segment_id",Integer.toString(i));
+                            response.put("n_segments",Integer.toString(nLists));
+                            response.put("data", data.subList(i * max_tracks_per_response, max));
+                            response.put("request_id", req_id);
+                        } catch (NumberFormatException e) {
+                            response.put("status_code","400");
+                            response.put("status_message","Bad Request: invalid segment_id");
+                        }
+                    } else {
+                        ArrayList<Map<String, Object>> responses = new ArrayList<Map<String, Object>>();
+
+                        int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
+                        for (int i = 0; i < nLists; i++) {
+                            Map<String, Object> sub_response = new HashMap<String, Object>();
+
+                            int max = (i + 1) * max_tracks_per_response;
+                            if (max >= data.size())
+                                max = data.size() - 1;
+
+                            if (i == 0) {
+                                sub_response.put("status_code", "200");
+                                sub_response.put("status_message", "OK");
+                            } else {
+                                sub_response.put("status_code", "206");
+                                sub_response.put("status_message", "OK");
+                            }
+
+                            sub_response.put("segment_id",Integer.toString(i));
+                            sub_response.put("n_segments",Integer.toString(nLists));
+                            sub_response.put("data", data.subList(i * max_tracks_per_response, max));
+                            sub_response.put("request_id", req_id);
+
+                            responses.add(sub_response);
+                        }
+
+                        response.put("DCC_SEND_MULTIPLE", responses);
+                    }
+                } else {
+                    response.put("status_code","404");
+                    response.put("status_message","Not Found: play queue not found");
+                }
+            } else if(cmd.equals("SET")) {
+                if(request.containsKey("id")) {
+                    int id = Integer.parseInt(request.get("id").toString());
+
+                    if(Player.getTrackFromIndex(id) != null) {
+                        Player.setCurrentTrack(Player.getTrackFromIndex(id));
+                    } else {
+                        response.put("status_code","400");
+                        response.put("status_message","Bad Request: SET with bad id");
+                    }
+                } else {
+                    response.put("status_code","400");
+                    response.put("status_message","Bad Request: SET without id");
+                }
 //            } else if(cmd.equals("PLADD")) {
 //
 //            } else if(cmd.equals("PLDEL")) {
@@ -198,12 +294,12 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     private void addTrackInfo(Map<String,Object> response) {
-        Track currentTrack = player.getCurrentTrack();
+        Track currentTrack = Player.getCurrentTrack();
 
         if(currentTrack != null) {
             response.put("track_id", currentTrack.get("id"));
-            response.put("time", Double.toString(player.getTime()));
-            response.put("state", Boolean.toString(player.getState()));
+            response.put("time", Double.toString(Player.getTime()));
+            response.put("state", Boolean.toString(Player.getState()));
         } else {
 
         }
@@ -313,7 +409,7 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public static String getDatabasePath() {
-            return daemonConfiguration.getProperty("Database");
+        return daemonConfiguration.getProperty("Database");
     }
 
     public static String getBasePath() {
