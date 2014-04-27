@@ -32,7 +32,7 @@ public class DaemonMainController implements Runnable, RequestController {
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
-        Player.setPlayQueue();
+//        Player.setPlayQueue();
 
         Timer sendTrackInfoTimer = new Timer();
         //sendTrackInfoTimer.schedule(new SendTrackInfoTask(), 1000, 1000);

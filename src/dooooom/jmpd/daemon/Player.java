@@ -22,7 +22,7 @@ public class Player extends Application {
 
 	// The list of media players for each track in the play queue, in 
 	// the order of playback.
-    private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
+//    private static ArrayList<MediaPlayer> playQueue = new ArrayList<MediaPlayer>();
 
     private static MediaPlayer currentPlayback;
 
@@ -57,32 +57,35 @@ public class Player extends Application {
      *	Precondition: The play queue exists
      *	Postcondition: Queue is populated with MediaPlayers
      */
-    public static void setPlayQueue() {
-        for (int i = 0; i < playQueue.size(); i++) {
-            if (i < playQueue.size() - 1) {
-                final int t = i + 1;
-                playQueue.get(i).setOnEndOfMedia(new Runnable() {
-                    @Override
-                    public void run() {
-                        currentPlayer = t;
-                        play();
-                    }
-                });
-            } else if (loopingRepeat) { //essentially restarts the play queue on the last track
-                playQueue.get(playQueue.size() - 1).setOnEndOfMedia(new Runnable() {
-                    @Override
-                    public void run() {
-                        playQueue.clear();
-                        setPlayQueue();
-                        currentPlayer = 0;
-                        play();
-                    }
-                });
-            }
-        }
-    }
+//    public static void setPlayQueue() {
+//        for (int i = 0; i < playQueue.size(); i++) {
+//            if (i < playQueue.size() - 1) {
+//                final int t = i + 1;
+//                playQueue.get(i).setOnEndOfMedia(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        currentPlayer = t;
+//                        play();
+//                    }
+//                });
+//            } else if (loopingRepeat) { //essentially restarts the play queue on the last track
+//                playQueue.get(playQueue.size() - 1).setOnEndOfMedia(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        playQueue.clear();
+//                        setPlayQueue();
+//                        currentPlayer = 0;
+//                        play();
+//                    }
+//                });
+//            }
+//        }
+//    }
 
     public static void setCurrentTrack(Track newCurrent) {
+        if(newCurrent == null)
+            return;
+
         MediaPlayer oldCurrent = currentPlayback;
         currentTrack = newCurrent;
         String trackPath = "file:///" + newCurrent.get("filepath").replace("\\","/");
@@ -102,7 +105,7 @@ public class Player extends Application {
             else
                 setPrevTrack(null);
 
-            setNextTrack(playQueueTracks.get(i+1));
+            setNextTrack(playQueueTracks.get(getNextTrackIndex(i)));
 
             currentPlayback.setOnEndOfMedia(new Runnable() {
                 @Override
@@ -111,25 +114,12 @@ public class Player extends Application {
                     play();
                 }
             });
-
-        } else if(i == playQueueTracks.size() - 1) {
-            if(loopingRepeat)
-                setPrevTrack(playQueueTracks.get(playQueueTracks.size()-1));
-            else
-                setPrevTrack(null);
-
-            setNextTrack(playQueueTracks.get(i+1));
-
-            currentPlayback.setOnEndOfMedia(new Runnable() {
-                @Override
-                public void run() {
-                    setCurrentTrack(nextTrack);
-                    play();
-                }
-            });
+        } else if(i == playQueueTracks.size() - 1 && !loopingRepeat) {
+            setNextTrack(null);
+            setPrevTrack(playQueueTracks.get(getPrevTrackIndex(i)));
         } else {
-            setPrevTrack(playQueueTracks.get(i-1));
-            setNextTrack(playQueueTracks.get(i+1));
+            setPrevTrack(playQueueTracks.get(getPrevTrackIndex(i)));
+            setNextTrack(playQueueTracks.get(getNextTrackIndex(i)));
 
             currentPlayback.setOnEndOfMedia(new Runnable() {
                 @Override
@@ -142,11 +132,11 @@ public class Player extends Application {
     }
 
     public static void setPrevTrack(Track newPrevious) {
-
+        prevTrack = newPrevious;
     }
 
     public static void setNextTrack(Track newNext) {
-
+        nextTrack = newNext;
     }
 
     /**
@@ -154,14 +144,14 @@ public class Player extends Application {
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
-        for (Track t : newSongs) {
-            String path = "file:///" + t.get("filepath").replace("\\", "/");
-            path = encodeURIComponent(path);
-            final MediaPlayer p = new MediaPlayer(new Media(path));
-            playQueue.add(p);
-        }
+//        for (Track t : newSongs) {
+//            String path = "file:///" + t.get("filepath").replace("\\", "/");
+//            path = encodeURIComponent(path);
+//            final MediaPlayer p = new MediaPlayer(new Media(path));
+//            playQueue.add(p);
+//        }
         playQueueTracks.addAll(newSongs);
-        setPlayQueue();
+//        setPlayQueue();
         if(playQueueTracks.equals(newSongs))
             setCurrentTrack(playQueueTracks.get(0));
     }
@@ -171,16 +161,19 @@ public class Player extends Application {
 	*	Postcondition: Given songs removed from play queue
 	*/
     public static void remove(ArrayList<Track> removeSongs) {
-        for(Track t: removeSongs) {
-            String path = "file:/" + t.get("filepath").replace("\\", "/");
-            for (MediaPlayer p: playQueue) {
-                if(path.equals(p.getMedia().getSource())) {
-                    playQueue.remove(p);
-                }
-            }
+       playQueueTracks.removeAll(removeSongs);
+
+        if(removeSongs.contains(currentTrack)) {
+            stopPlayback();
         }
-        playQueueTracks.removeAll(removeSongs);
-        setPlayQueue();
+        if(removeSongs.contains(prevTrack)) {
+            setCurrentTrack(currentTrack);
+            play();
+        }
+        if(removeSongs.contains(nextTrack)) {
+            setCurrentTrack(currentTrack);
+            play();
+        }
     }
 
 	/**
@@ -189,8 +182,8 @@ public class Player extends Application {
 	*/
     public static void toggle() {
         try {
-            if (!playQueue.isEmpty()) {
-                if (playQueue.get(currentPlayer).getStatus() == MediaPlayer.Status.PLAYING) {
+            if (currentPlayback != null) {
+                if (currentPlayback.getStatus() == MediaPlayer.Status.PLAYING) {
                     pause();
                 } else {
                     play();
@@ -207,8 +200,11 @@ public class Player extends Application {
 	*/
     public static void pause() {
         try {
-            if (!playQueue.isEmpty())
-                playQueue.get(currentPlayer).pause();
+            if(currentPlayback != null) {
+                currentPlayback.pause();
+            }
+//            if (!playQueue.isEmpty())
+//                playQueue.get(currentPlayer).pause();
         } catch (MediaException e) {
             System.out.println("Invalid media type.");
         }
@@ -220,10 +216,14 @@ public class Player extends Application {
 	*/
     public static void play() {
         try {
-            if (!playQueue.isEmpty()) {
-                playQueue.get(currentPlayer).play();
-                System.out.println("Now playing: " + playQueueTracks.get(currentPlayer));
+            if(currentPlayback != null) {
+                currentPlayback.play();
+                System.out.println("Now playing: " + currentTrack);
             }
+//            if (!playQueue.isEmpty()) {
+//                playQueue.get(currentPlayer).play();
+//                System.out.println("Now playing: " + playQueueTracks.get(currentPlayer));
+//            }
         } catch (MediaException e) {
             System.out.println("Invalid media type.");
         }
@@ -235,8 +235,11 @@ public class Player extends Application {
 	*/
     public static void stopPlayback() {
         try {
-            if (!playQueue.isEmpty())
-                playQueue.get(currentPlayer).stop();
+            if(currentPlayback != null) {
+                currentPlayback.stop();
+            }
+//            if (!playQueue.isEmpty())
+//                playQueue.get(currentPlayer).stop();
         } catch (MediaException e) {
             System.out.println("Invalid media type.");
         }
@@ -248,13 +251,17 @@ public class Player extends Application {
 	*/
     public static void next() {
         try {
-            if (!playQueue.isEmpty()) {
-                playQueue.get(currentPlayer).stop();
-                currentPlayer = getNextTrackIndex(currentPlayer);
-                if (!((currentPlayer == 0)   //Exclude the corner case where we're at the
-                        && !loopingRepeat)) //   end of the play queue and not repeating
-                    play();
+            if(currentPlayback != null && nextTrack != null) {
+                setCurrentTrack(nextTrack);
+                play();
             }
+//            if (!playQueue.isEmpty()) {
+//                playQueue.get(currentPlayer).stop();
+//                currentPlayer = getNextTrackIndex(currentPlayer);
+//                if (!((currentPlayer == 0)   //Exclude the corner case where we're at the
+//                        && !loopingRepeat)) //   end of the play queue and not repeating
+//                    play();
+//            }
         } catch (MediaException e) {
             System.out.println("Invalid media type.");
         }
@@ -268,7 +275,7 @@ public class Player extends Application {
 	*/
     public static int getNextTrackIndex(int current) {
         int nextTrackIndex = 0;
-        if (current != playQueue.size() - 1)
+        if (current != playQueueTracks.size() - 1)
             nextTrackIndex = current + 1;
         return nextTrackIndex;
     }
@@ -279,11 +286,15 @@ public class Player extends Application {
      */
     public static void prev() {
         try {
-            if (!playQueue.isEmpty()) {
-                stopPlayback();
-                currentPlayer = getPrevTrackIndex(currentPlayer);
+            if(currentPlayback != null && prevTrack != null) {
+                setCurrentTrack(prevTrack);
                 play();
             }
+//            if (!playQueue.isEmpty()) {
+//                stopPlayback();
+//                currentPlayer = getPrevTrackIndex(currentPlayer);
+//                play();
+//            }
         } catch (MediaException e) {
             System.out.println("Invalid media type.");
         }
@@ -296,7 +307,7 @@ public class Player extends Application {
      *                  track index is given
      */
     public static int getPrevTrackIndex(int current) {
-        int prevTrackIndex = playQueue.size() - 1;
+        int prevTrackIndex = playQueueTracks.size() - 1;
         if (current != 0)
             prevTrackIndex = current - 1;
         return prevTrackIndex;
@@ -307,10 +318,7 @@ public class Player extends Application {
 	* 	Postcondition: Gives MediaPlayer for current track
 	*/
     public static MediaPlayer getCurrent() {
-        if(playQueue.isEmpty())
-            return null;
-        else
-            return playQueue.get(currentPlayer);
+        return currentPlayback;
     }
 
 
@@ -318,10 +326,7 @@ public class Player extends Application {
      * Zach please make these work properly
      */
     public static Track getCurrentTrack() {
-        if(playQueueTracks.isEmpty())
-            return null;
-        else
-            return playQueueTracks.get(currentPlayer);
+        return currentTrack;
     }
 
     public static boolean getState() {
@@ -346,7 +351,7 @@ public class Player extends Application {
     *                  the current track
 	*/
     public static double getTime() {
-        if(!playQueue.isEmpty())
+        if(currentPlayback != null)
             return getCurrent().getCurrentTime().toSeconds();
         else
             return 0.0;
@@ -376,6 +381,7 @@ public class Player extends Application {
                         stopPlayback();
                     } else if (input.equals("a")) {
                         addSongs();
+                        setCurrentTrack(playQueueTracks.get(0));
                     } else if (input.equals("c")) {
                         System.out.println(getTime());
                     } else if (input.equals("i")) {
