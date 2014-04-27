@@ -38,11 +38,6 @@ public class Player extends Application {
             server  = new DaemonMainController(this);
             Thread serverThread = new Thread(server);
             serverThread.start();
-//beginTest
-            PlayerControl control = new PlayerControl();
-            Thread controllerThread = new Thread(control);
-            controllerThread.start();
-//endTest
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -255,6 +250,14 @@ public class Player extends Application {
         }
     }
 
+    public static Track getTrackFromIndex(int i) {
+        if(playQueueTracks.get(i) != null) {
+            return playQueueTracks.get(i);
+        } else {
+            return null;
+        }
+    }
+
 	/**
 	*	Precondition: Given a track index
 	* 	Postcondition: Gives the next track in the queue
@@ -275,7 +278,6 @@ public class Player extends Application {
     public static void prev() {
         try {
             if(currentPlayback != null && prevTrack != null) {
-                server.onTrackChange();
                 setCurrentTrack(prevTrack);
                 play();
             }
@@ -305,24 +307,30 @@ public class Player extends Application {
         return currentPlayback;
     }
 
+
+    /**
+     *   Returns the Track object of the current media.
+     */
     public static Track getCurrentTrack() {
         return currentTrack;
     }
 
+    /**
+    *   Returns the playback state of the current player.
+    */
     public static boolean getState() {
-        return true;
+        if(currentPlayback != null)
+            return currentPlayback.getStatus() == MediaPlayer.Status.PLAYING;
+        else
+            return false;
     }
 
 	/**
 	*	Precondition: There is a current track
 	* 	Postcondition: Gives metadata for the current track
 	*/
-    public static String getStat() {
-        MediaPlayer p = getCurrent();
-        Media m = p.getMedia();
-        String meta = m.getMetadata().toString();
-        System.out.println(meta);
-        return meta;
+    public static ArrayList<Track> getPlayQueue() {
+        return playQueueTracks;
     }
 
 	/**
@@ -332,7 +340,7 @@ public class Player extends Application {
 	*/
     public static double getTime() {
         if(currentPlayback != null)
-            return getCurrent().getCurrentTime().toSeconds();
+            return currentPlayback.getCurrentTime().toSeconds();
         else
             return 0.0;
     }
@@ -340,43 +348,6 @@ public class Player extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-//beginTest
-    public class PlayerControl implements Runnable {
-        public void run() {
-            Scanner in = new Scanner(System.in);
-            System.out.println("[INFO]    Started player control");
-            try {
-                while (true) {
-                    String input = in.nextLine();
-                    System.out.println(input);
-                    if (input.equals("t")) {
-                        toggle();
-                    } else if (input.equals("n")) {
-                        next();
-                    } else if (input.equals("p")) {
-                        prev();
-                    } else if (input.equals("s")) {
-                        stopPlayback();
-                    } else if (input.equals("a")) {
-                        addSongs();
-                    } else if (input.equals("c")) {
-                        System.out.println(getTime());
-                    } else if (input.equals("i")) {
-                        server.onTrackChange();
-                    }
-                }
-            } catch (NoSuchElementException e) {
-                in.close();
-            }
-        }
-    }
-
-    public void addSongs() {
-        FileSystemScanner f = new FileSystemScanner("/home/zap/music/Baths/Obsidian");
-        ArrayList<Track> t = f.returnTracks();
-        add(t);
-    }
-//endTest
 
     public static String encodeURIComponent(String s)
     {

@@ -59,7 +59,6 @@ public class Database {
             byte[] rawDb = Files.readAllBytes(dbPath);
 
             String db = new String(rawDb, Charset.defaultCharset());
-            System.out.println(db);
             Map<String, Object> tracks = dooooom.jmpd.data.JsonParser.stringToMap(db);
 
             ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) tracks.get("data");
@@ -70,7 +69,6 @@ public class Database {
             }
 
             library = savedLibrary;
-            System.out.println("Database loaded successfully");
         } catch (FileNotFoundException e) {
             updateDatabase();
             System.out.println("[INFO]  No database file found. Attempting to create a new one.");
@@ -133,7 +131,7 @@ public class Database {
 				}
 
 			default:
-				System.out.println("Default");
+//				System.out.println("Default");
 				break;
 			}
 		} catch (FileNotFoundException e) {
@@ -145,7 +143,7 @@ public class Database {
 		}
 		JsonObjectBuilder obj = Json.createObjectBuilder();
 		JsonObject object = mapToJsonObject(data.keySet().iterator(),obj,data);
-		System.out.println(object.toString());
+//		System.out.println(object.toString());
 		mainBuilder.add(tag,object);
 		try {
 			FileWriter fl = new FileWriter(dbLocation);
