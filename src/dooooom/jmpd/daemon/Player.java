@@ -92,7 +92,12 @@ public class Player extends Application {
 
         trackPath = encodeURIComponent(trackPath);
 
-        currentPlayback = new MediaPlayer(new Media(trackPath));
+        try {
+            currentPlayback = new MediaPlayer(new Media(trackPath));
+        } catch (IllegalArgumentException e) {
+            System.err.println("[ERROR]   IllegalArgumentException in Player, decoding string: " + trackPath);
+            e.printStackTrace();
+        }
 
         if(oldCurrent != null)
             oldCurrent.dispose();
