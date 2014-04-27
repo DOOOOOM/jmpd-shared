@@ -56,11 +56,15 @@ public class Track extends HashMap<String,String> implements Comparable<Track>
                 if (albumcompare == 0) {
 
                     try {
-                        int trackcompare = this.get("track").compareToIgnoreCase(o.get("track"));
+                        int that = Integer.parseInt(this.get("track"));
+                        int thing = Integer.parseInt(o.get("track"));
+                        int trackcompare = that - thing;
                         if (trackcompare == 0) {
                             return 0;
+                        } else if(trackcompare < 0) {
+                            return -1;
                         } else {
-                            return trackcompare;
+                            return 1;
                         }
                     } catch(Error e){
                         //track is null or something
