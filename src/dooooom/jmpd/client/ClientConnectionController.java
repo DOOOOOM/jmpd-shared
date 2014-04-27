@@ -31,12 +31,17 @@ public class ClientConnectionController implements Runnable {
     private final int maxReconnectTries = 5;
 
     /*
-     * Since sometimes the socket.isConnected() returns true even when a connection is failing,
+     * Since sometimes^ the socket.isConnected() returns true even when a connection is failing,
      * after seeing a connection error this will be flagged as false until reconnect() succeeds.
      */
     private boolean connected = false;
 
+    /*
+     * rc calls will be made
+     */
     ResponseController rc;
+
+    BufferedReader in = null;
 
     private List<Map<String,Object>> requests = new ArrayList<Map<String,Object>>();
     int nextUID = 1;
@@ -52,30 +57,28 @@ public class ClientConnectionController implements Runnable {
         //establish initial connection
         reconnect();
 
-        BufferedReader in = null;
-
-
-
         while(true) {
             if(socket != null && socket.isConnected()) {
                 if(in == null) {
+                    /*
+                     * If the connection was recently reset or this is a new connection,
+                     * we will need a new BufferedReader.
+                     */
                     try {
                         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     } catch (IOException e) {
-                        System.err.println("[ERROR]   Unable to initialize BufferedReader");
+                        System.err.println(System.currentTimeMillis() + " [ERROR]   Unable to initialize BufferedReader");
                     }
                 } else {
                     try {
                         String s = in.readLine();
-
-                        //System.out.println("[DEBUG]   Received: " + s);
 
                         Map<String, Object> response;
 
                         try {
                             response = JsonParser.stringToMap(s);
                         } catch (JsonParsingException e) {
-                            System.err.println("[SEVERE]  Json parsing exception for daemon message: " + s);
+                            System.err.println(System.currentTimeMillis() + " [SEVERE]  Json parsing exception for daemon message: " + s);
                             e.printStackTrace();
                             continue;
                         }
@@ -85,7 +88,7 @@ public class ClientConnectionController implements Runnable {
                         Map<String, Object> request = null;
 
                         if (uid == null) {
-                            System.err.println("[WARN]    Missing request_id in daemon message");
+                            System.err.println(System.currentTimeMillis() + " [WARN]    Missing request_id in daemon message");
                         } else if (uid.equals("0")) {
                         /*
                          * request_id:0 is a special case reserved for
@@ -105,23 +108,22 @@ public class ClientConnectionController implements Runnable {
                             }
 
                             if (requestsFound > 1)
-                                System.err.println("[WARN]    Duplicate request_id");
+                                System.err.println(System.currentTimeMillis() + " [WARN]    Duplicate request_id");
                         }
 
                         if (request != null && response != null) {
-                            Platform.runLater(new ProcessRequestHandler(rc, request, response));
+                            Platform.runLater(new ProcessResponseHandler(rc, request, response));
                         } else {
-
+                            System.err.println(System.currentTimeMillis() + " [WARN]    Null object in response handling");
                         }
                     } catch (IOException e) {
                         if (connected) {
-                            System.err.println("[ERROR]   Error in communication, attempting to reconnect");
-                            e.printStackTrace();
+                            System.err.println(System.currentTimeMillis() + " [ERROR]   Error in communication, attempting to reconnect");
                             reconnect();
                         } else {
-                            //Sleep for one second before attempting again, to give a chance to reconnect
+                            //Sleep for some time before attempting again, to give a chance to reconnect
                             try {
-                                Thread.sleep(1000);
+                                Thread.sleep(100);
                             } catch (InterruptedException interruptedException) {
 
                             }
@@ -130,25 +132,18 @@ public class ClientConnectionController implements Runnable {
                 }
             } else {
                 if(connected) {
-                    System.err.println("[ERROR]   Connection to server failed, attempting to reconnect");
+                    System.err.println(System.currentTimeMillis() + " [ERROR]   Connection to server failed, attempting to reconnect");
                     reconnect();
                 } else {
                     try {
-                        //Sleep for one second before attempting again, to give a chance to reconnect
-                        Thread.sleep(1000);
+                        //Sleep for some time before attempting again, to give a chance to reconnect
+                        Thread.sleep(100);
                     } catch (InterruptedException interruptedException) {
 
                     }
                 }
             }
         }
-    }
-
-    public boolean isConnected() {
-        if(socket == null)
-            return false;
-        else
-            return socket.isConnected();
     }
 
     /*
@@ -163,30 +158,51 @@ public class ClientConnectionController implements Runnable {
      * Method used to reconnect to the server after a connection failure
      */
     public void reconnect() {
-        try {
-            throw new IllegalFormatPrecisionException(2);
-        } catch (Exception e) {
-            System.err.println("[DEBUG]   Reconnecting");
-            e.printStackTrace();
-        }
-        System.err.print("[WARN]    Connection failed or new connection, attempting to reconnect (" + reconnectTries + ")...");
+
+        /*
+         *                   I dedicate this method to
+         *
+         *       ~~~~THE IDIOT THAT WROTE Socket.isConnected()~~~~
+         *
+         *    For the amazing ability to write poor documentation and
+         *    make poor decisions even when faced with the most easily
+         *                     accomplished tasks.
+         *
+         *  Thanks to his/her service to the Java language and community,
+         *  I was able to learn a great deal of things about debugging in
+         *           Java, and learn a valuable lesson in life.
+         *
+         *                       In short, RTFM.
+         *
+         *                Dedication by Philip Rodning
+         *         On this Twenty-Seventh in the Month of April,
+         *            in the Year Two Thousand and Fourteen
+         */
+
+        System.err.println(System.currentTimeMillis() + " [WARN]    Connection failed or new connection, attempting to reconnect (" + reconnectTries + ")...");
+
         Platform.runLater(new RunRCMethod(rc, RCMethod.ON_DISCONNECT));
 
+        /*
+         * Make sure that any other parts of the code that might attempt to reconnect()
+         * are aware that this method has already been called.
+         */
         connected = false;
-        //socket = null;
 
         try {
             //if the socket is still open, close it
             if (socket != null && socket.isConnected())
                 socket.close();
         } catch (IOException e) {
-
+            
         }
 
         try {
             socket = new Socket(host, port);
-            System.err.println(" success");
+            in = null;
+            System.err.println(System.currentTimeMillis() + " [INFO]    Connection successfully established");
         } catch (IOException e) {
+            socket = null;
             System.err.print(" failed.");
             if (reconnectTries < maxReconnectTries) {
                 System.err.println(" retrying in 5 seconds");
@@ -194,13 +210,13 @@ public class ClientConnectionController implements Runnable {
                 timer.schedule(new ReconnectTask(), 5000);
             } else {
                 System.err.println();
-                System.err.println("[WARN]    Attempts to reconnect failed, abandoning connection.");
+                System.err.println(System.currentTimeMillis() + " [WARN]    Attempts to reconnect failed, abandoning connection.");
             }
 
             reconnectTries++;
         }
 
-        if(socket != null && socket.isConnected()) {
+        if(socket != null && !socket.isClosed()) {
             //Platform.runLater(new RunRCMethod(rc, RCMethod.ON_CONNECT));
             rc.onConnect();
             connected = true;
@@ -214,7 +230,7 @@ public class ClientConnectionController implements Runnable {
     public void sendMap(Map<String,Object> toSend) {
         Object uidObject = toSend.get("request_id");
         if (uidObject != null)
-            System.err.println("[WARN]    request_id already set, overwriting");
+            System.err.println(System.currentTimeMillis() + " [WARN]    request_id already set, overwriting");
 
         toSend.put("request_id", Integer.toString(nextUID++));
 
@@ -239,10 +255,10 @@ public class ClientConnectionController implements Runnable {
 
                 out.writeBytes(msg);
             } catch (IOException e) {
-                System.err.println("[ERROR]   Connection to server failed!");
+                System.err.println(System.currentTimeMillis() + " [ERROR]   Connection to server failed!");
             }
         } else {
-            System.err.println("[SEVERE]  Could not send message, connection failed");
+            System.err.println(System.currentTimeMillis() + " [SEVERE]  Could not send message, connection failed");
         }
     }
 
@@ -286,12 +302,12 @@ public class ClientConnectionController implements Runnable {
         }
     }
 
-    private class ProcessRequestHandler implements Runnable {
+    private class ProcessResponseHandler implements Runnable {
         private Map<String,Object> request;
         private Map<String,Object> response;
         ResponseController rc;
 
-        public ProcessRequestHandler(ResponseController rc, Map<String,Object> request, Map<String,Object> response) {
+        public ProcessResponseHandler(ResponseController rc, Map<String, Object> request, Map<String, Object> response) {
             this.rc = rc;
             this.request = request;
             this.response = response;
