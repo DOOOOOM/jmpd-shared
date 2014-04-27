@@ -1,5 +1,6 @@
 package dooooom.jmpd.daemon;
 
+import dooooom.jmpd.data.FileSystemScanner;
 import dooooom.jmpd.data.Track;
 import javafx.application.Application;
 import javafx.scene.media.Media;
@@ -379,7 +380,6 @@ public class Player extends Application {
                         stopPlayback();
                     } else if (input.equals("a")) {
                         addSongs();
-                        setCurrentTrack(playQueueTracks.get(0));
                     } else if (input.equals("c")) {
                         System.out.println(getTime());
                     } else if (input.equals("i")) {
@@ -393,7 +393,9 @@ public class Player extends Application {
     }
 
     public void addSongs() {
-
+        FileSystemScanner f = new FileSystemScanner("/home/zap/music/Baths/Obsidian");
+        ArrayList<Track> t = f.returnTracks();
+        add(t);
     }
 
     public static String encodeURIComponent(String s)

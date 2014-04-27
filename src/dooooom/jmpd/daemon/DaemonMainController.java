@@ -30,6 +30,8 @@ public class DaemonMainController implements Runnable, RequestController {
         Collections.sort(t);
         Database.library = t;
 
+        Player.add(t);
+
         Thread dccThread = new Thread(dcc);
         dccThread.start();
 //        Player.setPlayQueue();
