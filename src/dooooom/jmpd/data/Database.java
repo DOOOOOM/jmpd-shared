@@ -1,6 +1,5 @@
 package dooooom.jmpd.data;
 
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import dooooom.jmpd.daemon.DaemonMainController;
 
 import javax.json.*;
