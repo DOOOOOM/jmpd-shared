@@ -11,6 +11,10 @@ public class Track extends HashMap<String,String> implements Comparable<Track>
         }
     }
 
+    public static void main(String[] args) {
+
+    }
+
 	public Track(String filepath, String artist, String album, String title)
 	{
         this.put("filepath", filepath);
@@ -19,15 +23,22 @@ public class Track extends HashMap<String,String> implements Comparable<Track>
 		this.put("title", title);
 	}
 
-    public String lengthAsString(double seconds) {
+    public static String lengthAsString(double seconds) {
         int hours = (int) seconds / 3600;
         int minutes = (int) (seconds % 3600) / 60;
 
         String response = "";
 
         if(hours > 0) {
-            response += Integer.toString(hours);
+            response += Integer.toString(hours) + ":";
         }
+        if(minutes < 10) {
+            response += "0";
+        }
+        response += Integer.toString(minutes) + ":";
+        if(seconds < 10)
+            response += "0";
+        response += Integer.toString((int) seconds % 60);
 
         return response;
     }
