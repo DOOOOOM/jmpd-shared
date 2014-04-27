@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class Player extends Application {
     // The class responsible for controlling most of the external
     // functions of the server
-    DaemonMainController server;
+    private static DaemonMainController server;
 
 	// The list of each track in the play queue, in
 	// the order of playback.
@@ -86,6 +86,7 @@ public class Player extends Application {
             currentPlayback.setOnEndOfMedia(new Runnable() {
                 @Override
                 public void run() {
+                    server.onTrackChange();
                     setCurrentTrack(nextTrack);
                     play();
                 }
@@ -93,6 +94,13 @@ public class Player extends Application {
         } else if(i == playQueueTracks.size() - 1 && !loopingRepeat) {
             setNextTrack(null);
             setPrevTrack(playQueueTracks.get(getPrevTrackIndex(i)));
+
+            currentPlayback.setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    server.onTrackChange();
+                }
+            });
         } else {
             setPrevTrack(playQueueTracks.get(getPrevTrackIndex(i)));
             setNextTrack(playQueueTracks.get(getNextTrackIndex(i)));
@@ -100,6 +108,7 @@ public class Player extends Application {
             currentPlayback.setOnEndOfMedia(new Runnable() {
                 @Override
                 public void run() {
+                    server.onTrackChange();
                     setCurrentTrack(nextTrack);
                     play();
                 }
@@ -120,10 +129,32 @@ public class Player extends Application {
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
+        boolean lastTrackCase = false;
+        if(newSongs == null)
+            return;
+
+        if(playQueueTracks.size() != 0) {
+            if(currentTrack.equals(playQueueTracks.get(playQueueTracks.size()-1))) {
+                lastTrackCase = true;
+            }
+        }
+
         playQueueTracks.addAll(newSongs);
 
         if(playQueueTracks.equals(newSongs))
             setCurrentTrack(playQueueTracks.get(0));
+
+        if(lastTrackCase) {
+            int currentIndex = playQueueTracks.indexOf(currentTrack);
+            setNextTrack(playQueueTracks.get(getNextTrackIndex(currentIndex)));
+            currentPlayback.setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    setCurrentTrack(nextTrack);
+                    play();
+                }
+            });
+        }
     }
 
 	/**
@@ -134,6 +165,7 @@ public class Player extends Application {
        playQueueTracks.removeAll(removeSongs);
 
         if(removeSongs.contains(currentTrack)) {
+            server.onTrackChange();
             stopPlayback();
         }
         if(removeSongs.contains(prevTrack)) {
@@ -214,6 +246,7 @@ public class Player extends Application {
     public static void next() {
         try {
             if(currentPlayback != null && nextTrack != null) {
+                server.onTrackChange();
                 setCurrentTrack(nextTrack);
                 play();
             }
@@ -242,6 +275,7 @@ public class Player extends Application {
     public static void prev() {
         try {
             if(currentPlayback != null && prevTrack != null) {
+                server.onTrackChange();
                 setCurrentTrack(prevTrack);
                 play();
             }

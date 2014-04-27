@@ -2,11 +2,13 @@ package dooooom.jmpd.data;
 import dooooom.jmpd.daemon.DaemonMainController;
 
 import javax.json.*;
+import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +26,33 @@ public class Database {
         //add all Track to database
         for(Track t : library){
             addEntry(t,t.get("id"));
+        }
+    }
+
+    public void saveDatabase() {
+        try {
+            String data = "";
+            for(Track t: library) {
+                data += dooooom.jmpd.data.JsonParser.mapToString((Map) t);
+            }
+            System.out.println(data);
+            File db = new File(DaemonMainController.getDatabasePath());
+            PrintWriter out = new PrintWriter(db);
+            out.println(data);
+            out.close();
+        } catch (IOException e) {
+
+        }
+    }
+
+    public void loadDatabase() {
+        try {
+            Path dbPath = Paths.get(DaemonMainController.getDatabasePath());
+            byte[] rawDb = Files.readAllBytes(dbPath);
+            String db = rawDb.toString();
+            Map<String, Object> tracks = dooooom.jmpd.data.JsonParser.stringToMap(db);
+        } catch (IOException e) {
+
         }
     }
 
