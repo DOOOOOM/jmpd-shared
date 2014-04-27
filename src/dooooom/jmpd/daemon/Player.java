@@ -120,16 +120,32 @@ public class Player extends Application {
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
+        boolean lastTrackCase = false;
         if(newSongs == null)
             return;
 
-        if(currentPlayback.equals(playQueueTracks.get(playQueueTracks.size()-1)))
-            nextTrack = newSongs.get(0);
-        
+        if(playQueueTracks.size() != 0) {
+            if(currentTrack.equals(playQueueTracks.get(playQueueTracks.size()-1))) {
+                lastTrackCase = true;
+            }
+        }
+
         playQueueTracks.addAll(newSongs);
 
         if(playQueueTracks.equals(newSongs))
             setCurrentTrack(playQueueTracks.get(0));
+
+        if(lastTrackCase) {
+            int currentIndex = playQueueTracks.indexOf(currentTrack);
+            setNextTrack(playQueueTracks.get(getNextTrackIndex(currentIndex)));
+            currentPlayback.setOnEndOfMedia(new Runnable() {
+                @Override
+                public void run() {
+                    setCurrentTrack(nextTrack);
+                    play();
+                }
+            });
+        }
     }
 
 	/**

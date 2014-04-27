@@ -29,8 +29,6 @@ public class DaemonMainController implements Runnable, RequestController {
         Collections.sort(t);
         Database.library = t;
 
-        Player.add(t);
-
         Thread dccThread = new Thread(dcc);
         dccThread.start();
 
@@ -275,7 +273,7 @@ public class DaemonMainController implements Runnable, RequestController {
     private static void setDefaultConfiguration(File config) {
         try {
             Properties props = new Properties();
-            props.setProperty("TrackList", getDefaultConfigPath() + "database" );
+            props.setProperty("Database", getDefaultConfigPath() + "database" );
             props.setProperty("Port", "" + 5005);
             props.setProperty("MusicFolder", getBasePath() + "Music");
             OutputStream out = new FileOutputStream(config);
