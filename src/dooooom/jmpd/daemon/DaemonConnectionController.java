@@ -40,14 +40,16 @@ public class DaemonConnectionController implements Runnable {
                 Socket socket = null;
                 try {
                     socket = listenSocket.accept();
-                    System.err.println("[INFO]    Connection accepted");
+                    System.err.println("[INFO]    Connection accepted from " + socket.getInetAddress());
 
                     ConnectionHandler ch = new ConnectionHandler(socket);
 
 
                     Thread connectionThread = new Thread(ch);
 
-                    connectionHandlerThreadMap.put(ch,connectionThread);
+                    synchronized (connectionHandlerThreadMap) {
+                        connectionHandlerThreadMap.put(ch, connectionThread);
+                    }
                     connectionThread.start();
                 } catch (IOException e) {
                     System.err.println("[ERROR]   Server could not accept connection");
@@ -114,14 +116,32 @@ public class DaemonConnectionController implements Runnable {
         }
 
         public void run() {
+            BufferedReader in;
+
+            try {
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            } catch (IOException e) {
+                System.err.println("[ERROR]   Error in creating new BufferedReader");
+
+                try {
+                    if (socket != null)
+                        socket.close();
+                } catch (IOException e0) {
+                    System.err.println("[ERROR]   Error in closing socket");
+                }
+
+                return;
+            }
+
             while (socket != null && socket.isConnected()) {
                 try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
                     String s = in.readLine();
 
                     Map<String,Object> request = JsonParser.stringToMap(s);
                     Map<String,Object> response = rc.processRequest(request);
+
+                    if(response == null)
+                        continue;
 
                     if(response.containsKey("DCC_SEND_MULTIPLE")) {
                         List<Map<String,Object>> responses = (List<Map<String,Object>>) response.get("DCC_SEND_MULTIPLE");
@@ -132,8 +152,9 @@ public class DaemonConnectionController implements Runnable {
                     } else {
                         send(socket, response);
                     }
-                } catch (IOException e) {
+                }  catch (IOException e) {
                     System.err.println("[ERROR]   Error in communication with client in ConnectionHandler");
+                    e.printStackTrace();
 
                     try {
                         if (socket != null)
@@ -142,7 +163,7 @@ public class DaemonConnectionController implements Runnable {
                         System.err.println("[ERROR]   Error in closing socket");
                     }
 
-                    break;
+                    return;
                 }
             }
         }
@@ -155,8 +176,8 @@ public class DaemonConnectionController implements Runnable {
     private class RemoveUnusedConnectionsTask extends TimerTask {
         @Override
         public void run() {
-            for (ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
-                synchronized (ch) {
+            synchronized (connectionHandlerThreadMap) {
+                for (ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
                     Thread th = connectionHandlerThreadMap.get(ch);
 
                     if (th.getState() == Thread.State.TERMINATED) {

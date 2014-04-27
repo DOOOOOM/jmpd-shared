@@ -18,6 +18,19 @@ public class Track extends HashMap<String,String> implements Comparable<Track>
 		this.put("album", album);
 		this.put("title", title);
 	}
+
+    public String lengthAsString(double seconds) {
+        int hours = (int) seconds / 3600;
+        int minutes = (int) (seconds % 3600) / 60;
+
+        String response = "";
+
+        if(hours > 0) {
+            response += Integer.toString(hours);
+        }
+
+        return response;
+    }
 	
 	public Track()
 	{

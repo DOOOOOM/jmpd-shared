@@ -2,10 +2,8 @@ package dooooom.jmpd.data;
 import dooooom.jmpd.daemon.DaemonMainController;
 
 import javax.json.*;
-import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import java.io.*;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

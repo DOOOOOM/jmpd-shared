@@ -101,6 +101,9 @@ public class MainViewController implements Initializable,ResponseController {
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
 
+        //will not be connected at startup, so disable buttons and such
+        onDisconnect();
+
         addActionListeners();
     }
 
@@ -461,6 +464,8 @@ public class MainViewController implements Initializable,ResponseController {
 
             }
 
+            //things to do no matter what was received
+
             if(response.containsKey("track_id")) {
                 ArrayList<Track> tl = Database.search(library,"id",(String) response.get("track_id"));
 
@@ -483,8 +488,6 @@ public class MainViewController implements Initializable,ResponseController {
                     }
                 }
             }
-
-            //things to do no matter what was received
         } else {
             System.err.println("[WARN]    Malformed request in processResponse(...)");
         }
@@ -495,11 +498,24 @@ public class MainViewController implements Initializable,ResponseController {
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("command", "DATABASE");
         cc.sendMap(request);
+
+//        prev_button.setDisable(false);
+//        play_button.setDisable(false);
+//        next_button.setDisable(false);
+//        seek_slider.setDisable(false);
     }
 
     @Override
     public void onDisconnect() {
-
+//        prev_button.setDisable(true);
+//        play_button.setDisable(true);
+//        next_button.setDisable(true);
+//        seek_slider.setDisable(true);
+//
+//        track_label.setText("--");
+//        seek_slider.setValue(0);
+//        lyrics_text.setText("");
+//        status_bar.setText("Disconnected");
     }
 
     @Override

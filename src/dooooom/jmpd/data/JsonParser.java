@@ -81,6 +81,10 @@ public class JsonParser {
     public static Map<String,Object> stringToMap(String inComing){
         Map<String,Object> result = new HashMap<String,Object>();
 
+        if(inComing == null) {
+            return null;
+        }
+
         JsonReader jsonReader = Json.createReader(new StringReader(inComing));
         JsonObject object = jsonReader.readObject();
 

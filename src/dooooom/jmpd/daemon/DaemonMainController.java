@@ -1,7 +1,6 @@
 package dooooom.jmpd.daemon;
 
 import dooooom.jmpd.data.Database;
-import dooooom.jmpd.data.FileSystemScanner;
 import dooooom.jmpd.data.Track;
 
 import javax.json.Json;
@@ -38,6 +37,9 @@ public class DaemonMainController implements Runnable, RequestController {
 
     @Override
     public Map<String, Object> processRequest(Map<String, Object> request) {
+        if(request == null)
+            return null;
+
         String cmd = (String) request.get("command");
         String req_id = (String) request.get("request_id");
 
@@ -54,7 +56,7 @@ public class DaemonMainController implements Runnable, RequestController {
             response.put("request_id", req_id);
 
             if(cmd.equals("TOGGLE")) {
-                player.toggle();
+                Player.toggle();
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);
@@ -65,12 +67,12 @@ public class DaemonMainController implements Runnable, RequestController {
 //            } else if(cmd.equals("STOP")) {
 //
             } else if(cmd.equals("NEXT")) {
-                player.next();
+                Player.next();
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);
             } else if(cmd.equals("PREV")) {
-                player.prev();
+                Player.prev();
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);

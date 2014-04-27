@@ -113,10 +113,10 @@ public class ClientConnectionController implements Runnable {
                         } else {
 
                         }
-
                     } catch (IOException e) {
                         if (connected) {
                             System.err.println("[ERROR]   Error in communication, attempting to reconnect");
+                            e.printStackTrace();
                             reconnect();
                         } else {
                             //Sleep for one second before attempting again, to give a chance to reconnect
@@ -163,10 +163,17 @@ public class ClientConnectionController implements Runnable {
      * Method used to reconnect to the server after a connection failure
      */
     public void reconnect() {
+        try {
+            throw new IllegalFormatPrecisionException(2);
+        } catch (Exception e) {
+            System.err.println("[DEBUG]   Reconnecting");
+            e.printStackTrace();
+        }
         System.err.print("[WARN]    Connection failed or new connection, attempting to reconnect (" + reconnectTries + ")...");
+        Platform.runLater(new RunRCMethod(rc, RCMethod.ON_DISCONNECT));
 
         connected = false;
-        socket = null;
+        //socket = null;
 
         try {
             //if the socket is still open, close it
@@ -194,6 +201,7 @@ public class ClientConnectionController implements Runnable {
         }
 
         if(socket != null && socket.isConnected()) {
+            //Platform.runLater(new RunRCMethod(rc, RCMethod.ON_CONNECT));
             rc.onConnect();
             connected = true;
             reconnectTries = 0;
@@ -248,6 +256,33 @@ public class ClientConnectionController implements Runnable {
     private class ReconnectTask extends TimerTask {
         public void run() {
             reconnect();
+        }
+    }
+
+    private enum RCMethod {
+        ON_CONNECT,
+        ON_DISCONNECT
+    };
+
+    private class RunRCMethod implements Runnable {
+        RCMethod rcMethod;
+        ResponseController rc;
+
+        public RunRCMethod(ResponseController rc, RCMethod rcMethod) {
+            this.rc = rc;
+            this.rcMethod = rcMethod;
+        }
+
+        @Override
+        public void run() {
+            switch (rcMethod) {
+                case ON_CONNECT:
+                    rc.onConnect();
+                    break;
+                case ON_DISCONNECT:
+                    rc.onDisconnect();
+                    break;
+            }
         }
     }
 
