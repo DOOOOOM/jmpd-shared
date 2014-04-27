@@ -87,7 +87,7 @@ public class DaemonConnectionController implements Runnable {
                 pw.write(responseString);
 
                 if(pw.checkError())
-                    System.err.println("[ERROR]   PrintWriter error in send(...)");
+                    System.err.println("[ERROR]   PrintWriter error in send(...) sending: " + responseString);
 
 
                 try {

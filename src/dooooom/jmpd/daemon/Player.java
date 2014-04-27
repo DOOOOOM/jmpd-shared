@@ -37,7 +37,7 @@ public class Player extends Application {
     @Override
     public void start(Stage arg0) {
         try {
-            server  = new DaemonMainController(this);
+            server  = new DaemonMainController();
             Thread serverThread = new Thread(server);
             serverThread.start();
         } catch (Exception e) {

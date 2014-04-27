@@ -348,19 +348,19 @@ public class MainViewController implements Initializable,ResponseController {
                    }
                });
 
-                track_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
-                        if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                            if (mouseEvent.getClickCount() == 2) {
-                                TrackListItem tli = track_list_view.getSelectionModel().getSelectedItems().get(0);
-                                PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
-                                addToPlayQueue(pqtli);
+        track_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        TrackListItem tli = track_list_view.getSelectionModel().getSelectedItems().get(0);
+                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
+                        addToPlayQueue(pqtli);
 
-                            }
-                        }
                     }
-                });
+                }
+            }
+        });
     }
 
     @Override

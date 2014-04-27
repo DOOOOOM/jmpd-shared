@@ -16,24 +16,23 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Database {
-	public final String dbLocation = DaemonMainController.getDatabasePath();
     public static ArrayList<Track> library;
-
-    int nextID = 1;
+    public static int nextID = 1;
 
     public Database(){ }
 
-    public void updateDatabase() {
+    public static void updateDatabase() {
         FileSystemScanner fss = new FileSystemScanner(DaemonMainController.getMusicFolder());
         library = fss.returnTracks();
         //add all Track to database
         for(Track t : library){
             addEntry(t,t.get("id"));
         }
+        System.out.println(library);
         saveDatabase();
     }
 
-    public void saveDatabase() {
+    public static void saveDatabase() {
         try {
             Map<String,Object> dbMap = new HashMap<String,Object>();
 
@@ -52,11 +51,11 @@ public class Database {
         }
     }
 
-    public void loadDatabase() {
+    public static void loadDatabase() {
         try {
             System.out.println("[INFO]  Loading database from file...");
             Path dbPath = Paths.get(DaemonMainController.getDatabasePath());
-            File d = new File(dbLocation);
+            File d = new File(DaemonMainController.getDatabasePath());
 
             if(!d.exists() || !d.isFile())
                 throw new FileNotFoundException();
@@ -108,7 +107,7 @@ public class Database {
         return result;
     }
 	
-	public void addEntry(Map<String, String> data,String tag){
+	public static void addEntry(Map<String, String> data,String tag){
 		/**
 		 * addEntry: add tracks info into the json database file
 		 * tag - String: This is a searchable string which should be
@@ -162,7 +161,7 @@ public class Database {
 
 	}
 
-	public JsonObject mapToJsonObject(Iterator<String> keys,JsonObjectBuilder obj,Map <String,String> data){
+	public static JsonObject mapToJsonObject(Iterator<String> keys,JsonObjectBuilder obj,Map <String,String> data){
 		/**
 		 * Helper function used to parse json
 		 */
@@ -176,7 +175,7 @@ public class Database {
 		}
 	}
 
-	public JsonObjectBuilder rewriteJson(JsonObjectBuilder copyInto,JsonValue tree,String key){
+	public static JsonObjectBuilder rewriteJson(JsonObjectBuilder copyInto,JsonValue tree,String key){
 		/**
 		 * Helper function used to parse json
 		 */
@@ -198,7 +197,7 @@ public class Database {
 
 	}
 
-	public ArrayList<String> getTrackList(){
+	public static ArrayList<String> getTrackList(){
 		JsonParser jp = null;
 		boolean leadingKEY = false;
 		String ldKEY = null;
@@ -240,7 +239,7 @@ public class Database {
 		return trackID;
 	}
 
-	public Map<String,String> getEntry(String find){
+	public static Map<String,String> getEntry(String find){
 		/**
 		 * getEntry: Would be used to search for an entry
 		 * in the database. if the entry is found it would return

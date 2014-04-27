@@ -10,12 +10,10 @@ import java.util.*;
 
 public class DaemonMainController implements Runnable, RequestController {
     private static Properties daemonConfiguration = Configure();
-    private Player player;
-    private Database database = new Database();
     DaemonConnectionController dcc;
 
-    public DaemonMainController(Player player) {
-        this.player = player;
+    public DaemonMainController() {
+
     }
 
 
@@ -24,8 +22,8 @@ public class DaemonMainController implements Runnable, RequestController {
         dcc = new DaemonConnectionController(getPortNumber(), this);
 
 //        database = new Database();
-        database.updateDatabase();
-        database.loadDatabase();
+//        Database.updateDatabase();
+        Database.loadDatabase();
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
@@ -165,7 +163,7 @@ public class DaemonMainController implements Runnable, RequestController {
                     response.put("status_message","Bad Request: ADD without ids");
                 }
             } else if(cmd.equals("UPDATE")) {
-                database.updateDatabase();
+                Database.updateDatabase();
                 response.put("status_code", "200");
                 response.put("status_message", "OK");
             } else if(cmd.equals("REMOVE")) {
@@ -412,8 +410,8 @@ public class DaemonMainController implements Runnable, RequestController {
 
     public static String getDatabasePath() {
         if(daemonConfiguration.getProperty("Database") == null) {
-            System.err.println("[FATAL]   No Database key in configuration file, unable to start player.");
-            System.exit(1);
+            createConfig();
+            daemonConfiguration = Configure();
         }
         return daemonConfiguration.getProperty("Database");
     }
