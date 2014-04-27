@@ -1,11 +1,13 @@
 package dooooom.jmpd.data;
+
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import dooooom.jmpd.daemon.DaemonMainController;
 
 import javax.json.*;
-import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParsingException;
 import java.io.*;
-import java.nio.file.FileSystems;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,27 +19,33 @@ import java.util.Map;
 public class Database {
 	public final String dbLocation = DaemonMainController.getDatabasePath();
     public static ArrayList<Track> library;
-	int nextID = 1;
-	public Database(){ }
+
+    int nextID = 1;
+
+    public Database(){ }
 
     public void updateDatabase() {
-        FileSystemScanner fss = new FileSystemScanner(dbLocation);
+        FileSystemScanner fss = new FileSystemScanner(DaemonMainController.getMusicFolder());
         library = fss.returnTracks();
         //add all Track to database
         for(Track t : library){
             addEntry(t,t.get("id"));
         }
+        saveDatabase();
     }
 
     public void saveDatabase() {
         try {
-            String data = "";
-            for(Track t: library) {
-                data += dooooom.jmpd.data.JsonParser.mapToString((Map) t);
-            }
-            System.out.println(data);
+            Map<String,Object> dbMap = new HashMap<String,Object>();
+
+            dbMap.put("data",library);
+
+            String data = dooooom.jmpd.data.JsonParser.mapToString(dbMap);
+
             File db = new File(DaemonMainController.getDatabasePath());
+
             PrintWriter out = new PrintWriter(db);
+
             out.println(data);
             out.close();
         } catch (IOException e) {
@@ -49,10 +57,28 @@ public class Database {
         try {
             Path dbPath = Paths.get(DaemonMainController.getDatabasePath());
             byte[] rawDb = Files.readAllBytes(dbPath);
-            String db = rawDb.toString();
+
+            String db = new String(rawDb, Charset.defaultCharset());
+            System.out.println(db);
             Map<String, Object> tracks = dooooom.jmpd.data.JsonParser.stringToMap(db);
+
+            ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) tracks.get("data");
+            ArrayList<Track> savedLibrary = new ArrayList<Track>();
+
+            for(Map<String, String> m: data) {
+                savedLibrary.add(new Track(m));
+            }
+
+            library = savedLibrary;
+            System.out.println("Database loaded successfully");
+        } catch (FileNotFoundException e) {
+            updateDatabase();
+            System.out.println("[INFO]  No database file found. Attempting to create a new one.");
         } catch (IOException e) {
 
+        } catch (JsonParsingException e) {
+            updateDatabase();
+            System.out.println("[ERROR]  Database file did not parse correctly. Possibly corrupt.");
         }
     }
 

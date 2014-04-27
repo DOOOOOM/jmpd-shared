@@ -21,13 +21,10 @@ public class DaemonMainController implements Runnable, RequestController {
 
     public void run() {
         daemonConfiguration = Configure();
-         dcc = new DaemonConnectionController(getPortNumber(), this);
+        dcc = new DaemonConnectionController(getPortNumber(), this);
 
-//        FileSystemScanner f = new FileSystemScanner(getMusicFolder());
-//        ArrayList<Track> t = f.returnTracks();
-//        System.out.println(t);
-//        Collections.sort(t);
-//        Database.library = t;
+        Database database = new Database();
+        database.loadDatabase();
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
@@ -54,23 +51,29 @@ public class DaemonMainController implements Runnable, RequestController {
             response.put("request_id", req_id);
 
             if(cmd.equals("TOGGLE")) {
-                player.toggle();
+                Player.toggle();
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);
-//            } else if(cmd.equals("PLAY")) {
-//
-//            } else if(cmd.equals("PAUSE")) {
-//
-//            } else if(cmd.equals("STOP")) {
-//
+            } else if(cmd.equals("PLAY")) {
+                Player.play();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+            } else if(cmd.equals("PAUSE")) {
+                Player.pause();
+                response.put("status_code","200");
+                response.put("status_message","OK");
+            } else if(cmd.equals("STOP")) {
+                Player.stopPlayback();
+                response.put("status_code","200");
+                response.put("status_message","OK");
             } else if(cmd.equals("NEXT")) {
-                player.next();
+                Player.next();
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);
             } else if(cmd.equals("PREV")) {
-                player.prev();
+                Player.prev();
                 response.put("status_code","200");
                 response.put("status_message","OK");
                 addTrackInfo(response);
@@ -152,7 +155,7 @@ public class DaemonMainController implements Runnable, RequestController {
                         tracksToAdd.addAll(Database.search("id", id));
                     }
 
-                    player.add(tracksToAdd);
+                    Player.add(tracksToAdd);
                 } else {
                     response.put("status_code","400");
                     response.put("status_message","Bad Request: ADD without ids");
@@ -196,12 +199,12 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     private void addTrackInfo(Map<String,Object> response) {
-        Track currentTrack = player.getCurrentTrack();
+        Track currentTrack = Player.getCurrentTrack();
 
         if(currentTrack != null) {
             response.put("track_id", currentTrack.get("id"));
-            response.put("time", Double.toString(player.getTime()));
-            response.put("state", Boolean.toString(player.getState()));
+            response.put("time", Double.toString(Player.getTime()));
+            response.put("state", Boolean.toString(Player.getState()));
         } else {
 
         }
@@ -311,7 +314,7 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public static String getDatabasePath() {
-            return daemonConfiguration.getProperty("Database");
+        return daemonConfiguration.getProperty("Database");
     }
 
     public static String getBasePath() {
