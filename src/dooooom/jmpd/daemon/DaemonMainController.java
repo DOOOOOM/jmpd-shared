@@ -23,7 +23,6 @@ public class DaemonMainController implements Runnable, RequestController {
         daemonConfiguration = Configure();
          dcc = new DaemonConnectionController(getPortNumber(), this);
 
-        //temporarily hard-coded
         FileSystemScanner f = new FileSystemScanner(getMusicFolder());
         ArrayList<Track> t = f.returnTracks();
         System.out.println(t);
@@ -34,7 +33,6 @@ public class DaemonMainController implements Runnable, RequestController {
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
-//        Player.setPlayQueue();
 
         Timer sendTrackInfoTimer = new Timer();
         //sendTrackInfoTimer.schedule(new SendTrackInfoTask(), 1000, 1000);
