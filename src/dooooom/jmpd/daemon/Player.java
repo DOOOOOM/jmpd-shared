@@ -85,7 +85,9 @@ public class Player extends Application {
     public static void setCurrentTrack(Track newCurrent) {
         MediaPlayer oldCurrent = currentPlayback;
         currentTrack = newCurrent;
-        String trackPath = "file:///" + newCurrent.get("filepath").replace(" ", "%20").replace("\\","/");
+        String trackPath = "file:///" + newCurrent.get("filepath").replace("\\","/");
+
+        trackPath = encodeURIComponent(trackPath);
 
         currentPlayback = new MediaPlayer(new Media(trackPath));
 
@@ -153,7 +155,7 @@ public class Player extends Application {
      */
     public static void add(ArrayList<Track> newSongs) {
         for (Track t : newSongs) {
-            String path = "file:///" + t.get("filepath").replace(" ", "%20").replace("\\", "/");
+            String path = "file:///" + t.get("filepath").replace("\\", "/");
             path = encodeURIComponent(path);
             final MediaPlayer p = new MediaPlayer(new Media(path));
             playQueue.add(p);
@@ -170,7 +172,7 @@ public class Player extends Application {
 	*/
     public static void remove(ArrayList<Track> removeSongs) {
         for(Track t: removeSongs) {
-            String path = "file:/" + t.get("filepath").replace(" ", "%20").replace("\\", "/");
+            String path = "file:/" + t.get("filepath").replace("\\", "/");
             for (MediaPlayer p: playQueue) {
                 if(path.equals(p.getMedia().getSource())) {
                     playQueue.remove(p);
@@ -413,7 +415,7 @@ public class Player extends Application {
     {
         if (ch > 128 || ch < 0)
             return true;
-        return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
+        return " []$&+,;=?@<>#%".indexOf(ch) >= 0;
     }
 //endTest
 }
