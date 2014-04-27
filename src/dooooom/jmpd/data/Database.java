@@ -252,9 +252,7 @@ public class Database {
 		return null;
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
+    public String removeUnicode(String s) {
+        return s.replaceAll("[^\\x20-\\x7e]", "");
+    }
 }
