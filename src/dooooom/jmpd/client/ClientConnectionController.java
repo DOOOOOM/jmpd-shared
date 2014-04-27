@@ -52,69 +52,79 @@ public class ClientConnectionController implements Runnable {
         //establish initial connection
         reconnect();
 
+        BufferedReader in = null;
+
+
+
         while(true) {
             if(socket != null && socket.isConnected()) {
-                try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                    String s = in.readLine();
-
-                    //System.out.println("[DEBUG]   Received: " + s);
-
-                    Map<String,Object> response;
-
+                if(in == null) {
                     try {
-                        response = JsonParser.stringToMap(s);
-                    } catch (JsonParsingException e) {
-                        System.err.println("[SEVERE]  Json parsing exception for daemon message: " + s);
-                        e.printStackTrace();
-                        continue;
+                        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    } catch (IOException e) {
+                        System.err.println("[ERROR]   Unable to initialize BufferedReader");
                     }
+                } else {
+                    try {
+                        String s = in.readLine();
 
-                    String uid = (String) response.get("request_id");
+                        //System.out.println("[DEBUG]   Received: " + s);
 
-                    Map<String, Object> request = null;
+                        Map<String, Object> response;
 
-                    if (uid == null) {
-                        System.err.println("[WARN]    Missing request_id in daemon message");
-                    } else if (uid.equals("0")) {
+                        try {
+                            response = JsonParser.stringToMap(s);
+                        } catch (JsonParsingException e) {
+                            System.err.println("[SEVERE]  Json parsing exception for daemon message: " + s);
+                            e.printStackTrace();
+                            continue;
+                        }
+
+                        String uid = (String) response.get("request_id");
+
+                        Map<String, Object> request = null;
+
+                        if (uid == null) {
+                            System.err.println("[WARN]    Missing request_id in daemon message");
+                        } else if (uid.equals("0")) {
                         /*
                          * request_id:0 is a special case reserved for
                          * the server sending unsolicited information to the client
                          */
-                        request = new HashMap<String, Object>();
-                        request.put("command","INFO");
-                        request.put("request_id","0");
-                    } else {
-                        int requestsFound = 0;
+                            request = new HashMap<String, Object>();
+                            request.put("command", "INFO");
+                            request.put("request_id", "0");
+                        } else {
+                            int requestsFound = 0;
 
-                        for (Map<String, Object> request_i : requests) {
-                            if (request_i.get("request_id").equals(uid)) {
-                                request = request_i;
-                                requestsFound++;
+                            for (Map<String, Object> request_i : requests) {
+                                if (request_i.get("request_id").equals(uid)) {
+                                    request = request_i;
+                                    requestsFound++;
+                                }
                             }
+
+                            if (requestsFound > 1)
+                                System.err.println("[WARN]    Duplicate request_id");
                         }
 
-                        if (requestsFound > 1)
-                            System.err.println("[WARN]    Duplicate request_id");
-                    }
+                        if (request != null && response != null) {
+                            Platform.runLater(new ProcessRequestHandler(rc, request, response));
+                        } else {
 
-                    if(request != null && response != null) {
-                        Platform.runLater(new ProcessRequestHandler(rc, request, response));
-                    } else {
+                        }
 
-                    }
+                    } catch (IOException e) {
+                        if (connected) {
+                            System.err.println("[ERROR]   Error in communication, attempting to reconnect");
+                            reconnect();
+                        } else {
+                            //Sleep for one second before attempting again, to give a chance to reconnect
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException interruptedException) {
 
-                } catch (IOException e) {
-                    if(connected) {
-                        System.err.println("[ERROR]   Error in communication, attempting to reconnect");
-                        reconnect();
-                    } else {
-                        //Sleep for one second before attempting again, to give a chance to reconnect
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException interruptedException) {
-
+                            }
                         }
                     }
                 }
