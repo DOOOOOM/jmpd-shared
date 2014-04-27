@@ -23,11 +23,11 @@ public class DaemonMainController implements Runnable, RequestController {
         daemonConfiguration = Configure();
          dcc = new DaemonConnectionController(getPortNumber(), this);
 
-        FileSystemScanner f = new FileSystemScanner(getMusicFolder());
-        ArrayList<Track> t = f.returnTracks();
-        System.out.println(t);
-        Collections.sort(t);
-        Database.library = t;
+//        FileSystemScanner f = new FileSystemScanner(getMusicFolder());
+//        ArrayList<Track> t = f.returnTracks();
+//        System.out.println(t);
+//        Collections.sort(t);
+//        Database.library = t;
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
@@ -289,6 +289,7 @@ public class DaemonMainController implements Runnable, RequestController {
             JsonGenerator gen = Json.createGenerator(out);
             gen.writeStartObject().writeEnd();
             gen.close();
+            out.close();
         } catch (IOException e) {
 
         }
