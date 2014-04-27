@@ -2,10 +2,7 @@ package dooooom.jmpd.daemon;
 
 import dooooom.jmpd.data.JsonParser;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -78,17 +75,21 @@ public class DaemonConnectionController implements Runnable {
         try {
             synchronized (socket) {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                PrintWriter pw = new PrintWriter(out);
 
                 String responseString = JsonParser.mapToString(response);
 
                 if (!responseString.endsWith("\n"))
                     responseString += "\n";
 
-                out.writeBytes(responseString);
-                out.flush();
+                pw.write(responseString);
+
+                if(pw.checkError())
+                    System.err.println("[ERROR]   PrintWriter error in send(...)");
+
 
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(0);
                 } catch (InterruptedException e) {
 
                 }
