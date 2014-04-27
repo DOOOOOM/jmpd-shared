@@ -379,6 +379,7 @@ public class Player extends Application {
                         stopPlayback();
                     } else if (input.equals("a")) {
                         addSongs();
+                        setCurrentTrack(playQueueTracks.get(0));
                     } else if (input.equals("c")) {
                         System.out.println(getTime());
                     } else if (input.equals("i")) {
