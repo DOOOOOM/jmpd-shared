@@ -8,6 +8,8 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -56,12 +58,14 @@ public class Player extends Application {
         currentTrack = newCurrent;
         String trackPath = "file:///" + newCurrent.get("filepath").replace("\\","/");
 
-        trackPath = encodeURIComponent(trackPath);
-
         try {
+            trackPath = parseUrl(trackPath);
             currentPlayback = new MediaPlayer(new Media(trackPath));
         } catch (IllegalArgumentException e) {
-            System.err.println("[ERROR]   IllegalArgumentException in Player, decoding string: " + trackPath);
+            System.err.println("[ERROR]   IllegalArgumentException in Player, encoding string: " + trackPath);
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[ERROR]   Unclassified exception in Player.parseUrl(), encoding string: " + trackPath);
             e.printStackTrace();
         }
 
@@ -361,6 +365,18 @@ public class Player extends Application {
             else o.append(ch);
         }
         return o.toString().replace(" ","%20");
+    }
+
+    public static String parseUrl(String s) throws Exception {
+        URL u = new URL(s);
+        URL y = new URI(
+                u.getProtocol(),
+                u.getAuthority(),
+                u.getPath(),
+                u.getQuery(),
+                u.getRef()).
+                toURL();
+        return y.toString();
     }
 
     private static char toHex(int ch)

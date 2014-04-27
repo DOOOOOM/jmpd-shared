@@ -9,9 +9,9 @@ import java.io.*;
 import java.util.*;
 
 public class DaemonMainController implements Runnable, RequestController {
-    private static Properties daemonConfiguration;
+    private static Properties daemonConfiguration = Configure();
     private Player player;
-    private Database database;
+    private Database database = new Database();
     DaemonConnectionController dcc;
 
     public DaemonMainController(Player player) {
@@ -20,11 +20,12 @@ public class DaemonMainController implements Runnable, RequestController {
 
 
     public void run() {
-        daemonConfiguration = Configure();
+//        daemonConfiguration = Configure();
         dcc = new DaemonConnectionController(getPortNumber(), this);
 
-        Database database = new Database();
+//        database = new Database();
         database.updateDatabase();
+        database.loadDatabase();
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
