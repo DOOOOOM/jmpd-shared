@@ -23,13 +23,14 @@ public class DaemonMainController implements Runnable, RequestController {
         daemonConfiguration = Configure();
         dcc = new DaemonConnectionController(getPortNumber(), this);
 
+        Database database = new Database();
         database.updateDatabase();
 
         Thread dccThread = new Thread(dcc);
         dccThread.start();
 
         Timer sendTrackInfoTimer = new Timer();
-        //sendTrackInfoTimer.schedule(new SendTrackInfoTask(), 1000, 1000);
+        sendTrackInfoTimer.schedule(new SendTrackInfoTask(), 1000, 1000);
     }
 
     @Override
@@ -409,6 +410,10 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public static String getDatabasePath() {
+        if(daemonConfiguration.getProperty("Database") == null) {
+            System.err.println("[FATAL]   No Database key in configuration file, unable to start player.");
+            System.exit(1);
+        }
         return daemonConfiguration.getProperty("Database");
     }
 
