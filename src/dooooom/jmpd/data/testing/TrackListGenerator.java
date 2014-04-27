@@ -1,7 +1,6 @@
 package dooooom.jmpd.data.testing;
 
 import dooooom.jmpd.data.Track;
-import dooooom.jmpd.data.TrackList;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -20,7 +19,6 @@ public class TrackListGenerator {
 		
 		String result = "";
 		if(r.nextBoolean() == true) {
-			
 			result += consonantPhenomes[r.nextInt(vowelPhenomes.length)];
 			result += vowelPhenomes[r.nextInt(vowelPhenomes.length)];
 			result += consonantPhenomes[r.nextInt(vowelPhenomes.length)];
@@ -74,8 +72,8 @@ public class TrackListGenerator {
 		return s;
 	}
 
-	public static TrackList randomTracks(int nArtists) {
-		TrackList tracks = new TrackList();
+	public static ArrayList<Track> randomTracks(int nArtists) {
+		ArrayList<Track> tracks = new ArrayList<Track>();
 
 		final int albumsPerArtist = 3;
 		final int tracksPerAlbum = 8;
