@@ -55,9 +55,14 @@ public class Database {
 
     public void loadDatabase() {
         try {
+            System.out.println("[INFO]  Loading database from file...");
             Path dbPath = Paths.get(DaemonMainController.getDatabasePath());
-            byte[] rawDb = Files.readAllBytes(dbPath);
+            File d = new File(dbLocation);
 
+            if(!d.exists() || !d.isFile())
+                throw new FileNotFoundException();
+
+            byte[] rawDb = Files.readAllBytes(dbPath);
             String db = new String(rawDb, Charset.defaultCharset());
             Map<String, Object> tracks = dooooom.jmpd.data.JsonParser.stringToMap(db);
 
@@ -70,13 +75,13 @@ public class Database {
 
             library = savedLibrary;
         } catch (FileNotFoundException e) {
-            updateDatabase();
             System.out.println("[INFO]  No database file found. Attempting to create a new one.");
+            updateDatabase();
         } catch (IOException e) {
 
         } catch (JsonParsingException e) {
-            updateDatabase();
             System.out.println("[ERROR]  Database file did not parse correctly. Possibly corrupt.");
+            updateDatabase();
         }
     }
 
@@ -117,7 +122,7 @@ public class Database {
 		JsonObjectBuilder mainBuilder = Json.createObjectBuilder();
 		try {
 			copyInto = Json.createObjectBuilder();
-			FileReader fr = new FileReader(dbLocation);
+			FileReader fr = new FileReader(DaemonMainController.getDatabasePath());
 			JsonReader reader = Json.createReader(fr);
 			JsonStructure jsonst =  reader.read();
 			switch(jsonst.getValueType()){
@@ -146,7 +151,7 @@ public class Database {
 //		System.out.println(object.toString());
 		mainBuilder.add(tag,object);
 		try {
-			FileWriter fl = new FileWriter(dbLocation);
+			FileWriter fl = new FileWriter(DaemonMainController.getDatabasePath());
 			JsonWriter jWriter = Json.createWriter(fl);
 			jWriter.writeObject(mainBuilder.build());
 			fl.close();
@@ -253,7 +258,7 @@ public class Database {
 		boolean leadingKEY = false;
 		String ldKEY = null;
 		try {
-			jp = Json.createParser(new FileReader(dbLocation));
+			jp = Json.createParser(new FileReader(DaemonMainController.getDatabasePath()));
 			while(jp.hasNext()){				
 				JsonParser.Event event = jp.next();				
 				switch(event){
