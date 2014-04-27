@@ -59,7 +59,7 @@ public class ClientConnectionController implements Runnable {
 
                     String s = in.readLine();
 
-                    System.out.println("[DEBUG]   Received: " + s);
+                    //System.out.println("[DEBUG]   Received: " + s);
 
                     Map<String,Object> response;
 
