@@ -85,9 +85,10 @@ public class DaemonConnectionController implements Runnable {
                     responseString += "\n";
 
                 out.writeBytes(responseString);
+                out.flush();
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(0);
                 } catch (InterruptedException e) {
 
                 }
