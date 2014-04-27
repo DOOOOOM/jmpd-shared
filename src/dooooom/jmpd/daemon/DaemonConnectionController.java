@@ -40,7 +40,7 @@ public class DaemonConnectionController implements Runnable {
                 Socket socket = null;
                 try {
                     socket = listenSocket.accept();
-                    System.err.println("[INFO]    Connection accepted from " + socket.getInetAddress());
+                    System.err.println("[INFO]    Connection accepted from " + socket.getInetAddress() + " at " + System.currentTimeMillis());
 
                     ConnectionHandler ch = new ConnectionHandler(socket);
 
