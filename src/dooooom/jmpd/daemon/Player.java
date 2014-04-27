@@ -120,6 +120,12 @@ public class Player extends Application {
      *	Postcondition: Given songs added to play queue
      */
     public static void add(ArrayList<Track> newSongs) {
+        if(newSongs == null)
+            return;
+
+        if(currentPlayback.equals(playQueueTracks.get(playQueueTracks.size()-1)))
+            nextTrack = newSongs.get(0);
+        
         playQueueTracks.addAll(newSongs);
 
         if(playQueueTracks.equals(newSongs))
