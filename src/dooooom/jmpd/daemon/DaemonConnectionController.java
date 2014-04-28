@@ -77,24 +77,18 @@ public class DaemonConnectionController implements Runnable {
         try {
             synchronized (socket) {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                PrintWriter pw = new PrintWriter(out);
+//                PrintWriter pw = new PrintWriter(out);
 
                 String responseString = JsonParser.mapToString(response);
 
                 if (!responseString.endsWith("\n"))
                     responseString += "\n";
 
-                pw.write(responseString);
+                out.writeBytes(responseString);
+//                pw.write(responseString);
 
-                if(pw.checkError())
-                    System.err.println("[ERROR]   PrintWriter error in send(...) sending: " + responseString);
-
-
-                try {
-                    Thread.sleep(0);
-                } catch (InterruptedException e) {
-
-                }
+//                if(pw.checkError())
+//                    System.err.println("[ERROR]   PrintWriter error in send(...) sending: " + responseString);
             }
         } catch (IOException e) {
             System.err.println("[ERROR]   Error in communication with client in send()");
