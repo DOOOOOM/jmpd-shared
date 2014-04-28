@@ -13,7 +13,7 @@
   <children>
     <BorderPane id="mainpane" prefHeight="400.0000999999975" prefWidth="600.0000999999975" style="" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <bottom>
-        <Label fx:id="status_bar" maxWidth="1.7976931348623157E308" prefWidth="4096.0" style="-fx-background-color: #555555;" text="" textFill="WHITE" />
+        <Label fx:id="status_bar" maxWidth="1.7976931348623157E308" prefWidth="4096.0" style="" text="" textFill="WHITE" />
       </bottom>
       <center>
         <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
@@ -46,10 +46,10 @@
         </TabPane>
       </center>
       <right>
-        <TextArea fx:id="lyrics_text" editable="false" prefHeight="704.0" prefWidth="304.0" style="" text="" wrapText="true" />
+        <TextArea fx:id="lyrics_text" editable="false" prefHeight="704.0" prefWidth="304.0" style="-fx-background-color: black;" text="" wrapText="true" />
       </right>
       <top>
-        <GridPane id="topbar" maxWidth="1.7976931348623157E308" style="">
+        <GridPane id="top_bar" maxWidth="1.7976931348623157E308" style="">
           <children>
             <Button fx:id="prev_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" style="" text="" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2" />
             <Button fx:id="next_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" style="" text="" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2" />

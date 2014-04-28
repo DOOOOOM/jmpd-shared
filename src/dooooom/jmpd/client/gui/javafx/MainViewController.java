@@ -537,28 +537,28 @@ public class MainViewController implements Initializable,ResponseController {
 
             } else if(cmd.equals("QUEUE")) {
                 if(status != null && status.equals("200")) {
-                    ArrayList<Track> newLibrary = new ArrayList<Track>();
+                    ArrayList<Track> newQueue = new ArrayList<Track>();
                     ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
 
                     segmentsReceived = new HashMap<Integer,Boolean>();
 
                     if(data != null) {
                         for(Map<String,String> t : data) {
-                            newLibrary.add(new Track(t));
+                            newQueue.add(new Track(t));
                         }
 
-                        setLibrary(newLibrary);
+//                        setQueue(newQueue);
                     }
                 } else if (status != null && status.equals("206")) {
-                    ArrayList<Track> newLibrary = (ArrayList<Track>) library.clone();
+                    ArrayList<Track> newQueue = (ArrayList<Track>) library.clone();
                     ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
 
                     if(data != null) {
                         for(Map<String,String> t : data) {
-                            newLibrary.add(new Track(t));
+                            newQueue.add(new Track(t));
                         }
 
-                        setLibrary(newLibrary);
+//                        setQueue(newQueue);
                     }
                 }
 
@@ -573,9 +573,9 @@ public class MainViewController implements Initializable,ResponseController {
 
                             if(received == null || received == false) {
                                 Map<String, Object> new_request = new HashMap<String, Object>();
-                                new_request.put("command", "DATABASE");
+                                new_request.put("command", "QUEUE");
                                 new_request.put("segment_id", Integer.toString(i));
-                                System.err.println("[INFO]    Retry grabbing database segment " + i);
+                                System.err.println("[INFO]    Retry grabbing queue segment " + i);
                                 cc.sendMap(new_request);
                             }
                         }
