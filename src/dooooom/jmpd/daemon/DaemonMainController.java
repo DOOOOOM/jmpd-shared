@@ -16,7 +16,6 @@ public class DaemonMainController implements Runnable, RequestController {
 
     }
 
-
     public void run() {
 //        daemonConfiguration = Configure();
         dcc = new DaemonConnectionController(getPortNumber(), this);
