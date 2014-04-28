@@ -36,6 +36,8 @@ public class MainViewController implements Initializable,ResponseController {
     @FXML private Button play_button;
     @FXML private Button next_button;
 
+    @FXML private Button update_button;
+
     @FXML private Label track_label;
     @FXML private Slider seek_slider;
 
