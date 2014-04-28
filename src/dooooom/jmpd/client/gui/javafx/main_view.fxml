@@ -46,7 +46,7 @@
         </TabPane>
       </center>
       <right>
-        <TextArea fx:id="lyrics_text" editable="false" prefHeight="704.0" prefWidth="304.0" style="-fx-background-color: black;" text="" wrapText="true" />
+        <TextArea fx:id="lyrics_text" editable="false" prefHeight="704.0" prefWidth="304.0" style="" text="" wrapText="true" />
       </right>
       <top>
         <GridPane id="top_bar" maxWidth="1.7976931348623157E308" style="">

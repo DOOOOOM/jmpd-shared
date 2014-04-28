@@ -529,7 +529,9 @@ public class MainViewController implements Initializable,ResponseController {
                     }
                 }
             } else if(cmd.equals("UPDATE")) {
-
+                Map<String, Object> refreshDB = new HashMap<String, Object>();
+                refreshDB.put("command", "DATABASE");
+                cc.sendMap(refreshDB);
             } else if(cmd.equals("REMOVE")) {
 
             } else if(cmd.equals("CURRENT")) {

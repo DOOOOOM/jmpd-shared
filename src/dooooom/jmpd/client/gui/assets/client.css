@@ -79,3 +79,15 @@
 	-fx-background-color: #05202d;
 	-fx-border-color: #1689be;
 }
+
+.list-cell {
+	-fx-background: #000;
+}
+
+.list-cell:odd {
+	-fx-background: #000E14;
+}
+
+#artist_list_view, #album_list_view, #track_list_view {
+	-fx-background-color: #000;
+}
