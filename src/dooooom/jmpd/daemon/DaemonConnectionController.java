@@ -128,9 +128,12 @@ public class DaemonConnectionController implements Runnable {
             while (socket != null && !socket.isClosed() && kill == false) {
                 try {
                     String s = in.readLine();
+                    System.err.println("[DEBUG]   Received: " + s);
 
                     Map<String,Object> request = JsonParser.stringToMap(s);
                     Map<String,Object> response = rc.processRequest(request);
+
+                    System.err.println("[DEBUG]   Response: " + response);
 
                     if(response == null)
                         continue;

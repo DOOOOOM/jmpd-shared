@@ -3,7 +3,6 @@ package dooooom.jmpd.client.gui.javafx;
 import dooooom.jmpd.client.ClientConnectionController;
 import dooooom.jmpd.client.LyricsFetcher;
 import dooooom.jmpd.client.ResponseController;
-import dooooom.jmpd.client.gui.ArtExtractor;
 import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
 import javafx.application.Platform;
@@ -196,12 +195,21 @@ public class MainViewController implements Initializable,ResponseController {
                     String title = t.get("title");
 
                     String lyrics;
-                    if (artist != null && !artist.isEmpty()
-                            && title != null && !title.isEmpty()) {
-                        System.out.println(".");
-                        lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+
+                    if(artist.equals("DOOOOOM") && title.equals("Please Give Us All An A")) {
+                        lyrics = "Professor Bhola, give us all A's\n";
+                        lyrics += "Because we need to graduate!\n";
+                        lyrics += "[awesome guitar solo]\n";
+                        lyrics += "Professor Bhola, give us all A's\n";
+                        lyrics += "Because we need to graduate!\n";
                     } else {
-                        lyrics = "[lyrics unavailable]";
+                        if (artist != null && !artist.isEmpty()
+                                && title != null && !title.isEmpty()) {
+                            System.out.println(".");
+                            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+                        } else {
+                            lyrics = "[lyrics unavailable]";
+                        }
                     }
 
                     Platform.runLater(new Runnable() {

@@ -1,6 +1,5 @@
 package dooooom.jmpd.daemon;
 
-import dooooom.jmpd.data.FileSystemScanner;
 import dooooom.jmpd.data.Track;
 import javafx.application.Application;
 import javafx.scene.media.Media;
@@ -12,8 +11,6 @@ import javafx.util.Duration;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 public class Player extends Application {
     // The class responsible for controlling most of the external
@@ -39,6 +36,11 @@ public class Player extends Application {
 
     @Override
     public void start(Stage arg0) {
+        System.out.println("Java Music Player Daemon  Copyright (C) 2014  ");
+        System.out.println("This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.");
+        System.out.println("This is free software, and you are welcome to redistribute it");
+        System.out.println("under certain conditions; type `show c' for details.");
+
         try {
             server  = new DaemonMainController();
             Thread serverThread = new Thread(server);

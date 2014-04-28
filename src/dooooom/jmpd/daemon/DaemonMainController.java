@@ -45,266 +45,272 @@ public class DaemonMainController implements Runnable, RequestController {
             return response;
         }
 
-        if(cmd != null && cmd instanceof String) {
-            response.put("request_id", req_id);
+        try {
+            if (cmd != null && cmd instanceof String) {
+                response.put("request_id", req_id);
 
-            if(cmd.equals("TOGGLE")) {
-                Player.toggle();
-                response.put("status_code","200");
-                response.put("status_message","OK");
-                addTrackInfo(response);
-            } else if(cmd.equals("PLAY")) {
-                Player.play();
-                response.put("status_code","200");
-                response.put("status_message","OK");
-            } else if(cmd.equals("PAUSE")) {
-                Player.pause();
-                response.put("status_code","200");
-                response.put("status_message","OK");
-            } else if(cmd.equals("STOP")) {
-                Player.stopPlayback();
-                response.put("status_code","200");
-                response.put("status_message","OK");
-            } else if(cmd.equals("NEXT")) {
-                Player.next();
-                response.put("status_code","200");
-                response.put("status_message","OK");
-                addTrackInfo(response);
-            } else if(cmd.equals("PREV")) {
-                Player.prev();
-                response.put("status_code", "200");
-                response.put("status_message", "OK");
-                addTrackInfo(response);
-            } else if(cmd.equals("SEEK")) {
-                String timeString = (String) request.get("time");
-
-                if(timeString == null) {
-                    response.put("status_code","400");
-                    response.put("status_message","Bad Request: missing time");
-                } else {
-                    try {
-                        double time = Double.parseDouble(timeString);
-                        Player.seekTo(time);
-                    } catch (NumberFormatException e) {
-                        response.put("status_code","400");
-                        response.put("status_message","Bad Request: invalid time");
-                    }
-                }
-            } else if(cmd.equals("DATABASE")) {
-                ArrayList<Track> data = Database.library;
-
-                if(data != null) {
-                    final int max_tracks_per_response = 50;
-
-                    if (request.containsKey("segment_id")) {
-                        int i;
-
-                        try {
-                            i = Integer.parseInt((String) request.get("segment_id"));
-
-                            int max = (i + 1) * max_tracks_per_response;
-
-                            if (max >= data.size())
-                                max = data.size() - 1;
-
-                            if (i == 0) {
-                                response.put("status_code", "200");
-                                response.put("status_message", "OK");
-                            } else {
-                                response.put("status_code", "206");
-                                response.put("status_message", "OK");
-                            }
-
-                            int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
-
-                            response.put("segment_id",Integer.toString(i));
-                            response.put("n_segments",Integer.toString(nLists));
-                            response.put("data", data.subList(i * max_tracks_per_response, max));
-                            response.put("request_id", req_id);
-                        } catch (NumberFormatException e) {
-                            response.put("status_code","400");
-                            response.put("status_message","Bad Request: invalid segment_id");
-                        }
-                    } else {
-                        ArrayList<Map<String, Object>> responses = new ArrayList<Map<String, Object>>();
-
-                        int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
-                        for (int i = 0; i < nLists; i++) {
-                            Map<String, Object> sub_response = new HashMap<String, Object>();
-
-                            int max = (i + 1) * max_tracks_per_response;
-                            if (max >= data.size())
-                                max = data.size() - 1;
-
-                            if (i == 0) {
-                                sub_response.put("status_code", "200");
-                                sub_response.put("status_message", "OK");
-                            } else {
-                                sub_response.put("status_code", "206");
-                                sub_response.put("status_message", "OK");
-                            }
-
-                            sub_response.put("segment_id",Integer.toString(i));
-                            sub_response.put("n_segments",Integer.toString(nLists));
-                            sub_response.put("data", data.subList(i * max_tracks_per_response, max));
-                            sub_response.put("request_id", req_id);
-
-                            responses.add(sub_response);
-                        }
-
-                        response.put("DCC_SEND_MULTIPLE", responses);
-                    }
-                } else {
-                    response.put("status_code","404");
-                    response.put("status_message","Not Found: database not found");
-                }
-            } else if(cmd.equals("ADD")) {
-                if(request.containsKey("ids")) {
-                    ArrayList<String> ids = (ArrayList<String>) request.get("ids");
-
-                    ArrayList<Track> tracksToAdd = new ArrayList<Track>();
-
-                    for(String id : ids) {
-                        tracksToAdd.addAll(Database.search("id", id));
-                    }
-
-                    Player.add(tracksToAdd);
-
+                if (cmd.equals("TOGGLE")) {
+                    Player.toggle();
                     response.put("status_code", "200");
                     response.put("status_message", "OK");
-                } else {
-                    response.put("status_code","400");
-                    response.put("status_message","Bad Request: ADD without ids");
-                }
-            } else if(cmd.equals("UPDATE")) {
-                Database.updateDatabase();
-                response.put("status_code", "200");
-                response.put("status_message", "OK");
-            } else if(cmd.equals("REMOVE")) {
-                if(request.containsKey("ids")) {
-                    ArrayList<String> ids = (ArrayList<String>) request.get("ids");
+                    addTrackInfo(response);
+                } else if (cmd.equals("PLAY")) {
+                    Player.play();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                } else if (cmd.equals("PAUSE")) {
+                    Player.pause();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                } else if (cmd.equals("STOP")) {
+                    Player.stopPlayback();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                } else if (cmd.equals("NEXT")) {
+                    Player.next();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                    addTrackInfo(response);
+                } else if (cmd.equals("PREV")) {
+                    Player.prev();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                    addTrackInfo(response);
+                } else if (cmd.equals("SEEK")) {
+                    String timeString = (String) request.get("time");
 
-                    ArrayList<Track> tracksToRemove = new ArrayList<Track>();
-
-                    for(String id : ids) {
-                        tracksToRemove.addAll(Database.search("id", id));
+                    if (timeString == null) {
+                        response.put("status_code", "400");
+                        response.put("status_message", "Bad Request: missing time");
+                    } else {
+                        try {
+                            double time = Double.parseDouble(timeString);
+                            Player.seekTo(time);
+                        } catch (NumberFormatException e) {
+                            response.put("status_code", "400");
+                            response.put("status_message", "Bad Request: invalid time");
+                        }
                     }
+                } else if (cmd.equals("DATABASE")) {
+                    ArrayList<Track> data = Database.library;
 
-                    try {
-                        Player.remove(tracksToRemove);
+                    if (data != null) {
+                        final int max_tracks_per_response = 50;
+
+                        if (request.containsKey("segment_id")) {
+                            int i;
+
+                            try {
+                                i = Integer.parseInt((String) request.get("segment_id"));
+
+                                int max = (i + 1) * max_tracks_per_response;
+
+                                if (max >= data.size())
+                                    max = data.size();
+
+                                if (i == 0) {
+                                    response.put("status_code", "200");
+                                    response.put("status_message", "OK");
+                                } else {
+                                    response.put("status_code", "206");
+                                    response.put("status_message", "OK");
+                                }
+
+                                int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
+
+                                response.put("segment_id", Integer.toString(i));
+                                response.put("n_segments", Integer.toString(nLists));
+                                response.put("data", data.subList(i * max_tracks_per_response, max));
+                                response.put("request_id", req_id);
+                            } catch (NumberFormatException e) {
+                                response.put("status_code", "400");
+                                response.put("status_message", "Bad Request: invalid segment_id");
+                            }
+                        } else {
+                            ArrayList<Map<String, Object>> responses = new ArrayList<Map<String, Object>>();
+
+                            int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
+                            for (int i = 0; i < nLists; i++) {
+                                Map<String, Object> sub_response = new HashMap<String, Object>();
+
+                                int max = (i + 1) * max_tracks_per_response;
+                                if (max >= data.size())
+                                    max = data.size();
+
+                                if (i == 0) {
+                                    sub_response.put("status_code", "200");
+                                    sub_response.put("status_message", "OK");
+                                } else {
+                                    sub_response.put("status_code", "206");
+                                    sub_response.put("status_message", "OK");
+                                }
+
+                                sub_response.put("segment_id", Integer.toString(i));
+                                sub_response.put("n_segments", Integer.toString(nLists));
+                                sub_response.put("data", data.subList(i * max_tracks_per_response, max));
+                                sub_response.put("request_id", req_id);
+
+                                responses.add(sub_response);
+                            }
+
+                            response.put("DCC_SEND_MULTIPLE", responses);
+                        }
+                    } else {
+                        response.put("status_code", "404");
+                        response.put("status_message", "Not Found: database not found");
+                    }
+                } else if (cmd.equals("ADD")) {
+                    if (request.containsKey("ids")) {
+                        ArrayList<String> ids = (ArrayList<String>) request.get("ids");
+
+                        ArrayList<Track> tracksToAdd = new ArrayList<Track>();
+
+                        for (String id : ids) {
+                            tracksToAdd.addAll(Database.search("id", id));
+                        }
+
+                        Player.add(tracksToAdd);
 
                         response.put("status_code", "200");
                         response.put("status_message", "OK");
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        response.put("status_code", "500");
-                        response.put("status_message", "Internal Server Error");
+                    } else {
+                        response.put("status_code", "400");
+                        response.put("status_message", "Bad Request: ADD without ids");
                     }
-                } else {
-                    response.put("status_code","400");
-                    response.put("status_message","Bad Request: ADD without ids");
-                }
-            } else if(cmd.equals("CURRENT")) {
-                response = createTrackInfoResponse();
-            } else if(cmd.equals("QUEUE")) {
-                ArrayList<Track> data = Player.getPlayQueue();
+                } else if (cmd.equals("UPDATE")) {
+                    Database.updateDatabase();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
+                } else if (cmd.equals("REMOVE")) {
+                    if (request.containsKey("ids")) {
+                        ArrayList<String> ids = (ArrayList<String>) request.get("ids");
 
-                if(data != null) {
-                    final int max_tracks_per_response = 50;
+                        ArrayList<Track> tracksToRemove = new ArrayList<Track>();
 
-                    if (request.containsKey("segment_id")) {
-                        int i;
+                        for (String id : ids) {
+                            tracksToRemove.addAll(Database.search("id", id));
+                        }
 
                         try {
-                            i = Integer.parseInt((String) request.get("segment_id"));
+                            Player.remove(tracksToRemove);
 
-                            int max = (i + 1) * max_tracks_per_response;
+                            response.put("status_code", "200");
+                            response.put("status_message", "OK");
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            response.put("status_code", "500");
+                            response.put("status_message", "Internal Server Error");
+                        }
+                    } else {
+                        response.put("status_code", "400");
+                        response.put("status_message", "Bad Request: ADD without ids");
+                    }
+                } else if (cmd.equals("CURRENT")) {
+                    response = createTrackInfoResponse();
+                } else if (cmd.equals("QUEUE")) {
+                    ArrayList<Track> data = Player.getPlayQueue();
 
-                            if (max >= data.size())
-                                max = data.size() - 1;
+                    if (data != null) {
+                        final int max_tracks_per_response = 50;
 
-                            if (i == 0) {
-                                response.put("status_code", "200");
-                                response.put("status_message", "OK");
-                            } else {
-                                response.put("status_code", "206");
-                                response.put("status_message", "OK");
+                        if (request.containsKey("segment_id")) {
+                            int i;
+
+                            try {
+                                i = Integer.parseInt((String) request.get("segment_id"));
+
+                                int max = (i + 1) * max_tracks_per_response;
+
+                                if (max >= data.size())
+                                    max = data.size();
+
+                                if (i == 0) {
+                                    response.put("status_code", "200");
+                                    response.put("status_message", "OK");
+                                } else {
+                                    response.put("status_code", "206");
+                                    response.put("status_message", "OK");
+                                }
+
+                                int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
+
+                                response.put("segment_id", Integer.toString(i));
+                                response.put("n_segments", Integer.toString(nLists));
+                                response.put("data", data.subList(i * max_tracks_per_response, max));
+                                response.put("request_id", req_id);
+                            } catch (NumberFormatException e) {
+                                response.put("status_code", "400");
+                                response.put("status_message", "Bad Request: invalid segment_id");
                             }
+                        } else {
+                            ArrayList<Map<String, Object>> responses = new ArrayList<Map<String, Object>>();
 
                             int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
+                            for (int i = 0; i < nLists; i++) {
+                                Map<String, Object> sub_response = new HashMap<String, Object>();
 
-                            response.put("segment_id",Integer.toString(i));
-                            response.put("n_segments",Integer.toString(nLists));
-                            response.put("data", data.subList(i * max_tracks_per_response, max));
-                            response.put("request_id", req_id);
-                        } catch (NumberFormatException e) {
-                            response.put("status_code","400");
-                            response.put("status_message","Bad Request: invalid segment_id");
-                        }
-                    } else {
-                        ArrayList<Map<String, Object>> responses = new ArrayList<Map<String, Object>>();
+                                int max = (i + 1) * max_tracks_per_response;
+                                if (max >= data.size())
+                                    max = data.size();
 
-                        int nLists = (int) Math.ceil((double) data.size() / max_tracks_per_response);
-                        for (int i = 0; i < nLists; i++) {
-                            Map<String, Object> sub_response = new HashMap<String, Object>();
+                                if (i == 0) {
+                                    sub_response.put("status_code", "200");
+                                    sub_response.put("status_message", "OK");
+                                } else {
+                                    sub_response.put("status_code", "206");
+                                    sub_response.put("status_message", "OK");
+                                }
 
-                            int max = (i + 1) * max_tracks_per_response;
-                            if (max >= data.size())
-                                max = data.size() - 1;
+                                sub_response.put("segment_id", Integer.toString(i));
+                                sub_response.put("n_segments", Integer.toString(nLists));
+                                sub_response.put("data", data.subList(i * max_tracks_per_response, max));
+                                sub_response.put("request_id", req_id);
 
-                            if (i == 0) {
-                                sub_response.put("status_code", "200");
-                                sub_response.put("status_message", "OK");
-                            } else {
-                                sub_response.put("status_code", "206");
-                                sub_response.put("status_message", "OK");
+                                responses.add(sub_response);
                             }
 
-                            sub_response.put("segment_id",Integer.toString(i));
-                            sub_response.put("n_segments",Integer.toString(nLists));
-                            sub_response.put("data", data.subList(i * max_tracks_per_response, max));
-                            sub_response.put("request_id", req_id);
-
-                            responses.add(sub_response);
+                            response.put("DCC_SEND_MULTIPLE", responses);
                         }
-
-                        response.put("DCC_SEND_MULTIPLE", responses);
-                    }
-                } else {
-                    response.put("status_code","404");
-                    response.put("status_message","Not Found: play queue not found");
-                }
-            } else if(cmd.equals("SET")) {
-                if(request.containsKey("id")) {
-                    int id = Integer.parseInt(request.get("id").toString());
-
-                    if(Player.getTrackFromIndex(id) != null) {
-                        Player.setCurrentTrack(Player.getTrackFromIndex(id));
                     } else {
-                        response.put("status_code","400");
-                        response.put("status_message","Bad Request: SET with bad id");
+                        response.put("status_code", "404");
+                        response.put("status_message", "Not Found: play queue not found");
                     }
-                } else {
-                    response.put("status_code","400");
-                    response.put("status_message","Bad Request: SET without id");
-                }
-            } else if(cmd.equals("CLEAR")) {
-                Player.clearQueue();
-                response.put("status_code", "200");
-                response.put("status_message", "OK");
+                } else if (cmd.equals("SET")) {
+                    if (request.containsKey("id")) {
+                        int id = Integer.parseInt(request.get("id").toString());
+
+                        if (Player.getTrackFromIndex(id) != null) {
+                            Player.setCurrentTrack(Player.getTrackFromIndex(id));
+                        } else {
+                            response.put("status_code", "400");
+                            response.put("status_message", "Bad Request: SET with bad id");
+                        }
+                    } else {
+                        response.put("status_code", "400");
+                        response.put("status_message", "Bad Request: SET without id");
+                    }
+                } else if (cmd.equals("CLEAR")) {
+                    Player.clearQueue();
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
 //            } else if(cmd.equals("PLADD")) {
 //
 //            } else if(cmd.equals("PLDEL")) {
 //
-            } else {
-                response.put("status_code","501");
-                response.put("status_message","Not Implemented: " + cmd);
-            }
+                } else {
+                    response.put("status_code", "501");
+                    response.put("status_message", "Not Implemented: " + cmd);
+                }
 
-            //things to do no matter what was received
-        } else {
-            //Bad request
-            response.put("status_code","400");
-            response.put("status_message","Bad Request: No command given");
+                //things to do no matter what was received
+            } else {
+                //Bad request
+                response.put("status_code", "400");
+                response.put("status_message", "Bad Request: No command given");
+            }
+        } catch (Exception e) {
+            response.put("status_code","500");
+            response.put("status_message","Internal Server Error");
+            System.err.println("[SEVERE]  Internal server error in response handling. Request command: " + cmd);
         }
 
         return response;
