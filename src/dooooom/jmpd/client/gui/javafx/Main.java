@@ -12,7 +12,10 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("main_view.fxml"));
         primaryStage.setTitle("jMPC");
-        primaryStage.setScene(new Scene(root, 1024, 768));
+        Scene scene = new Scene(root, 1024, 768);
+        scene.getStylesheets().add
+                (MainViewController.class.getResource("../assets/client.css").toExternalForm());
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 

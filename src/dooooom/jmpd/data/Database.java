@@ -25,9 +25,9 @@ public class Database {
         FileSystemScanner fss = new FileSystemScanner(DaemonMainController.getMusicFolder());
         library = fss.returnTracks();
         //add all Track to database
-        for(Track t : library){
-            addEntry(t,t.get("id"));
-        }
+//        for(Track t : library){
+//            addEntry(t,t.get("id"));
+//        }
         System.out.println(library);
         saveDatabase();
     }
@@ -138,8 +138,7 @@ public class Database {
 				break;
 			}
 		} catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
         } catch (javax.json.stream.JsonParsingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

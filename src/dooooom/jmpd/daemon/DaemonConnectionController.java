@@ -127,7 +127,7 @@ public class DaemonConnectionController implements Runnable {
                 return;
             }
 
-            while (socket != null && socket.isConnected()) {
+            while (socket != null && !socket.isClosed()) {
                 try {
                     String s = in.readLine();
 

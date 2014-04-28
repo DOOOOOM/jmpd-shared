@@ -17,11 +17,8 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public void run() {
-//        daemonConfiguration = Configure();
         dcc = new DaemonConnectionController(getPortNumber(), this);
 
-//        database = new Database();
-//        Database.updateDatabase();
         Database.loadDatabase();
 
         Thread dccThread = new Thread(dcc);
