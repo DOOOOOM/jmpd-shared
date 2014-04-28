@@ -69,44 +69,42 @@ public class DaemonConnectionController implements Runnable {
         for(ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
             Socket socket = ch.getSocket();
 
-            send(socket, response);
+            try {
+                send(socket, response);
+            } catch (IOException e) {
+                ch.kill();
+            }
         }
     }
 
-    private void send(Socket socket, Map<String,Object> response) {
-        try {
-            synchronized (socket) {
-                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+    private void send(Socket socket, Map<String,Object> response) throws IOException {
+        synchronized (socket) {
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 //                PrintWriter pw = new PrintWriter(out);
 
-                String responseString = JsonParser.mapToString(response);
+            String responseString = JsonParser.mapToString(response);
 
-                if (!responseString.endsWith("\n"))
-                    responseString += "\n";
+            if (!responseString.endsWith("\n"))
+                responseString += "\n";
 
-                out.writeBytes(responseString);
+            out.writeBytes(responseString);
 //                pw.write(responseString);
 
 //                if(pw.checkError())
 //                    System.err.println("[ERROR]   PrintWriter error in send(...) sending: " + responseString);
-            }
-        } catch (IOException e) {
-            System.err.println("[ERROR]   Error in communication with client in send()");
-
-            try {
-                if (socket != null)
-                    socket.close();
-            } catch (IOException e0) {
-                System.err.println("[ERROR]   Error in closing socket");
-            }
         }
     }
 
     private class ConnectionHandler implements Runnable {
         private Socket socket;
+        private boolean kill = false;
 
         public ConnectionHandler(Socket socket) {
             this.socket = socket;
+        }
+
+        public void kill() {
+            kill = true;
         }
 
         public void run() {
@@ -127,7 +125,7 @@ public class DaemonConnectionController implements Runnable {
                 return;
             }
 
-            while (socket != null && !socket.isClosed()) {
+            while (socket != null && !socket.isClosed() && kill == false) {
                 try {
                     String s = in.readLine();
 
@@ -148,7 +146,6 @@ public class DaemonConnectionController implements Runnable {
                     }
                 }  catch (IOException e) {
                     System.err.println("[ERROR]   Error in communication with client in ConnectionHandler");
-                    e.printStackTrace();
 
                     try {
                         if (socket != null)
@@ -159,6 +156,12 @@ public class DaemonConnectionController implements Runnable {
 
                     return;
                 }
+            }
+
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("[ERROR]   Error in closing socket");
             }
         }
 
