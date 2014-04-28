@@ -9,7 +9,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,6 +27,7 @@ public class MainViewController implements Initializable,ResponseController {
     @FXML private ListView<String> artist_list_view;
     @FXML private ListView<String> album_list_view;
     @FXML private ListView<TrackListItem> track_list_view;
+    @FXML private ListView<PlayQueueTrackListItem> play_queue_listview;
 
 //    @FXML private ListView<PlayQueueTrackListItem> play_queue_list_view;
 
@@ -58,7 +58,8 @@ public class MainViewController implements Initializable,ResponseController {
     /*
      * Keep track of how many and which segments have been received for the current library
      */
-    private Map<Integer,Boolean> segmentsReceived = new HashMap<Integer,Boolean>();
+    private Map<Integer,Boolean> dbSegmentsReceived = new HashMap<Integer,Boolean>();
+    private Map<Integer,Boolean> pqSegmentsReceived = new HashMap<Integer,Boolean>();
     private int n_segments;
 
     /*
@@ -67,7 +68,7 @@ public class MainViewController implements Initializable,ResponseController {
     private final ObservableList<String> artistList = FXCollections.observableArrayList();
     private final ObservableList<String> albumList = FXCollections.observableArrayList();
     private final ObservableList<TrackListItem> trackList = FXCollections.observableArrayList();
-//    private final ObservableList<PlayQueueTrackListItem> playQueueList = FXCollections.observableArrayList();
+    private final ObservableList<PlayQueueTrackListItem> playQueueList = FXCollections.observableArrayList();
 
     /*
 	 * Current Selections (for filtering purposes)
@@ -103,7 +104,7 @@ public class MainViewController implements Initializable,ResponseController {
         artist_list_view.setItems(artistList);
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
-//        play_queue_list_view.setItems(playQueueList);
+        play_queue_listview.setItems(playQueueList);
 
         //will not be connected at startup, so disable buttons and such
         onDisconnect();
@@ -274,6 +275,14 @@ public class MainViewController implements Initializable,ResponseController {
 //        }
 //    }
 
+    private void setQueue(ArrayList<Track> tl) {
+        playQueueList.clear();
+
+        for(Track t : tl) {
+            playQueueList.add(new PlayQueueTrackListItem(t));
+        }
+    }
+
     private void addToPlayQueue(PlayQueueTrackListItem t) {
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("command", "ADD");
@@ -285,7 +294,7 @@ public class MainViewController implements Initializable,ResponseController {
 
     private void removeFromPlayQueue(PlayQueueTrackListItem t) {
         Map<String, Object> request = new HashMap<String, Object>();
-        request.put("command", "ADD");
+        request.put("command", "REMOVE");
         ArrayList<String> tracksToRemove = new ArrayList<String>();
         tracksToRemove.add(t.getTrack().get("id"));
         request.put("ids",tracksToRemove);
@@ -406,7 +415,6 @@ public class MainViewController implements Initializable,ResponseController {
                         TrackListItem tli = track_list_view.getSelectionModel().getSelectedItems().get(0);
                         PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
                         addToPlayQueue(pqtli);
-
                     }
                 }
             }
@@ -429,18 +437,18 @@ public class MainViewController implements Initializable,ResponseController {
 //            }
 //        });
 //
-//        play_queue_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent mouseEvent) {
-//                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-//                    if (mouseEvent.getClickCount() == 2) {
-//                        PlayQueueTrackListItem ptli = play_queue_list_view.getSelectionModel().getSelectedItems().get(0);
-//                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(ptli.getTrack());
-//                        removeFromPlayQueue(pqtli);
-//                    }
-//                }
-//            }
-//        });
+        play_queue_listview.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        PlayQueueTrackListItem ptli = play_queue_listview.getSelectionModel().getSelectedItems().get(0);
+                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(ptli.getTrack());
+                        removeFromPlayQueue(pqtli);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -449,7 +457,7 @@ public class MainViewController implements Initializable,ResponseController {
 
         String cmd = (String) request.get("command");
 
-        if(cmd != null && cmd instanceof String) {
+        if(cmd != null) {
             String status = (String) response.get("status_code");
 
             if(cmd.equals("TOGGLE")) {
@@ -469,7 +477,7 @@ public class MainViewController implements Initializable,ResponseController {
                     ArrayList<Track> newLibrary = new ArrayList<Track>();
                     ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
 
-                    segmentsReceived = new HashMap<Integer,Boolean>();
+                    dbSegmentsReceived = new HashMap<Integer,Boolean>();
 
                     if(data != null) {
                         for(Map<String,String> t : data) {
@@ -496,9 +504,9 @@ public class MainViewController implements Initializable,ResponseController {
                         int segment_id = Integer.parseInt((String) response.get("segment_id"));
                         n_segments = Integer.parseInt((String) response.get("n_segments"));
 
-                        segmentsReceived.put(segment_id,true);
+                        dbSegmentsReceived.put(segment_id, true);
                         for(int i = 0; i < segment_id; i++) {
-                            Boolean received = segmentsReceived.get(i);
+                            Boolean received = dbSegmentsReceived.get(i);
 
                             if(received == null || received == false) {
                                 Map<String, Object> new_request = new HashMap<String, Object>();
@@ -512,6 +520,9 @@ public class MainViewController implements Initializable,ResponseController {
                         System.err.println("[ERROR]   Bad parse on segment_id or n_segments: " + response);
                     }
                 }
+
+
+
             } else if(cmd.equals("ADD")) {
                 if(status != null && status.equals("200")) {
                     ArrayList<String> ids = (ArrayList<String>) request.get("ids");
@@ -519,7 +530,7 @@ public class MainViewController implements Initializable,ResponseController {
                     ArrayList<Track> tracksToAdd = new ArrayList<Track>();
 
                     for(String id : ids) {
-                        tracksToAdd.addAll(Database.search("id",id));
+                        tracksToAdd.addAll(Database.search(library,"id",id));
                     }
 
                     if(tracksToAdd.size() == 1) {
@@ -527,12 +538,41 @@ public class MainViewController implements Initializable,ResponseController {
                     } else {
                         status_bar.setText("Added " + tracksToAdd.size() + " tracks to play queue.");
                     }
+
+                    Map<String, Object> newRequest = new HashMap<String, Object>();
+                    newRequest.put("command", "QUEUE");
+                    cc.sendMap(newRequest);
                 }
+
+
+
             } else if(cmd.equals("UPDATE")) {
-                Map<String, Object> refreshDB = new HashMap<String, Object>();
-                refreshDB.put("command", "DATABASE");
-                cc.sendMap(refreshDB);
+                Map<String, Object> newRequest = new HashMap<String, Object>();
+                newRequest.put("command", "DATABASE");
+                cc.sendMap(newRequest);
+
+
+
             } else if(cmd.equals("REMOVE")) {
+                ArrayList<String> ids = (ArrayList<String>) request.get("ids");
+
+                ArrayList<Track> tracksToAdd = new ArrayList<Track>();
+
+                for(String id : ids) {
+                    tracksToAdd.addAll(Database.search(library,"id",id));
+                }
+
+                if(tracksToAdd.size() == 1) {
+                    status_bar.setText("Removed 1 track (" + new PlayQueueTrackListItem(tracksToAdd.get(0)) + " from play queue.");
+                } else {
+                    status_bar.setText("Removed " + tracksToAdd.size() + " tracks from play queue.");
+                }
+
+                Map<String, Object> newRequest = new HashMap<String, Object>();
+                newRequest.put("command", "QUEUE");
+                cc.sendMap(newRequest);
+
+
 
             } else if(cmd.equals("CURRENT")) {
 
@@ -541,14 +581,14 @@ public class MainViewController implements Initializable,ResponseController {
                     ArrayList<Track> newQueue = new ArrayList<Track>();
                     ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
 
-                    segmentsReceived = new HashMap<Integer,Boolean>();
+                    pqSegmentsReceived = new HashMap<Integer,Boolean>();
 
                     if(data != null) {
                         for(Map<String,String> t : data) {
                             newQueue.add(new Track(t));
                         }
 
-//                        setQueue(newQueue);
+                        setQueue(newQueue);
                     }
                 } else if (status != null && status.equals("206")) {
                     ArrayList<Track> newQueue = (ArrayList<Track>) library.clone();
@@ -559,7 +599,7 @@ public class MainViewController implements Initializable,ResponseController {
                             newQueue.add(new Track(t));
                         }
 
-//                        setQueue(newQueue);
+                        setQueue(newQueue);
                     }
                 }
 
@@ -568,9 +608,9 @@ public class MainViewController implements Initializable,ResponseController {
                         int segment_id = Integer.parseInt((String) response.get("segment_id"));
                         n_segments = Integer.parseInt((String) response.get("n_segments"));
 
-                        segmentsReceived.put(segment_id,true);
+                        pqSegmentsReceived.put(segment_id, true);
                         for(int i = 0; i < segment_id; i++) {
-                            Boolean received = segmentsReceived.get(i);
+                            Boolean received = pqSegmentsReceived.get(i);
 
                             if(received == null || received == false) {
                                 Map<String, Object> new_request = new HashMap<String, Object>();
@@ -584,6 +624,9 @@ public class MainViewController implements Initializable,ResponseController {
                         System.err.println("[ERROR]   Bad parse on segment_id or n_segments: " + response);
                     }
                 }
+
+
+
             } else if(cmd.equals("SET")) {
 
             } else if(cmd.equals("PLADD")) {
@@ -627,24 +670,28 @@ public class MainViewController implements Initializable,ResponseController {
         request.put("command", "DATABASE");
         cc.sendMap(request);
 
-//        prev_button.setDisable(false);
-//        play_button.setDisable(false);
-//        next_button.setDisable(false);
-//        seek_slider.setDisable(false);
+        request = new HashMap<String, Object>();
+        request.put("command", "QUEUE");
+        cc.sendMap(request);
+
+        prev_button.setDisable(false);
+        play_button.setDisable(false);
+        next_button.setDisable(false);
+        seek_slider.setDisable(false);
     }
 
     @Override
     public void onDisconnect() {
-//        prev_button.setDisable(true);
-//        play_button.setDisable(true);
-//        next_button.setDisable(true);
-//        seek_slider.setDisable(true);
-//
-//        track_label.setText("--");
-//        track_label.setFont(Font.font("Arial", 14));
-//        seek_slider.setValue(0);
-//        lyrics_text.setText("");
-//        status_bar.setText("Disconnected");
+        prev_button.setDisable(true);
+        play_button.setDisable(true);
+        next_button.setDisable(true);
+        seek_slider.setDisable(true);
+
+        track_label.setText("--");
+        track_label.setFont(Font.font("Arial", 14));
+        seek_slider.setValue(0);
+        lyrics_text.setText("");
+        status_bar.setText("Disconnected");
     }
 
     @Override
