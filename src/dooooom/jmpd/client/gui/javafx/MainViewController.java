@@ -27,9 +27,7 @@ public class MainViewController implements Initializable,ResponseController {
     @FXML private ListView<String> artist_list_view;
     @FXML private ListView<String> album_list_view;
     @FXML private ListView<TrackListItem> track_list_view;
-    @FXML private ListView<PlayQueueTrackListItem> play_queue_listview;
-
-//    @FXML private ListView<PlayQueueTrackListItem> play_queue_list_view;
+    @FXML private ListView<PlayQueueTrackListItem> play_queue_list_view;
 
     @FXML private Button prev_button;
     @FXML private Button play_button;
@@ -104,7 +102,7 @@ public class MainViewController implements Initializable,ResponseController {
         artist_list_view.setItems(artistList);
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
-        play_queue_listview.setItems(playQueueList);
+        play_queue_list_view.setItems(playQueueList);
 
         //will not be connected at startup, so disable buttons and such
         onDisconnect();
@@ -451,12 +449,12 @@ public class MainViewController implements Initializable,ResponseController {
 //            }
 //        });
 //
-        play_queue_listview.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        play_queue_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                     if (mouseEvent.getClickCount() == 2) {
-                        PlayQueueTrackListItem ptli = play_queue_listview.getSelectionModel().getSelectedItems().get(0);
+                        PlayQueueTrackListItem ptli = play_queue_list_view.getSelectionModel().getSelectedItems().get(0);
                         PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(ptli.getTrack());
                         removeFromPlayQueue(pqtli);
                     }
