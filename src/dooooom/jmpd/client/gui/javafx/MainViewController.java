@@ -455,7 +455,7 @@ public class MainViewController implements Initializable,ResponseController {
             } else if(cmd.equals("CURRENT")) {
 
             } else if(cmd.equals("QUEUE")) {
-
+                
             } else if(cmd.equals("SET")) {
 
             } else if(cmd.equals("PLADD")) {
@@ -527,6 +527,53 @@ public class MainViewController implements Initializable,ResponseController {
         @Override
         public void run() {
 
+        }
+    }
+
+    public static class PlayQueueTrackListItem {
+        Track t;
+
+        PlayQueueTrackListItem(Track t) {
+            this.t = t;
+        }
+
+        @Override
+        public String toString() {
+            String result = "";
+
+            String s;
+            if ((s = t.get("title")) == null)
+                s = "Unknown";
+            result += s + " - ";
+            if ((s = t.get("artist")) == null)
+                s = "Unknown";
+            result += s + " - ";
+            if ((s = t.get("album")) == null)
+                s = "Unknown";
+            result += s;
+
+            return result;
+        }
+
+        public Track getTrack() {
+            return t;
+        }
+    }
+
+    public static class TrackListItem {
+        private Track t;
+
+        TrackListItem(Track t) {
+            this.t = t;
+        }
+
+        @Override
+        public String toString() {
+            return t.get("title");
+        }
+
+        public Track getTrack() {
+            return t;
         }
     }
 }
