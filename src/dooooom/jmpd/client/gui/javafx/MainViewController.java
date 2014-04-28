@@ -2,6 +2,7 @@ package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.client.ClientConnectionController;
 import dooooom.jmpd.client.ResponseController;
+import dooooom.jmpd.client.gui.ArtExtractor;
 import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
 import javafx.beans.value.ChangeListener;
@@ -13,6 +14,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
@@ -86,12 +89,32 @@ public class MainViewController implements Initializable,ResponseController {
      */
     private int currentTrackID;
 
+    /*
+     * The currently playing track
+     */
+    private Track currentTrack;
+
+    /*
+     * The current track's album art
+     */
+    private Image albumArt;
+
+    /*
+     * The current track's album art
+     */
+    private ImageView album_art_view;
+
     @Override
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
 
         cc = new ClientConnectionController("localhost", 5005, this);
         Thread clientThread = new Thread(cc);
         clientThread.start();
+
+        currentTrack = new Track();
+        currentTrack.put("artist", "Unknown");
+        currentTrack.put("album", "Unknown");
+        currentTrack.put("title", "Unknown");
 
         /*
 		 * This line adds random garbage data to the library in order to test library filter panes.
@@ -103,6 +126,7 @@ public class MainViewController implements Initializable,ResponseController {
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
         play_queue_list_view.setItems(playQueueList);
+        album_art_view = new ImageView();
 
         //will not be connected at startup, so disable buttons and such
         onDisconnect();
@@ -118,6 +142,7 @@ public class MainViewController implements Initializable,ResponseController {
         updateTrackLabel(t);
         updateLyricsPane(t);
         updateSeekMax(t);
+        updateAlbumArt(t);
     }
 
     /*
@@ -174,7 +199,22 @@ public class MainViewController implements Initializable,ResponseController {
         }
     }
 
-
+    public void updateAlbumArt(Track t) {
+        if(t != null) {
+            if(!currentTrack.equals(t)) {
+                currentTrack = t;
+                ArtExtractor extractor = new ArtExtractor();
+                System.out.println(t.get("filepath"));
+                albumArt = new Image(extractor.extract(t.get("filepath")));
+                if(albumArt != null) {
+                    album_art_view.setImage(albumArt);
+                    album_art_view.setFitWidth(200);
+                    album_art_view.setPreserveRatio(true);
+                    album_art_view.setSmooth(true);
+                }
+            }
+        }
+    }
 
     /* ********************************
      * LIBRARY CONTROL
@@ -465,7 +505,6 @@ public class MainViewController implements Initializable,ResponseController {
 
     @Override
     public void processResponse(Map<String, Object> request, Map<String, Object> response) {
-        System.err.println("[DEBUG]   " + request + "\n          " + response);
 
         String cmd = (String) request.get("command");
 
