@@ -272,6 +272,10 @@ public class DaemonMainController implements Runnable, RequestController {
                     response.put("status_code","400");
                     response.put("status_message","Bad Request: SET without id");
                 }
+            } else if(cmd.equals("CLEAR")) {
+                Player.clearQueue();
+                response.put("status_code", "200");
+                response.put("status_message", "OK");
 //            } else if(cmd.equals("PLADD")) {
 //
 //            } else if(cmd.equals("PLDEL")) {

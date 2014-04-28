@@ -7,6 +7,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URI;
 import java.net.URL;
@@ -170,6 +171,8 @@ public class Player extends Application {
     public static void remove(ArrayList<Track> removeSongs) {
         if(removeSongs.containsAll(playQueueTracks)) {
             stopPlayback();
+            currentPlayback.dispose();
+            currentPlayback = null;
             currentTrack = null;
             prevTrack = null;
             nextTrack = null;
@@ -323,6 +326,11 @@ public class Player extends Application {
         }
     }
 
+    public static void seekTo(double time) {
+        Duration newTime = new Duration(time);
+        currentPlayback.seek(newTime);
+    }
+
     public static Track getTrackFromIndex(int i) {
         if(playQueueTracks.get(i) != null) {
             return playQueueTracks.get(i);
@@ -416,6 +424,17 @@ public class Player extends Application {
             return currentPlayback.getCurrentTime().toSeconds();
         else
             return 0.0;
+    }
+
+    public static void clearQueue() {
+        stopPlayback();
+        currentPlayback.dispose();
+        currentPlayback = null;
+        currentTrack = null;
+        prevTrack = null;
+        nextTrack = null;
+        currentIndex = 0;
+        playQueueTracks.clear();
     }
 
     public static void main(String[] args) {
