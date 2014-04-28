@@ -5,6 +5,8 @@ package dooooom.jmpd.data;
  * Besides constructors, the only method that should interface with the outside is returnTracks
  */
 
+import net.sf.junidecode.Junidecode;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +42,21 @@ public class FileSystemScanner
         long startTime = System.currentTimeMillis();
 		for(String path : paths)
 		{
-			Track t = new Track();
-			t.put("artist", MetadataExtractor.extractArtistFrom(path));
-			t.put("album", MetadataExtractor.extractAlbumFrom(path));
-			t.put("title", MetadataExtractor.extractTitleFrom(path));
-			t.put("length", MetadataExtractor.extractLengthFrom(path).toString());
-			t.put("track", MetadataExtractor.extractTrackFrom(path));
-			t.put("id", Integer.toString(nextID));
-			t.put("filepath", path);
+            if(Junidecode.unidecode(path).equals(path)) {
+                Track t = new Track();
+                t.put("artist", Junidecode.unidecode(MetadataExtractor.extractArtistFrom(path)));
+                t.put("album", Junidecode.unidecode(MetadataExtractor.extractAlbumFrom(path)));
+                t.put("title", Junidecode.unidecode(MetadataExtractor.extractTitleFrom(path)));
+                t.put("length", MetadataExtractor.extractLengthFrom(path).toString());
+                t.put("track", Junidecode.unidecode(MetadataExtractor.extractTrackFrom(path)));
+                t.put("id", Integer.toString(nextID));
+                t.put("filepath", path);
 
-			trackList.add(t);
+                trackList.add(t);
+            } else {
+                System.err.println("[WARN]    Ignoring file " + path + " because the path contains unicode.");
+                System.err.println("          Recommend change filename to " + Junidecode.unidecode(path));
+            }
 
             try {
                 if (nextID % (paths.size() / 25) == 0)

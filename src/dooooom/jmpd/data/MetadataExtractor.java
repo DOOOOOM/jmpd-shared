@@ -33,8 +33,6 @@ public class MetadataExtractor
 		{
 			Mp3File mp3File = new Mp3File(filePath);
 
-
-
 			if (mp3File.hasId3v2Tag())
 			{
 				ID3v2 id3v2Tag = mp3File.getId3v2Tag();
