@@ -6,6 +6,7 @@ import dooooom.jmpd.client.ResponseController;
 import dooooom.jmpd.client.gui.ArtExtractor;
 import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -172,18 +173,53 @@ public class MainViewController implements Initializable,ResponseController {
      * If possible, updates the lyrics pane
      * with lyrics from the given track
      */
-    public void updateLyricsPane(Track t) {
-        String artist = t.get("artist");
-        String title = t.get("title");
+//    public void updateLyricsPane(Track t) {
+//        String artist = t.get("artist");
+//        String title = t.get("title");
+//
+//        String lyrics;
+//        if(artist != null && !artist.isEmpty()
+//                && title != null && !title.isEmpty())
+//            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+//        else
+//            lyrics = "[lyrics unavailable]";
+//
+//        lyrics_text.setText(lyrics);
+//    }
+    public void updateLyricsPane(final Track t) {
+        if(!currentTrack.equals(t)) {
+            currentTrack = t;
+            new Thread() {
+                @Override
+                public void run() {
+                    String artist = t.get("artist");
+                    String title = t.get("title");
 
-        String lyrics;
-        if(artist != null && !artist.isEmpty()
-                && title != null && !title.isEmpty())
-            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
-        else
-            lyrics = "[lyrics unavailable]";
+                    String lyrics;
+                    if (artist != null && !artist.isEmpty()
+                            && title != null && !title.isEmpty()) {
+                        System.out.println(".");
+                        lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+                    } else {
+                        lyrics = "[lyrics unavailable]";
+                    }
 
-        lyrics_text.setText(lyrics);
+                    Platform.runLater(new Runnable() {
+                        String lyrics;
+
+                        @Override
+                        public void run() {
+                            lyrics_text.setText(lyrics);
+                        }
+
+                        public Runnable init(String lyrics) {
+                            this.lyrics = lyrics;
+                            return this;
+                        }
+                    }.init(lyrics));
+                }
+            }.start();
+        }
     }
 
     public void updateSeekMax(Track t) {
