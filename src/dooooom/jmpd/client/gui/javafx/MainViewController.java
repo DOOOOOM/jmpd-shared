@@ -225,6 +225,13 @@ public class MainViewController implements Initializable,ResponseController {
         for (String s : artistAlbums.keySet()) {
             artistList.add(s);
         }
+
+        Collections.sort(artistList, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                return s1.replaceAll("^(?i)The ", "").toLowerCase().compareTo(s2.replaceAll("^(?i)The ", "").toLowerCase());
+            }
+        });
     }
 
     private void updateAlbumListView() {
@@ -241,6 +248,13 @@ public class MainViewController implements Initializable,ResponseController {
             for (String s : artistAlbums.get(selectedArtist))
                 albumList.add(s);
         }
+
+        Collections.sort(albumList, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                return s1.replaceAll("^(?i)The ", "").toLowerCase().compareTo(s2.replaceAll("^(?i)The ", "").toLowerCase());
+            }
+        });
     }
 
     private void updateTrackListView() {
