@@ -54,12 +54,12 @@
             <Button fx:id="prev_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" style="" text="" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2" />
             <Button fx:id="next_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" style="" text="" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2" />
             <Button fx:id="play_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.00009999999747" style="" text="" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2" />
-            <Label fx:id="track_label" maxHeight="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" style="-fx-font-size: 14pt !important;&#10;" text="" textFill="WHITE" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+            <Label fx:id="track_label" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-1.0" minWidth="-1.0" prefHeight="9.0" style="" text="" textFill="WHITE" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="NEVER">
               <font>
                 <Font size="18.0" />
               </font>
               <GridPane.margin>
-                <Insets left="5.0" />
+                <Insets left="10.0" />
               </GridPane.margin>
             </Label>
             <Slider fx:id="seek_slider" disable="false" maxWidth="1.7976931348623157E308" showTickMarks="false" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
