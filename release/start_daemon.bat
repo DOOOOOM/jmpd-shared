@@ -1,0 +1,1 @@
+start java -jar jMPD-0.1.0-prerelease.jar
