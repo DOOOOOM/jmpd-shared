@@ -138,8 +138,7 @@ public class Database {
 				break;
 			}
 		} catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
         } catch (javax.json.stream.JsonParsingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

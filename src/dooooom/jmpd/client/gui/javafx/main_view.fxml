@@ -2,6 +2,7 @@
 
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -48,23 +49,28 @@
         <TextArea fx:id="lyrics_text" editable="false" prefHeight="704.0" prefWidth="304.0" style="" text="" wrapText="true" />
       </right>
       <top>
-        <GridPane maxWidth="1.7976931348623157E308">
+        <GridPane maxWidth="1.7976931348623157E308" style="-fx-background-color: #000;">
           <children>
-            <Button fx:id="prev_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" text="Prev" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2" />
-            <Button fx:id="next_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" text="Next" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2" />
-            <Button fx:id="play_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" text="Play" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2" />
-            <Label fx:id="track_label" minHeight="-1.0" minWidth="-1.0" text="Label" textFill="BLACK" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+            <Button fx:id="prev_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: black;&#10;-fx-background-radius: 0;&#10;-fx-background-image: url(&quot;../assets/previous.png&quot;);&#10;" text="Prev" textFill="WHITE" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2" />
+            <Button fx:id="next_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: black;&#10;-fx-background-radius: 0;" text="Next" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2" />
+            <Button fx:id="play_button" disable="false" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.00009999999747" style="-fx-background-color: black;&#10;-fx-background-radius: 0;" text="Play" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2" />
+            <Label fx:id="track_label" maxHeight="-1.0" minHeight="-1.0" minWidth="-1.0" style="-fx-font-size: 14pt;&#10;" text="Label" textFill="WHITE" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
               <font>
                 <Font size="18.0" />
               </font>
+              <GridPane.margin>
+                <Insets left="5.0" />
+              </GridPane.margin>
             </Label>
             <Slider fx:id="seek_slider" disable="false" showTickMarks="false" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+            <Button fx:id="update_button" maxHeight="32.0" maxWidth="32.0" minHeight="32.0" minWidth="32.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0" style="-fx-background-color: black;&#10;-fx-background-radius: 0;" text="U" textFill="WHITE" GridPane.columnIndex="4" GridPane.rowIndex="0" />
           </children>
           <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" maxWidth="255.0" minWidth="10.0" prefWidth="64.0" />
-            <ColumnConstraints hgrow="NEVER" maxWidth="481.0" minWidth="10.0" prefWidth="64.0" />
-            <ColumnConstraints hgrow="NEVER" maxWidth="683.0" minWidth="10.0" prefWidth="64.0" />
-            <ColumnConstraints hgrow="ALWAYS" maxWidth="836.0" minWidth="10.0" prefWidth="4096.0" />
+            <ColumnConstraints hgrow="NEVER" maxWidth="64.0" minWidth="64.0" prefWidth="64.0" />
+            <ColumnConstraints hgrow="NEVER" maxWidth="64.0" minWidth="64.0" prefWidth="64.0" />
+            <ColumnConstraints hgrow="NEVER" maxWidth="64.0" minWidth="64.0" prefWidth="122.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="838.0" minWidth="10.0" prefWidth="751.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="32.0" minWidth="32.0" prefWidth="23.0" />
           </columnConstraints>
           <rowConstraints>
             <RowConstraints maxHeight="32.0" minHeight="32.0" prefHeight="32.0" vgrow="NEVER" />

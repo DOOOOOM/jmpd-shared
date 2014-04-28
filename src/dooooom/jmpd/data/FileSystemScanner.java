@@ -74,6 +74,10 @@ public class FileSystemScanner
 	{
         File musicFolder = new File(folderPath);
 
+        if(!musicFolder.exists()) {
+            musicFolder.mkdirs();
+        }
+
         File[] abstractPaths = musicFolder.listFiles();
 
         for(File path: abstractPaths)
