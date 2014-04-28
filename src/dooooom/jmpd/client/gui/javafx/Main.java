@@ -14,7 +14,7 @@ public class Main extends Application {
         primaryStage.setTitle("jMPC");
         Scene scene = new Scene(root, 1024, 768);
         scene.getStylesheets().add
-                (MainViewController.class.getResource("../assets/client.css").toExternalForm());
+                (MainViewController.class.getResource("/assets/client.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
