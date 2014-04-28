@@ -154,6 +154,9 @@ public class DaemonMainController implements Runnable, RequestController {
                     }
 
                     Player.add(tracksToAdd);
+
+                    response.put("status_code", "200");
+                    response.put("status_message", "OK");
                 } else {
                     response.put("status_code","400");
                     response.put("status_message","Bad Request: ADD without ids");
@@ -172,7 +175,15 @@ public class DaemonMainController implements Runnable, RequestController {
                         tracksToRemove.addAll(Database.search("id", id));
                     }
 
-                    Player.remove(tracksToRemove);
+                    try {
+                        Player.remove(tracksToRemove);
+
+                        response.put("status_code", "200");
+                        response.put("status_message", "OK");
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        response.put("status_code", "500");
+                        response.put("status_message", "Internal Server Error");
+                    }
                 } else {
                     response.put("status_code","400");
                     response.put("status_message","Bad Request: ADD without ids");
