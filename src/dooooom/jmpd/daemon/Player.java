@@ -31,6 +31,8 @@ public class Player extends Application {
     private static Track prevTrack;
     private static Track nextTrack;
 
+    private static int currentIndex;
+
 	// Whether the play queue loops back to the first track or not
     private static boolean loopingRepeat = true;
 
@@ -73,7 +75,12 @@ public class Player extends Application {
             oldCurrent.dispose();
 
         int i = playQueueTracks.indexOf(newCurrent);
+        currentIndex = i;
 
+        setPlaybackChain(i);
+    }
+
+    public static void setPlaybackChain(int i) {
         if(i == 0) {
             if(loopingRepeat)
                 setPrevTrack(playQueueTracks.get(playQueueTracks.size()-1));
@@ -161,20 +168,82 @@ public class Player extends Application {
 	*	Postcondition: Given songs removed from play queue
 	*/
     public static void remove(ArrayList<Track> removeSongs) {
-       playQueueTracks.removeAll(removeSongs);
+        if(removeSongs.containsAll(playQueueTracks)) {
+            stopPlayback();
+            currentTrack = null;
+            prevTrack = null;
+            nextTrack = null;
+            currentIndex = 0;
+            playQueueTracks.removeAll(removeSongs);
+            return;
+        }
 
-        if(removeSongs.contains(currentTrack)) {
+        ArrayList<Track> evaluate = playQueueTracks;
+        evaluate.removeAll(removeSongs);
+
+        if(removeSongs.contains(nextTrack)
+                && removeSongs.contains(prevTrack)
+                && removeSongs.contains(currentTrack)) {
+
+        } else if(removeSongs.contains(nextTrack)
+                && removeSongs.contains(prevTrack)) {
+            setPlaybackChain(currentIndex);
+        } else if(removeSongs.contains(currentTrack)
+                && removeSongs.contains(nextTrack)) {
             server.onTrackChange();
             stopPlayback();
+            int nextIndex = playQueueTracks.indexOf(nextTrack);
+            if(nextIndex == playQueueTracks.size() - 1 && loopingRepeat) {
+                setCurrentTrack(evaluate.get(0));
+                play();
+            } else if(nextIndex == playQueueTracks.size() - 1 && !loopingRepeat) {
+                stopPlayback();
+                prevTrack = null;
+                nextTrack = null;
+                currentIndex = 0;
+                setCurrentTrack(evaluate.get(0));
+            } else {
+                Track skipNext = evaluate.get(getNextTrackIndex(nextIndex));
+                setCurrentTrack(skipNext);
+            }
+        } else if(removeSongs.contains(currentTrack)
+                && removeSongs.contains(prevTrack)) {
+            server.onTrackChange();
+            stopPlayback();
+            if(currentIndex == playQueueTracks.size() - 1 && loopingRepeat) {
+                setCurrentTrack(evaluate.get(0));
+                play();
+            } else if(currentIndex == playQueueTracks.size() - 1 && !loopingRepeat) {
+                stopPlayback();
+                prevTrack = null;
+                nextTrack = null;
+                currentIndex = 0;
+                setCurrentTrack(evaluate.get(0));
+            } else {
+                setCurrentTrack(nextTrack);
+            }
+        } else if(removeSongs.contains(prevTrack)) {
+            setPlaybackChain(currentIndex);
+        } else if(removeSongs.contains(currentTrack)) {
+            server.onTrackChange();
+            stopPlayback();
+            if(currentIndex == playQueueTracks.size() - 1 && loopingRepeat) {
+                setCurrentTrack(evaluate.get(0));
+                play();
+            } else if(currentIndex == playQueueTracks.size() - 1 && !loopingRepeat) {
+                stopPlayback();
+                prevTrack = null;
+                nextTrack = null;
+                currentIndex = 0;
+                setCurrentTrack(evaluate.get(0));
+            } else {
+                setCurrentTrack(nextTrack);
+            }
+        } else if(removeSongs.contains(nextTrack)) {
+            setPlaybackChain(currentIndex);
         }
-        if(removeSongs.contains(prevTrack)) {
-            setCurrentTrack(currentTrack);
-            play();
-        }
-        if(removeSongs.contains(nextTrack)) {
-            setCurrentTrack(currentTrack);
-            play();
-        }
+
+        playQueueTracks.removeAll(removeSongs);
     }
 
 	/**
