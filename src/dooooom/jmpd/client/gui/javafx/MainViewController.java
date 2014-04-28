@@ -1,7 +1,6 @@
 package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.client.ClientConnectionController;
-import dooooom.jmpd.client.LyricsFetcher;
 import dooooom.jmpd.client.ResponseController;
 import dooooom.jmpd.data.Database;
 import dooooom.jmpd.data.Track;
@@ -147,10 +146,10 @@ public class MainViewController implements Initializable,ResponseController {
         String title = t.get("title");
 
         String lyrics;
-        if(artist != null && !artist.isEmpty()
-                && title != null && !title.isEmpty())
-            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
-        else
+//        if(artist != null && !artist.isEmpty()
+//                && title != null && !title.isEmpty())
+//            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+//        else
             lyrics = "[lyrics unavailable]";
 
         lyrics_text.setText(lyrics);
