@@ -16,11 +16,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Font;
 
 import java.net.URL;
 import java.util.*;
-
-//import dooooom.jmpd.data.TrackList;
 
 public class MainViewController implements Initializable,ResponseController {
     /*
@@ -30,7 +29,7 @@ public class MainViewController implements Initializable,ResponseController {
     @FXML private ListView<String> album_list_view;
     @FXML private ListView<TrackListItem> track_list_view;
 
-    @FXML private ListView<PlayQueueTrackListItem> play_queue_listview;
+    @FXML private ListView<PlayQueueTrackListItem> play_queue_list_view;
 
     @FXML private Button prev_button;
     @FXML private Button play_button;
@@ -102,6 +101,7 @@ public class MainViewController implements Initializable,ResponseController {
         artist_list_view.setItems(artistList);
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
+        play_queue_list_view.setItems(playQueueList);
 
         //will not be connected at startup, so disable buttons and such
         onDisconnect();
@@ -138,6 +138,7 @@ public class MainViewController implements Initializable,ResponseController {
         result += s;
 
         track_label.setText(result);
+        track_label.setFont(Font.font("Arial", 14));
     }
 
     /*
@@ -211,6 +212,7 @@ public class MainViewController implements Initializable,ResponseController {
         updateArtistListView();
         updateAlbumListView();
         updateTrackListView();
+        updatePlayQueueListView();
     }
 
     private void updateArtistListView() {
@@ -259,6 +261,17 @@ public class MainViewController implements Initializable,ResponseController {
         }
     }
 
+    private void updatePlayQueueListView() {
+        playQueueList.clear();
+
+        ArrayList<Track> playQueueTracks = (ArrayList<Track>) library.clone();
+
+        //add selected tracks to listmodel, wrapping in TrackJListItem objects
+        for(Track t : playQueueTracks) {
+            trackList.add(new TrackListItem(t));
+        }
+    }
+
     private void addToPlayQueue(PlayQueueTrackListItem t) {
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("command", "ADD");
@@ -269,7 +282,12 @@ public class MainViewController implements Initializable,ResponseController {
     }
 
     private void removeFromPlayQueue(PlayQueueTrackListItem t) {
-
+        Map<String, Object> request = new HashMap<String, Object>();
+        request.put("command", "ADD");
+        ArrayList<String> tracksToRemove = new ArrayList<String>();
+        tracksToRemove.add(t.getTrack().get("id"));
+        request.put("ids",tracksToRemove);
+        cc.sendMap(request);
     }
 
     private void addActionListeners() {
@@ -303,6 +321,20 @@ public class MainViewController implements Initializable,ResponseController {
             public void handle(ActionEvent actionEvent) {
                 Map<String, Object> request = new HashMap<String, Object>();
                 request.put("command", "NEXT");
+                cc.sendMap(request);
+            }
+        });
+
+        /* ****************************
+         * DATABASE UPDATE CONTROL
+         */
+
+        /* Update database */
+        update_button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Map<String, Object> request = new HashMap<String, Object>();
+                request.put("command", "UPDATE");
                 cc.sendMap(request);
             }
         });
@@ -359,6 +391,36 @@ public class MainViewController implements Initializable,ResponseController {
                         PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
                         addToPlayQueue(pqtli);
 
+                    }
+                }
+            }
+        });
+
+        /* ****************************
+         * PLAYQUEUE SELECTION
+         */
+        play_queue_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PlayQueueTrackListItem>() {
+            @Override
+            public void changed(ObservableValue<? extends PlayQueueTrackListItem> observableValue, PlayQueueTrackListItem ptli, PlayQueueTrackListItem ptli2) {
+                if(ptli2 == null) {
+                    status_bar.setText("");
+                } else {
+                    Track t = (Track) ptli2.getTrack().clone();
+                    t.remove("filepath");
+                    t.remove("id");
+                    status_bar.setText(t.toString());
+                }
+            }
+        });
+
+        play_queue_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        PlayQueueTrackListItem ptli = play_queue_list_view.getSelectionModel().getSelectedItems().get(0);
+                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(ptli.getTrack());
+                        removeFromPlayQueue(pqtli);
                     }
                 }
             }
@@ -457,7 +519,53 @@ public class MainViewController implements Initializable,ResponseController {
             } else if(cmd.equals("CURRENT")) {
 
             } else if(cmd.equals("QUEUE")) {
-                
+                if(status != null && status.equals("200")) {
+                    ArrayList<Track> newLibrary = new ArrayList<Track>();
+                    ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
+
+                    segmentsReceived = new HashMap<Integer,Boolean>();
+
+                    if(data != null) {
+                        for(Map<String,String> t : data) {
+                            newLibrary.add(new Track(t));
+                        }
+
+                        setLibrary(newLibrary);
+                    }
+                } else if (status != null && status.equals("206")) {
+                    ArrayList<Track> newLibrary = (ArrayList<Track>) library.clone();
+                    ArrayList<Map<String,String>> data = (ArrayList<Map<String,String>>) response.get("data");
+
+                    if(data != null) {
+                        for(Map<String,String> t : data) {
+                            newLibrary.add(new Track(t));
+                        }
+
+                        setLibrary(newLibrary);
+                    }
+                }
+
+                if (status != null && (status.equals("200") || status.equals("206"))) {
+                    try {
+                        int segment_id = Integer.parseInt((String) response.get("segment_id"));
+                        n_segments = Integer.parseInt((String) response.get("n_segments"));
+
+                        segmentsReceived.put(segment_id,true);
+                        for(int i = 0; i < segment_id; i++) {
+                            Boolean received = segmentsReceived.get(i);
+
+                            if(received == null || received == false) {
+                                Map<String, Object> new_request = new HashMap<String, Object>();
+                                new_request.put("command", "DATABASE");
+                                new_request.put("segment_id", Integer.toString(i));
+                                System.err.println("[INFO]    Retry grabbing database segment " + i);
+                                cc.sendMap(new_request);
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("[ERROR]   Bad parse on segment_id or n_segments: " + response);
+                    }
+                }
             } else if(cmd.equals("SET")) {
 
             } else if(cmd.equals("PLADD")) {
@@ -515,6 +623,7 @@ public class MainViewController implements Initializable,ResponseController {
 //        seek_slider.setDisable(true);
 //
 //        track_label.setText("--");
+//        track_label.setFont(Font.font("Arial", 14));
 //        seek_slider.setValue(0);
 //        lyrics_text.setText("");
 //        status_bar.setText("Disconnected");

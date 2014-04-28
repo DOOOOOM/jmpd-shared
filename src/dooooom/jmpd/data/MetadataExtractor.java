@@ -186,15 +186,15 @@ public class MetadataExtractor
 			trackLength = mp3File.getLengthInSeconds();	
 		} catch (UnsupportedTagException e) 
 		  {
-			e.printStackTrace();
+//			e.printStackTrace();
 		  } 
 		  catch (InvalidDataException e) 
 		  {
-			e.printStackTrace();
+//			e.printStackTrace();
 		  } 
 		  catch (IOException e) 
 		  {
-			e.printStackTrace();
+//			e.printStackTrace();
 		  }
 		
 		 if (trackLength < 0)
@@ -233,7 +233,7 @@ public class MetadataExtractor
 		  } 
 		  catch (InvalidDataException e) 
 		  {
-			System.out.print("Invalid Data");
+			System.out.println("Invalid Data");
 			return " - Unknown Track Number";
 			//e.printStackTrace();
 		  } 

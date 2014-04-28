@@ -1,0 +1,68 @@
+.tab, .tab-label {
+	-fx-text-fill: #ccc;
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+	-fx-background-color: #000;
+	-fx-text-fill: #ccc;
+}
+
+#lyrics_text {
+	-fx-prompt-text-fill: #000;
+	-fx-text-fill: #ccc;
+}
+
+.button {
+	-fx-background-color: black;
+	-fx-background-radius: 0;
+}
+
+#topbar {
+	-fx-background-color: #000;
+	-fx-border-color: #05202d;
+	-fx-border-width: 0 0 1 0;
+	-fx-border-radius: 0;
+}
+
+.label {
+	-fx-font-size: 14pt;
+	-fx-text-fill: #ccc;
+}
+
+#prev_button {
+	-fx-background-image: url("../assets/previous.png");
+	-fx-border-color: #05202d;
+	-fx-border-width: 0 0 1 0;
+	-fx-border-radius: 0;
+}
+
+#play_button {
+	-fx-background-image: url("../assets/play.png");
+	-fx-border-color: #05202d;
+	-fx-border-width: 0 0 1 0;
+	-fx-border-radius: 0;
+}
+
+#next_button {
+	-fx-background-image: url("../assets/next.png");
+	-fx-border-color: #05202d;
+	-fx-border-width: 0 0 1 0;
+	-fx-border-radius: 0;
+}
+
+.slider .track {
+	-fx-background-color: #05202d;
+}
+
+.slider .thumb {
+	-fx-background-color: #000;
+	-fx-border-color: #0c4763;
+	-fx-border-width: 1;
+}
+
+.slider .thumb:hover {
+	-fx-background-color: #05202d;
+	-fx-border-color: #1689be;
+}

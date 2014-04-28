@@ -25,9 +25,9 @@ public class Database {
         FileSystemScanner fss = new FileSystemScanner(DaemonMainController.getMusicFolder());
         library = fss.returnTracks();
         //add all Track to database
-        for(Track t : library){
-            addEntry(t,t.get("id"));
-        }
+//        for(Track t : library){
+//            addEntry(t,t.get("id"));
+//        }
         System.out.println(library);
         saveDatabase();
     }
