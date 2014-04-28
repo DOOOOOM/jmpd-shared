@@ -72,9 +72,24 @@ public class DaemonMainController implements Runnable, RequestController {
                 addTrackInfo(response);
             } else if(cmd.equals("PREV")) {
                 Player.prev();
-                response.put("status_code","200");
-                response.put("status_message","OK");
+                response.put("status_code", "200");
+                response.put("status_message", "OK");
                 addTrackInfo(response);
+            } else if(cmd.equals("SEEK")) {
+                String timeString = (String) request.get("time");
+
+                if(timeString == null) {
+                    response.put("status_code","400");
+                    response.put("status_message","Bad Request: missing time");
+                } else {
+                    try {
+                        double time = Double.parseDouble(timeString);
+                        Player.seekTo(time);
+                    } catch (NumberFormatException e) {
+                        response.put("status_code","400");
+                        response.put("status_message","Bad Request: invalid time");
+                    }
+                }
             } else if(cmd.equals("DATABASE")) {
                 ArrayList<Track> data = Database.library;
 
