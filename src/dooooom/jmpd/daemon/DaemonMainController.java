@@ -398,7 +398,7 @@ public class DaemonMainController implements Runnable, RequestController {
         try {
             Properties props = new Properties();
             props.setProperty("Database", getDefaultConfigPath() + "database" );
-            props.setProperty("Port", "" + 5006);
+            props.setProperty("Port", "" + 5005);
             props.setProperty("MusicFolder", getBasePath() + "Music");
             OutputStream out = new FileOutputStream(config);
             props.store(out, "");
