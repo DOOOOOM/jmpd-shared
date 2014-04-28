@@ -1,6 +1,7 @@
 package dooooom.jmpd.client.gui.javafx;
 
 import dooooom.jmpd.client.ClientConnectionController;
+import dooooom.jmpd.client.LyricsFetcher;
 import dooooom.jmpd.client.ResponseController;
 import dooooom.jmpd.client.gui.ArtExtractor;
 import dooooom.jmpd.data.Database;
@@ -126,7 +127,7 @@ public class MainViewController implements Initializable,ResponseController {
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
         play_queue_list_view.setItems(playQueueList);
-        album_art_view = new ImageView();
+//        album_art_view = new ImageView();
 
         //will not be connected at startup, so disable buttons and such
         onDisconnect();
@@ -142,7 +143,7 @@ public class MainViewController implements Initializable,ResponseController {
         updateTrackLabel(t);
         updateLyricsPane(t);
         updateSeekMax(t);
-        updateAlbumArt(t);
+//        updateAlbumArt(t);
     }
 
     /*
@@ -176,10 +177,10 @@ public class MainViewController implements Initializable,ResponseController {
         String title = t.get("title");
 
         String lyrics;
-//        if(artist != null && !artist.isEmpty()
-//                && title != null && !title.isEmpty())
-//            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
-//        else
+        if(artist != null && !artist.isEmpty()
+                && title != null && !title.isEmpty())
+            lyrics = LyricsFetcher.fetchLyrics(t.get("artist"), t.get("title"));
+        else
             lyrics = "[lyrics unavailable]";
 
         lyrics_text.setText(lyrics);
@@ -199,22 +200,22 @@ public class MainViewController implements Initializable,ResponseController {
         }
     }
 
-    public void updateAlbumArt(Track t) {
-        if(t != null) {
-            if(!currentTrack.equals(t)) {
-                currentTrack = t;
-                ArtExtractor extractor = new ArtExtractor();
-                System.out.println(t.get("filepath"));
-                albumArt = new Image(extractor.extract(t.get("filepath")));
-                if(albumArt != null) {
-                    album_art_view.setImage(albumArt);
-                    album_art_view.setFitWidth(200);
-                    album_art_view.setPreserveRatio(true);
-                    album_art_view.setSmooth(true);
-                }
-            }
-        }
-    }
+//    public void updateAlbumArt(Track t) {
+//        if(t != null) {
+//            if(!currentTrack.equals(t)) {
+//                currentTrack = t;
+//                ArtExtractor extractor = new ArtExtractor();
+//                System.out.println(t.get("filepath"));
+//                albumArt = new Image(extractor.extract(t.get("filepath")));
+//                if(albumArt != null) {
+//                    album_art_view.setImage(albumArt);
+//                    album_art_view.setFitWidth(200);
+//                    album_art_view.setPreserveRatio(true);
+//                    album_art_view.setSmooth(true);
+//                }
+//            }
+//        }
+//    }
 
     /* ********************************
      * LIBRARY CONTROL
