@@ -175,8 +175,7 @@ public class ClientConnectionController implements Runnable {
          *                       In short, RTFM.
          *
          *                Dedication by Philip Rodning
-         *         On this Twenty-Seventh in the Month of April,
-         *            in the Year Two Thousand and Fourteen
+         *                       April 27, 2014
          */
 
         System.err.println(System.currentTimeMillis() + " [WARN]    Connection failed or new connection, attempting to reconnect (" + reconnectTries + ")...");
@@ -217,8 +216,8 @@ public class ClientConnectionController implements Runnable {
         }
 
         if(socket != null && !socket.isClosed()) {
-            //Platform.runLater(new RunRCMethod(rc, RCMethod.ON_CONNECT));
-            rc.onConnect();
+            Platform.runLater(new RunRCMethod(rc, RCMethod.ON_CONNECT));
+            //rc.onConnect();
             connected = true;
             reconnectTries = 0;
         }
