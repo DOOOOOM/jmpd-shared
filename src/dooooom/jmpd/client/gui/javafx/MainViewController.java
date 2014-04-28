@@ -432,6 +432,20 @@ public class MainViewController implements Initializable,ResponseController {
             }
         });
 
+        album_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        for (TrackListItem tli : trackList) {
+                            PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(tli.getTrack());
+                            addToPlayQueue(pqtli);
+                        }
+                    }
+                }
+            }
+        });
+
         /* ****************************
          * PLAYQUEUE SELECTION
          */
