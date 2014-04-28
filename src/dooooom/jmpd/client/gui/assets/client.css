@@ -112,9 +112,12 @@
 	-fx-background: #000E14;
 }
 
+.list-view,
 #artist_list_view, #album_list_view, 
-#track_list_view, #play_queue_listview {
+#track_list_view, #play_queue_listview,
+#album_art_view .content {
 	-fx-background-color: #000;
+	-fx-border-color: #000;
 }
 
 .scroll-bar:horizontal, 
@@ -154,3 +157,4 @@
 	-fx-shape: " ";
 	-fx-padding: 0;
 }
+
