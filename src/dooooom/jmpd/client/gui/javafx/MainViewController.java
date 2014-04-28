@@ -10,6 +10,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,13 +30,15 @@ public class MainViewController implements Initializable,ResponseController {
     @FXML private ListView<String> album_list_view;
     @FXML private ListView<TrackListItem> track_list_view;
 
-    @FXML private ListView<PlayQueueTrackListItem> play_queue_list_view;
+//    @FXML private ListView<PlayQueueTrackListItem> play_queue_list_view;
 
     @FXML private Button prev_button;
     @FXML private Button play_button;
     @FXML private Button next_button;
 
     @FXML private Button update_button;
+
+    @FXML private Tab playqueue_tab;
 
     @FXML private Label track_label;
     @FXML private Slider seek_slider;
@@ -65,7 +68,7 @@ public class MainViewController implements Initializable,ResponseController {
     private final ObservableList<String> artistList = FXCollections.observableArrayList();
     private final ObservableList<String> albumList = FXCollections.observableArrayList();
     private final ObservableList<TrackListItem> trackList = FXCollections.observableArrayList();
-    private final ObservableList<PlayQueueTrackListItem> playQueueList = FXCollections.observableArrayList();
+//    private final ObservableList<PlayQueueTrackListItem> playQueueList = FXCollections.observableArrayList();
 
     /*
 	 * Current Selections (for filtering purposes)
@@ -101,7 +104,7 @@ public class MainViewController implements Initializable,ResponseController {
         artist_list_view.setItems(artistList);
         album_list_view.setItems(albumList);
         track_list_view.setItems(trackList);
-        play_queue_list_view.setItems(playQueueList);
+//        play_queue_list_view.setItems(playQueueList);
 
         //will not be connected at startup, so disable buttons and such
         onDisconnect();
@@ -212,7 +215,7 @@ public class MainViewController implements Initializable,ResponseController {
         updateArtistListView();
         updateAlbumListView();
         updateTrackListView();
-        updatePlayQueueListView();
+//        updatePlayQueueListView();
     }
 
     private void updateArtistListView() {
@@ -261,16 +264,16 @@ public class MainViewController implements Initializable,ResponseController {
         }
     }
 
-    private void updatePlayQueueListView() {
-        playQueueList.clear();
-
-        ArrayList<Track> playQueueTracks = (ArrayList<Track>) library.clone();
-
-        //add selected tracks to listmodel, wrapping in TrackJListItem objects
-        for(Track t : playQueueTracks) {
-            trackList.add(new TrackListItem(t));
-        }
-    }
+//    private void updatePlayQueueListView() {
+//        playQueueList.clear();
+//
+//        ArrayList<Track> playQueueTracks = (ArrayList<Track>) library.clone();
+//
+//        //add selected tracks to listmodel, wrapping in TrackJListItem objects
+//        for(Track t : playQueueTracks) {
+//            trackList.add(new TrackListItem(t));
+//        }
+//    }
 
     private void addToPlayQueue(PlayQueueTrackListItem t) {
         Map<String, Object> request = new HashMap<String, Object>();
@@ -340,6 +343,20 @@ public class MainViewController implements Initializable,ResponseController {
         });
 
         /* ****************************
+         * PLAY QUEUE UPDATE CONTROL
+         */
+
+        /* Update Play Queue */
+//        playqueue_tab.setOnSelectionChanged(new EventHandler<Event>() {
+//            @Override
+//            public void handle(Event e) {
+//                Map<String, Object> request = new HashMap<String, Object>();
+//                request.put("command", "QUEUE");
+//                cc.sendMap(request);
+//            }
+//        });
+
+        /* ****************************
          * LIBRARY SELECTION
          */
         artist_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -399,32 +416,32 @@ public class MainViewController implements Initializable,ResponseController {
         /* ****************************
          * PLAYQUEUE SELECTION
          */
-        play_queue_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PlayQueueTrackListItem>() {
-            @Override
-            public void changed(ObservableValue<? extends PlayQueueTrackListItem> observableValue, PlayQueueTrackListItem ptli, PlayQueueTrackListItem ptli2) {
-                if(ptli2 == null) {
-                    status_bar.setText("");
-                } else {
-                    Track t = (Track) ptli2.getTrack().clone();
-                    t.remove("filepath");
-                    t.remove("id");
-                    status_bar.setText(t.toString());
-                }
-            }
-        });
-
-        play_queue_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                    if (mouseEvent.getClickCount() == 2) {
-                        PlayQueueTrackListItem ptli = play_queue_list_view.getSelectionModel().getSelectedItems().get(0);
-                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(ptli.getTrack());
-                        removeFromPlayQueue(pqtli);
-                    }
-                }
-            }
-        });
+//        play_queue_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PlayQueueTrackListItem>() {
+//            @Override
+//            public void changed(ObservableValue<? extends PlayQueueTrackListItem> observableValue, PlayQueueTrackListItem ptli, PlayQueueTrackListItem ptli2) {
+//                if(ptli2 == null) {
+//                    status_bar.setText("");
+//                } else {
+//                    Track t = (Track) ptli2.getTrack().clone();
+//                    t.remove("filepath");
+//                    t.remove("id");
+//                    status_bar.setText(t.toString());
+//                }
+//            }
+//        });
+//
+//        play_queue_list_view.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+//                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+//                    if (mouseEvent.getClickCount() == 2) {
+//                        PlayQueueTrackListItem ptli = play_queue_list_view.getSelectionModel().getSelectedItems().get(0);
+//                        PlayQueueTrackListItem pqtli = new PlayQueueTrackListItem(ptli.getTrack());
+//                        removeFromPlayQueue(pqtli);
+//                    }
+//                }
+//            }
+//        });
     }
 
     @Override

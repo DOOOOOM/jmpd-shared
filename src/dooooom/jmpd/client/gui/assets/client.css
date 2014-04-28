@@ -12,6 +12,7 @@
 #lyrics_text {
 	-fx-prompt-text-fill: #000;
 	-fx-text-fill: #ccc;
+	-fx-background-color: #000;
 }
 
 .button {
