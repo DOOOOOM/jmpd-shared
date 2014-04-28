@@ -5,8 +5,6 @@ package dooooom.jmpd.data;
  * Besides constructors, the only method that should interface with the outside is returnTracks
  */
 
-import dooooom.jmpd.daemon.DaemonMainController;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +37,7 @@ public class FileSystemScanner
         System.err.println("[INFO]    Begin scanning filesystem at " + musicFolderPath);
         pathRecurse(musicFolderPath, paths);
         System.err.println("[INFO]    Finished scanning filesystem, now extracting metadata");
+        long startTime = System.currentTimeMillis();
 		for(String path : paths)
 		{
 			Track t = new Track();
@@ -62,7 +61,9 @@ public class FileSystemScanner
 			nextID++;
 		}
 
-        System.err.println("[INFO]    Metadata extraction finished");
+        double executionTime = (startTime - System.currentTimeMillis()) / 1000.0;
+
+        System.err.println("[INFO]    Metadata extraction finished operation on " + paths.size() + " files in " + executionTime + " seconds");
 
         ArrayList<Track> tl = new ArrayList<Track>(trackList);
 
