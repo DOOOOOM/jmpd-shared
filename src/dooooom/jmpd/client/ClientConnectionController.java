@@ -101,9 +101,11 @@ public class ClientConnectionController implements Runnable {
                             int requestsFound = 0;
 
                             for (Map<String, Object> request_i : requests) {
-                                if (request_i.get("request_id").equals(uid)) {
-                                    request = request_i;
-                                    requestsFound++;
+                                synchronized (request_i) {
+                                    if (request_i.get("request_id").equals(uid)) {
+                                        request = request_i;
+                                        requestsFound++;
+                                    }
                                 }
                             }
 
