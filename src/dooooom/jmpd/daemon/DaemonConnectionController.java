@@ -69,6 +69,8 @@ public class DaemonConnectionController implements Runnable {
         for(ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
             Socket socket = ch.getSocket();
 
+            int i = 8;
+
             try {
                 send(socket, response);
             } catch (IOException e) {
