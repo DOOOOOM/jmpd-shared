@@ -1,1 +1,0 @@
-java -jar jmpc-0.1.0-prerelease.jar
