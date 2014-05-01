@@ -449,68 +449,56 @@ public class DaemonMainController implements Runnable, RequestController {
     }
 
     public static String getBasePath() {
-        /*
-         * This is the usual code, but for ease of presentation
-         * we have replaced it with the current directory (System.getProperty("user.dir"))
-         * to turn in.
-         */
+        String userName = System.getProperty("user.name");
+        String s = System.getProperty("file.separator");
+        String osName = System.getProperty("os.name");
+        String basePath;
 
-//        String userName = System.getProperty("user.name");
-//        String s = System.getProperty("file.separator");
-//        String osName = System.getProperty("os.name");
-//        String basePath;
-//
-//        if (osName.equalsIgnoreCase("windows 7")) {
-//            basePath = "C:" + s + "Users" + s + userName + s;
-//        } else if (osName.equalsIgnoreCase("windows 8")) {
-//            basePath = "C:" + s + "Users" + s + userName + s;
-//        } else if (osName.equalsIgnoreCase("windows vista")) {
-//            basePath = "C:" + s + "Users" + s + userName + s;
-//        } else if (osName.equalsIgnoreCase("windows xp")) {
-//            basePath = "C:" + s + "Documents and Settings" + s + userName + s + "My Documents" + s;
-//        } else if (osName.equalsIgnoreCase("linux")) {
-//            basePath = s + "home" + s + "" + userName.toLowerCase() + s;
-//        } else if (osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
-//            basePath = s + "Users" + s + userName.toLowerCase() + s;
-//        } else if (osName.equalsIgnoreCase("solaris")) {
-//            basePath = s + "home" + s + "" + userName.toLowerCase() + s;
-//        } else {
-//            System.err.println("Unable to determine operating system.");
-//            basePath = null;
-//        }
-//        return basePath;
+        if (osName.equalsIgnoreCase("windows 7")) {
+            basePath = "C:" + s + "Users" + s + userName + s;
+        } else if (osName.equalsIgnoreCase("windows 8")) {
+            basePath = "C:" + s + "Users" + s + userName + s;
+        } else if (osName.equalsIgnoreCase("windows vista")) {
+            basePath = "C:" + s + "Users" + s + userName + s;
+        } else if (osName.equalsIgnoreCase("windows xp")) {
+            basePath = "C:" + s + "Documents and Settings" + s + userName + s + "My Documents" + s;
+        } else if (osName.equalsIgnoreCase("linux")) {
+            basePath = s + "home" + s + "" + userName.toLowerCase() + s;
+        } else if (osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
+            basePath = s + "Users" + s + userName.toLowerCase() + s;
+        } else if (osName.equalsIgnoreCase("solaris")) {
+            basePath = s + "home" + s + "" + userName.toLowerCase() + s;
+        } else {
+            System.err.println("Unable to determine operating system.");
+            basePath = null;
+        }
 
-        return System.getProperty("user.dir") + "\\";
+        return basePath;
     }
 
     public static String getDefaultConfigPath() {
-        /*
-         * This is the usual code, but for ease of presentation
-         * we have replaced it with the current directory (System.getProperty("user.dir"))
-         * to turn in.
-         */
+        String configPath;
+        String osName = System.getProperty("os.name");
+        if (osName.equalsIgnoreCase("windows 7")) {
+            configPath = getBasePath();
+        } else if (osName.equalsIgnoreCase("windows 8")) {
+            configPath = getBasePath();
+        } else if (osName.equalsIgnoreCase("windows vista")) {
+            configPath = getBasePath();
+        } else if (osName.equalsIgnoreCase("windows xp")) {
+            configPath = getBasePath();
+        } else if (osName.equalsIgnoreCase("linux")) {
+            configPath = getBasePath() + ".config/jmpd/";
+        } else if (osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
+            configPath = getBasePath();
+        } else if (osName.equalsIgnoreCase("solaris")) {
+            configPath = getBasePath() + ".config/jmpd/";
+        } else {
+            configPath = getBasePath();
+        }
+        return configPath;
 
-//        String configPath;
-//        String osName = System.getProperty("os.name");
-//        if (osName.equalsIgnoreCase("windows 7")) {
-//            configPath = getBasePath();
-//        } else if (osName.equalsIgnoreCase("windows 8")) {
-//            configPath = getBasePath();
-//        } else if (osName.equalsIgnoreCase("windows vista")) {
-//            configPath = getBasePath();
-//        } else if (osName.equalsIgnoreCase("windows xp")) {
-//            configPath = getBasePath();
-//        } else if (osName.equalsIgnoreCase("linux")) {
-//            configPath = getBasePath() + ".config/jmpd/";
-//        } else if (osName.equalsIgnoreCase("mac os") || osName.equalsIgnoreCase("mac os x")) {
-//            configPath = getBasePath();
-//        } else if (osName.equalsIgnoreCase("solaris")) {
-//            configPath = getBasePath() + ".config/jmpd/";
-//        } else {
-//            configPath = getBasePath();
-//        }
-//        return configPath;
-
-        return System.getProperty("user.dir") + "\\";
+        /* Use this line instead of the above to default the config directory to the working directory */
+//        return System.getProperty("user.dir") + "\\";
     }
 }
