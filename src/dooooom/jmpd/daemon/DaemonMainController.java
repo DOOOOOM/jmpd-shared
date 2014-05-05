@@ -95,7 +95,7 @@ public class DaemonMainController implements Runnable, RequestController {
                     ArrayList<Track> data = Database.library;
 
                     if (data != null) {
-                        final int max_tracks_per_response = 50;
+                        final int max_tracks_per_response = 500;
 
                         if (request.containsKey("segment_id")) {
                             int i;
@@ -210,7 +210,7 @@ public class DaemonMainController implements Runnable, RequestController {
                     ArrayList<Track> data = Player.getPlayQueue();
 
                     if (data != null) {
-                        final int max_tracks_per_response = 50;
+                        final int max_tracks_per_response = 500;
 
                         if (request.containsKey("segment_id")) {
                             int i;
