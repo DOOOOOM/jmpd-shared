@@ -399,11 +399,13 @@ public class Player extends Application {
     /**
     *   Returns the playback state of the current player.
     */
-    public static boolean getState() {
-        if(currentPlayback != null)
-            return currentPlayback.getStatus() == MediaPlayer.Status.PLAYING;
-        else
-            return false;
+    public static int getState() {
+        if(currentPlayback != null) {
+            if(currentPlayback.getStatus() == MediaPlayer.Status.PLAYING) {
+                return 1;
+            }
+        }
+        return 0;
     }
 
 	/**

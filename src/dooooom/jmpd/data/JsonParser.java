@@ -69,7 +69,7 @@ public class JsonParser {
                 }
                 dataContainer.add(key, arrayObj);
             }else{
-                System.err.println("[WARN]   Unrecognized object (" + object.getClass() + ") in map in mapToString(...), using .toString()");
+//                System.err.println("[WARN]   Unrecognized object (" + object.getClass() + ") in map in mapToString(...), using .toString()");
                 dataContainer = dataContainer.add(key, object.toString());
             }
 

@@ -325,7 +325,7 @@ public class DaemonMainController implements Runnable, RequestController {
         if(currentTrack != null) {
             response.put("track_id", currentTrack.get("id"));
             response.put("time", Double.toString(Player.getTime()));
-            response.put("state", Boolean.toString(Player.getState()));
+            response.put("state", "");
         } else {
 
         }
