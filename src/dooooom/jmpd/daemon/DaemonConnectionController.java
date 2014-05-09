@@ -69,6 +69,8 @@ public class DaemonConnectionController implements Runnable {
         for(ConnectionHandler ch : connectionHandlerThreadMap.keySet()) {
             Socket socket = ch.getSocket();
 
+            int i = 8;
+
             try {
                 send(socket, response);
             } catch (IOException e) {
@@ -128,9 +130,12 @@ public class DaemonConnectionController implements Runnable {
             while (socket != null && !socket.isClosed() && kill == false) {
                 try {
                     String s = in.readLine();
+                    System.err.println("[DEBUG]   Received: " + s);
 
                     Map<String,Object> request = JsonParser.stringToMap(s);
                     Map<String,Object> response = rc.processRequest(request);
+
+                    System.err.println("[DEBUG]   Response: " + response);
 
                     if(response == null)
                         continue;

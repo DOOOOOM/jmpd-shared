@@ -257,6 +257,7 @@ public class ClientConnectionController implements Runnable {
                     msg += "\n";
 
                 out.writeBytes(msg);
+                System.err.print("[DEBUG]   Sending: " + msg);
             } catch (IOException e) {
                 System.err.println(System.currentTimeMillis() + " [ERROR]   Connection to server failed!");
             }

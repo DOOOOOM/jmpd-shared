@@ -53,8 +53,11 @@ public class Database {
 
     public static void loadDatabase() {
         try {
-            System.out.println("[INFO]  Loading database from file...");
+
             Path dbPath = Paths.get(DaemonMainController.getDatabasePath());
+
+            System.out.println("[INFO]  Loading database from file at " + dbPath.toString());
+
             File d = new File(DaemonMainController.getDatabasePath());
 
             if(!d.exists() || !d.isFile())
