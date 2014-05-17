@@ -1,7 +1,7 @@
 package dooooom.jmpd.client.gui.javafx;
 
 //        Java Music Player Daemon / Java Music Player Client
-//        Copyright (C) 2014  Andrew Frost, Essenam Kakpo, Zach Purnell, Philip Rodning, and Obi
+//        Copyright (C) 2014  Andrew Frost, Essenam Kakpo, Zach Purnell, Philip Rodning, and Obi Azogu
 //
 //        This program is free software: you can redistribute it and/or modify
 //        it under the terms of the GNU General Public License as published by
